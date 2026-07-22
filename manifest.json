@@ -1,0 +1,16 @@
+{
+  "short_name": "Eduflow",
+  "name": "Eduflow School OS",
+  "icons": [
+    {
+      "src": "logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/index.html",
+  "background_color": "#12132A",
+  "theme_color": "#5B4FE0",
+  "display": "standalone",
+  "orientation": "portrait"
+}

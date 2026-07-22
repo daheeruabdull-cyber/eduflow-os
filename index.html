@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eduflow | School OS Management Portal</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Fullscreen Premium Site Preloader (100% Dead-Center Aligned) -->
+  <div id="site-preloader" class="site-preloader">
+    <div class="preloader-animator-box">
+      <!-- Premium Rotating Glow Ring -->
+      <div class="preloader-ring"></div>
+      <!-- Main Shield SVG Logo (pulsing) -->
+      <div class="preloader-logo-container">
+        <svg width="100%" height="100%" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="preloader-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#17B8A6" />
+              <stop offset="100%" stop-color="#5B4FE0" />
+            </linearGradient>
+          </defs>
+          <path d="M 78 35 A 32 32 0 1 0 78 65" stroke="url(#preloader-grad)" stroke-width="12" stroke-linecap="round" fill="none" />
+          <path d="M 22 50 H 74" stroke="url(#preloader-grad)" stroke-width="12" stroke-linecap="round" />
+          <circle cx="78" cy="35" r="8" fill="#17B8A6" />
+        </svg>
+      </div>
+    </div>
+    <div class="preloader-title">
+      Eduflow <span style="color: #17B8A6;">School OS</span>
+    </div>
+    <div class="preloader-subtitle">
+      Engineered by VectorDev
+    </div>
+  </div>
+
+  <!-- 1. LANDING PAGE VIEW -->
+  <div id="landing-page" class="landing-page">
+    <div class="hero-glow-1"></div>
+    <div class="hero-glow-2"></div>
+    
+    <header class="landing-header">
+      <div class="container landing-header-container">
+        <div class="logo-container" onclick="window.location.reload()" style="cursor: pointer;">
+          <div class="logo-icon" style="background: transparent; border: none; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;">
+            <svg width="100%" height="100%" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="eduflow-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#17B8A6" />
+                  <stop offset="100%" stop-color="#5B4FE0" />
+                </linearGradient>
+              </defs>
+              <path d="M 78 35 A 32 32 0 1 0 78 65" stroke="url(#eduflow-grad)" stroke-width="12" stroke-linecap="round" fill="none" />
+              <path d="M 22 50 H 74" stroke="url(#eduflow-grad)" stroke-width="12" stroke-linecap="round" />
+              <circle cx="78" cy="35" r="8" fill="#17B8A6" />
+            </svg>
+          </div>
+          <span>Eduflow</span>
+        </div>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="nav-links desktop-only">
+          <a href="#features" class="nav-link">Features</a>
+          <a href="#pricing" class="nav-link">Pricing</a>
+        </nav>
+
+        <!-- Header Actions: On Mobile, shows ONLY 'Start Trial' + Menu Hamburger -->
+        <div class="header-action-group">
+          <a href="#" class="nav-link desktop-only" onclick="openPortalLoginModal()" style="cursor: pointer;">Login</a>
+          <button class="btn btn-primary btn-header-trial" onclick="openSchoolRegistrationModal()">Start Trial</button>
+          
+          <!-- Mobile Hamburger Menu Button -->
+          <button class="mobile-nav-toggle btn btn-secondary" onclick="toggleMobileLandingMenu()" aria-label="Toggle Navigation Menu">
+            ☰
+          </button>
+        </div>
+      </div>
+
+      <!-- Ultra-Professional Mobile Navigation Drawer -->
+      <div class="mobile-landing-drawer" id="mobile-landing-drawer">
+        <div class="mobile-drawer-header">
+          <div class="logo-container" style="font-size: 1.15rem; gap: 8px;">
+            <div class="logo-icon" style="background: linear-gradient(135deg, #17B8A6 0%, #5B4FE0 100%); width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147L12 14.6l7.74-4.453M12 4.5l7.74 4.453v8.906L12 22.312l-7.74-4.453V8.953L12 4.5z"/></svg>
+            </div>
+            <span style="font-weight: 800; letter-spacing: -0.3px; color: #0F172A;">Eduflow <span style="font-size: 0.65rem; color: #5B4FE0; font-family: var(--font-family-mono); background: rgba(91,79,224,0.08); padding: 2px 6px; border-radius: 4px; font-weight: 700;">OS</span></span>
+          </div>
+          <button class="mobile-close-btn" onclick="toggleMobileLandingMenu()" aria-label="Close Menu">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <div class="mobile-drawer-body">
+          <!-- Section 1: Navigation -->
+          <div class="drawer-nav-section">
+            <span class="drawer-section-title">EXPLORE</span>
+            
+            <a href="#features" class="mobile-nav-card" onclick="toggleMobileLandingMenu()">
+              <div class="mobile-card-icon" style="background: #eef2ff; color: #5B4FE0;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              </div>
+              <div class="mobile-card-text">
+                <div class="mobile-card-title">System Features</div>
+                <div class="mobile-card-desc">Attendance, Report Cards, Fees</div>
+              </div>
+              <svg class="mobile-card-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </a>
+
+            <a href="#pricing" class="mobile-nav-card" onclick="toggleMobileLandingMenu()">
+              <div class="mobile-card-icon" style="background: #f0fdfa; color: #17B8A6;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <div class="mobile-card-text">
+                <div class="mobile-card-title">Pricing & Plans</div>
+                <div class="mobile-card-desc">Flexible school tier pricing</div>
+              </div>
+              <svg class="mobile-card-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+
+          <!-- Section 2: Account & Portals -->
+          <div class="drawer-nav-section" style="margin-top: 16px;">
+            <span class="drawer-section-title">ACCOUNT & PORTALS</span>
+            
+            <a href="#" class="mobile-nav-card" onclick="toggleMobileLandingMenu(); openPortalLoginModal();">
+              <div class="mobile-card-icon" style="background: #fdf2f8; color: #db2777;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+              </div>
+              <div class="mobile-card-text">
+                <div class="mobile-card-title">Portal Sign In</div>
+                <div class="mobile-card-desc">Admin, Teacher, Parent & Student</div>
+              </div>
+              <span class="mobile-badge-pill">Login</span>
+            </a>
+
+            <a href="#" class="mobile-nav-card" onclick="toggleMobileLandingMenu(); openSchoolRegistrationModal();">
+              <div class="mobile-card-icon" style="background: #eff6ff; color: #2563eb;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+              </div>
+              <div class="mobile-card-text">
+                <div class="mobile-card-title">Create New Account</div>
+                <div class="mobile-card-desc">Register your school instance</div>
+              </div>
+              <svg class="mobile-card-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+
+          <!-- Section 3: Primary CTA Button -->
+          <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.06);">
+            <button class="btn btn-primary mobile-cta-button" onclick="toggleMobileLandingMenu(); openSchoolRegistrationModal();">
+              🚀 Start Trial Now
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container hero-grid">
+        <div class="hero-text-block">
+          <h1>The operating system for <span class="gradient-text">modern academies</span></h1>
+          <p class="hero-desc">Eduflow simplifies class registers, updates results, automates invoices, and connects parents. A glassmorphic school administration console built for high-performance teams.</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" onclick="openSchoolRegistrationModal()">Start Trial</button>
+            <button class="btn btn-secondary" onclick="openPortalLoginModal()">Portal Access</button>
+          </div>
+        </div>
+        
+        <div class="hero-preview-block">
+          <div class="mock-browser">
+            <div class="browser-header">
+              <div class="browser-dots">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+              </div>
+              <div class="browser-address">app.eduflow.ng/dashboard</div>
+            </div>
+            <!-- Mock Screenshot Mockup of App -->
+            <div style="padding: 24px; background: #030712; height: 320px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; overflow: hidden; border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);">
+              <div style="width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(circle, rgba(2, 132, 199, 0.4) 0%, transparent 70%); position: absolute; top: 10%; left: 10%; filter: blur(30px);"></div>
+              <div style="width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, rgba(249, 115, 22, 0.2) 0%, transparent 70%); position: absolute; bottom: 10%; right: 10%; filter: blur(30px);"></div>
+              
+              <div class="logo-icon" style="background: transparent; border: none; width: 64px; height: 64px; padding: 0; margin-bottom: 16px; display: flex; align-items: center; justify-content: center;">
+                <svg width="100%" height="100%" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="eduflow-grad-hero" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#17B8A6" />
+                      <stop offset="100%" stop-color="#5B4FE0" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M 78 35 A 32 32 0 1 0 78 65" stroke="url(#eduflow-grad-hero)" stroke-width="12" stroke-linecap="round" fill="none" />
+                  <path d="M 22 50 H 74" stroke="url(#eduflow-grad-hero)" stroke-width="12" stroke-linecap="round" />
+                  <circle cx="78" cy="35" r="8" fill="#17B8A6" />
+                </svg>
+              </div>
+              <h2 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.5px;">Eduflow School OS</h2>
+              <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; max-width: 280px; margin-bottom: 20px;">Secured, local database sync with live parent communication nodes.</p>
+              
+              <button class="btn btn-teal" style="padding: 8px 24px; font-size: 0.85rem; box-shadow: 0 4px 12px var(--primary-glow);" onclick="loginRedirect('admin')">Launch Portal</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Module Walkthrough Tabs Section (Hidden per user preference) -->
+    <section class="features-section" id="walkthrough" style="display: none; border-top: 1px solid var(--border-color); padding: 80px 0;">
+      <div class="container">
+        <div style="text-align: center; margin-bottom: 48px;">
+          <h2>Explore the OS Workspace</h2>
+          <p style="color: var(--text-muted); max-width: 600px; margin: 12px auto 0 auto;">Click a category below to preview the responsive layout screens built for classrooms, registrars, and parents.</p>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 48px; flex-wrap: wrap;">
+          <button class="role-btn active" id="btn-walk-attendance" onclick="switchWalkthroughTab('attendance')">📝 Attendance Logs</button>
+          <button class="role-btn" id="btn-walk-results" onclick="switchWalkthroughTab('results')">🎓 Result Sheet</button>
+          <button class="role-btn" id="btn-walk-fees" onclick="switchWalkthroughTab('fees')">💳 Fee Payment</button>
+          <button class="role-btn" id="btn-walk-schedules" onclick="switchWalkthroughTab('schedules')">📅 Time Scheduler</button>
+          <button class="role-btn" id="btn-walk-notifications" onclick="switchWalkthroughTab('notifications')">💬 Parents Alerts</button>
+        </div>
+
+        <!-- Preview Showcase (Mock Browser Wrapper) -->
+        <div class="mock-browser" style="max-width: 1000px; margin: 0 auto; box-shadow: var(--shadow-xl);">
+          <div class="browser-header">
+            <div class="browser-dots">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+            <div class="browser-address" id="walkthrough-browser-url">app.eduflow.ng/dashboard/registers</div>
+          </div>
+          
+          <div style="padding: 32px; background: #0c0d1e; min-height: 380px; border-radius: 0 0 var(--border-radius-md) var(--border-radius-md); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+            <div style="width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(circle, rgba(23,184,166,0.15) 0%, transparent 70%); position: absolute; top: 10%; left: 10%; filter: blur(30px);"></div>
+            <div style="width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, rgba(91,79,224,0.12) 0%, transparent 70%); position: absolute; bottom: 10%; right: 10%; filter: blur(30px);"></div>
+            <!-- Tab 1: Attendance Registers -->
+            <div class="walkthrough-tab-content active" id="walk-content-attendance" style="width: 100%;">
+              <div class="walkthrough-grid">
+                <div>
+                  <span class="badge badge-success" style="margin-bottom: 12px; font-weight: 500; font-family: var(--font-family-mono);">Module 01</span>
+                  <h3 style="font-size: 1.4rem; margin-bottom: 12px;">Daily Classroom Attendance Registers</h3>
+                  <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px;">Teachers can toggle student presence (Present, Late, Absent) in real time. Saving logs attendance metrics and dispatches alerts directly.</p>
+                  <ul style="text-align: left; padding-left: 20px; font-size: 0.85rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 8px;">
+                    <li>✓ Track rate changes (e.g. 94.8% average)</li>
+                    <li>✓ Lock attendance registries by class group</li>
+                    <li>✓ Auto-update individual student portfolios</li>
+                  </ul>
+                </div>
+                <div class="glass-card" style="padding: 24px; background: rgba(27,31,59,0.55); border-color: rgba(255,255,255,0.06); font-family: var(--font-family-mono); font-size: 0.8rem; text-align: left; display: flex; flex-direction: column; gap: 16px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
+                    <strong>ATTENDANCE METRICS</strong>
+                    <span class="badge badge-success" style="font-weight: 500; font-size: 0.7rem; background: rgba(23,184,166,0.15); color: var(--accent); border: none;">CLASS 10A</span>
+                  </div>
+                  <!-- Radial Progress + Stats Grid -->
+                  <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 16px; align-items: center;">
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; height: 90px; width: 90px; margin: 0 auto;">
+                      <svg width="80" height="80" viewBox="0 0 36 36" style="transform: rotate(-90deg);">
+                        <defs>
+                          <linearGradient id="eduflow-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#17B8A6" />
+                            <stop offset="100%" stop-color="#5B4FE0" />
+                          </linearGradient>
+                        </defs>
+                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="3" />
+                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="url(#eduflow-grad)" stroke-width="3.5" stroke-dasharray="94.8, 100" stroke-linecap="round" />
+                      </svg>
+                      <div style="position: absolute; color: white; font-weight: 700; font-size: 0.85rem; font-family: var(--font-family-title);">94.8%</div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.7rem;">
+                      <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-secondary);">Present:</span>
+                        <strong style="color: var(--accent);">22</strong>
+                      </div>
+                      <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-secondary);">Late:</span>
+                        <strong style="color: #f59e0b;">1</strong>
+                      </div>
+                      <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-secondary);">Absent:</span>
+                        <strong style="color: #ef4444;">1</strong>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Mini Attendance Rows -->
+                  <div style="display: flex; flex-direction: column; gap: 8px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px; font-size: 0.75rem; color: #e4e4e7;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span>Tobi Adebayo</span>
+                      <span style="color: var(--accent); font-weight: 700;">✓ Present</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span>Kelechi Nwosu</span>
+                      <span style="color: #ef4444; font-weight: 700;">✗ Absent</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 2: Grade Book -->
+            <div class="walkthrough-tab-content" id="walk-content-results" style="display: none; width: 100%;">
+              <div class="walkthrough-grid">
+                <div>
+                  <span class="badge badge-success" style="margin-bottom: 12px; font-weight: 500; font-family: var(--font-family-mono);">Module 02</span>
+                  <h3 style="font-size: 1.4rem; margin-bottom: 12px;">Unified Continuous Assessments & Exams</h3>
+                  <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px;">Input grades to automatically calculate GPA letter ranges, rank performance positions within class sizes, and generate PDF progress sheets.</p>
+                  <ul style="text-align: left; padding-left: 20px; font-size: 0.85rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 8px;">
+                    <li>✓ Capped marks validation checks (30/70)</li>
+                    <li>✓ Auto rank position compilation (e.g. 1st of 24)</li>
+                    <li>✓ One-click official PDF report downloads</li>
+                  </ul>
+                </div>
+                <div class="glass-card" style="padding: 24px; background: rgba(27,31,59,0.55); border-color: rgba(255,255,255,0.06); font-size: 0.8rem; text-align: left; display: flex; flex-direction: column; gap: 16px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px; font-family: var(--font-family-mono);">
+                    <strong>ACADEMIC TRANSCRIPT</strong>
+                    <span class="badge" style="font-weight: 500; font-size: 0.7rem; background: rgba(91,79,224,0.15); color: #818cf8; border: none;">3.85 GPA</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 0.95rem; font-family: var(--font-family-title); box-shadow: 0 4px 10px rgba(91,79,224,0.25);">TA</div>
+                    <div>
+                      <h4 style="font-size: 0.95rem; font-weight: 700; color: white; margin: 0;">Tobi Adebayo</h4>
+                      <span style="font-size: 0.7rem; color: var(--text-secondary); font-family: var(--font-family-mono);">ROLL: 2026/G10/042 • 1st of 24</span>
+                    </div>
+                  </div>
+                  <!-- Grade bar list representation -->
+                  <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 6px;">
+                    <div>
+                      <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: #cbd5e1; margin-bottom: 4px;">
+                        <span>Mathematics</span>
+                        <strong>82% (A)</strong>
+                      </div>
+                      <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 99px; overflow: hidden;">
+                        <div style="height: 100%; width: 82%; background: linear-gradient(90deg, var(--accent) 0%, var(--primary) 100%); border-radius: 99px;"></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: #cbd5e1; margin-bottom: 4px;">
+                        <span>English Language</span>
+                        <strong>72% (B)</strong>
+                      </div>
+                      <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 99px; overflow: hidden;">
+                        <div style="height: 100%; width: 72%; background: linear-gradient(90deg, var(--accent) 0%, var(--primary) 100%); border-radius: 99px;"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 3: Billing Checkout -->
+            <div class="walkthrough-tab-content" id="walk-content-fees" style="display: none; width: 100%;">
+              <div class="walkthrough-grid">
+                <div>
+                  <span class="badge badge-success" style="margin-bottom: 12px; font-weight: 500; font-family: var(--font-family-mono);">Module 03</span>
+                  <h3 style="font-size: 1.4rem; margin-bottom: 12px;">Secure Invoice Payments</h3>
+                  <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px;">Parents can pay outstanding school levies online through our secured credit card checkout overlay. Ledgers verify instantly.</p>
+                  <ul style="text-align: left; padding-left: 20px; font-size: 0.85rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 8px;">
+                    <li>✓ Dynamic price calculations by classroom</li>
+                    <li>✓ Visa credit card simulator layout</li>
+                    <li>✓ Real-time outbox receipt ledger generation</li>
+                  </ul>
+                </div>
+                <div class="glass-card" style="padding: 20px; background: rgba(27,31,59,0.55); border-color: rgba(255,255,255,0.06); display: grid; grid-template-columns: 1fr 1.1fr; gap: 16px; align-items: center; max-width: 440px; margin: 0 auto; text-align: left;">
+                  <!-- Invoice summary details -->
+                  <div style="font-family: var(--font-family-mono); font-size: 0.7rem; color: #cbd5e1; display: flex; flex-direction: column; gap: 8px;">
+                    <strong style="color: white; font-size: 0.75rem;">INVOICE DETAILS</strong>
+                    <div>Class Dues: <strong>₦150,000</strong></div>
+                    <div>Exam Levy: <strong>₦15,000</strong></div>
+                    <div>Library Fee: <strong>₦10,000</strong></div>
+                    <div style="border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 6px; color: var(--accent); font-weight: 700; font-size: 0.8rem;">TOTAL: ₦175,000</div>
+                  </div>
+                  <!-- Glowing credit card mockup -->
+                  <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="background: linear-gradient(135deg, var(--primary) 0%, #10b981 100%); padding: 12px; border-radius: 10px; color: white; position: relative; box-shadow: 0 8px 20px rgba(91,79,224,0.3); overflow: hidden;">
+                      <div style="display: flex; justify-content: space-between; font-size: 0.5rem; opacity: 0.8;">
+                        <span style="font-family: var(--font-family-mono);">DEBIT CARD</span>
+                        <span style="font-weight: bold; font-style: italic;">VISA</span>
+                      </div>
+                      <div style="font-family: var(--font-family-mono); font-size: 0.75rem; margin: 12px 0 6px 0; letter-spacing: 1px; font-weight: bold;">4012 •••• •••• 0041</div>
+                      <div style="display: flex; justify-content: space-between; font-size: 0.55rem; font-family: var(--font-family-mono); opacity: 0.9;">
+                        <span>Tobi Adebayo</span>
+                        <span>12/28</span>
+                      </div>
+                    </div>
+                    <button class="btn btn-teal" style="width: 100%; padding: 8px; font-size: 0.75rem; border-radius: 6px; box-shadow: 0 4px 10px rgba(23,184,166,0.25);">Pay ₦175,000.00</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 4: Timetables -->
+            <div class="walkthrough-tab-content" id="walk-content-schedules" style="display: none; width: 100%;">
+              <div class="walkthrough-grid">
+                <div>
+                  <span class="badge badge-success" style="margin-bottom: 12px; font-weight: 500; font-family: var(--font-family-mono);">Module 04</span>
+                  <h3 style="font-size: 1.4rem; margin-bottom: 12px;">Classroom Scheduling & Timetables</h3>
+                  <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px;">Organize academic calendars, assign classrooms, and designate subject teachers to periods. Timetable planners are fully configurable by admins.</p>
+                  <ul style="text-align: left; padding-left: 20px; font-size: 0.85rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 8px;">
+                    <li>✓ Mapped room timetables (Grade 10A / 11B)</li>
+                    <li>✓ Period selectors (e.g. 08:00 AM - 09:30 AM)</li>
+                    <li>✓ Conflict protection checks</li>
+                  </ul>
+                </div>
+                <div class="glass-card" style="padding: 24px; background: rgba(27,31,59,0.55); border-color: rgba(255,255,255,0.06); text-align: left; display: flex; flex-direction: column; gap: 14px; width: 100%;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px; font-family: var(--font-family-mono); font-size: 0.8rem;">
+                    <strong>TIMETABLE SCHEDULER</strong>
+                    <span style="color: var(--accent); font-weight: 700; font-size: 0.7rem;">MON - 10A</span>
+                  </div>
+                  <!-- Time Slot Grid layout -->
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <!-- Period Slot 1: Mathematics -->
+                    <div style="padding: 10px 12px; background: rgba(91,79,224,0.08); border-left: 3px solid var(--primary); border-radius: 0 6px 6px 0; color: white;">
+                      <div style="font-size: 0.65rem; color: #a1a1aa; font-family: var(--font-family-mono);">08:00 AM - 09:30 AM</div>
+                      <strong style="font-size: 0.8rem; display: block; margin-top: 2px;">Mathematics</strong>
+                      <span style="font-size: 0.65rem; color: var(--text-secondary); display: block;">Mr. Yusuf • Room 4</span>
+                    </div>
+                    <!-- Period Slot 2: English -->
+                    <div style="padding: 10px 12px; background: rgba(23,184,166,0.08); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; color: white;">
+                      <div style="font-size: 0.65rem; color: #a1a1aa; font-family: var(--font-family-mono);">09:30 AM - 11:00 AM</div>
+                      <strong style="font-size: 0.8rem; display: block; margin-top: 2px;">English Language</strong>
+                      <span style="font-size: 0.65rem; color: var(--text-secondary); display: block;">Mrs. Adeleke • Room 4</span>
+                    </div>
+                    <!-- Period Slot 3: Chemistry -->
+                    <div style="padding: 10px 12px; background: rgba(129,140,248,0.08); border-left: 3px solid #818cf8; border-radius: 0 6px 6px 0; color: white; grid-column: span 2;">
+                      <div style="font-size: 0.65rem; color: #a1a1aa; font-family: var(--font-family-mono);">11:30 AM - 01:00 PM</div>
+                      <strong style="font-size: 0.8rem; display: block; margin-top: 2px;">Chemistry (Lab Session)</strong>
+                      <span style="font-size: 0.65rem; color: var(--text-secondary); display: block;">Dr. Okon • Science Lab</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 5: Alert Gateway -->
+            <div class="walkthrough-tab-content" id="walk-content-notifications" style="display: none; width: 100%;">
+              <div class="walkthrough-grid">
+                <div>
+                  <span class="badge badge-success" style="margin-bottom: 12px; font-weight: 500; font-family: var(--font-family-mono);">Module 05</span>
+                  <h3 style="font-size: 1.4rem; margin-bottom: 12px;">Automated Parent Alert Gateway</h3>
+                  <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px;">Instantly notify parents of school activities. Dispatches SMS/Email notifications automatically during attendance check-ins, grading, and checkout payments.</p>
+                  <ul style="text-align: left; padding-left: 20px; font-size: 0.85rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 8px;">
+                    <li>✓ Double gateway channels (SMS & Email)</li>
+                    <li>✓ Immediate trigger dispatches</li>
+                    <li>✓ Outbox status audit trail tracker</li>
+                  </ul>
+                </div>
+                <div class="glass-card" style="padding: 16px; background: #09090b; border: 4px solid #27272a; border-radius: 24px; width: 260px; height: 280px; position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 10px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                  <div style="width: 80px; height: 10px; background: #27272a; border-radius: 0 0 6px 6px; position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 10;"></div>
+                  <!-- Phone lock screen clock -->
+                  <div style="text-align: center; color: white; margin-top: 14px; margin-bottom: 6px;">
+                    <div style="font-size: 1.6rem; font-weight: 700; font-family: var(--font-family-mono); line-height: 1;">10:42</div>
+                    <div style="font-size: 0.6rem; color: #a1a1aa; font-family: var(--font-family-mono); text-transform: uppercase; margin-top: 2px;">MONDAY, JULY 12</div>
+                  </div>
+                  <!-- Lockscreen Notifications list -->
+                  <div style="display: flex; flex-direction: column; gap: 8px; flex: 1; overflow-y: auto;">
+                    <!-- Notification 1 -->
+                    <div style="background: rgba(27,31,59,0.85); border: 1px solid rgba(255,255,255,0.06); padding: 8px 10px; border-radius: 10px; text-align: left; color: white;">
+                      <div style="display: flex; justify-content: space-between; font-size: 0.55rem; color: var(--accent); margin-bottom: 2px; font-family: var(--font-family-mono);">
+                        <strong>💬 EDULITE SMS</strong>
+                        <span>Just now</span>
+                      </div>
+                      <p style="font-size: 0.65rem; line-height: 1.2; margin: 0; color: #e4e4e7;">Attendance: Tobi Adebayo marked PRESENT at 09:12 AM today.</p>
+                    </div>
+                    <!-- Notification 2 -->
+                    <div style="background: rgba(27,31,59,0.85); border: 1px solid rgba(255,255,255,0.06); padding: 8px 10px; border-radius: 10px; text-align: left; color: white;">
+                      <div style="display: flex; justify-content: space-between; font-size: 0.55rem; color: #818cf8; margin-bottom: 2px; font-family: var(--font-family-mono);">
+                        <strong>✉️ EDULITE MAIL</strong>
+                        <span>10m ago</span>
+                      </div>
+                      <p style="font-size: 0.65rem; line-height: 1.2; margin: 0; color: #e4e4e7;">Dues Cleared: Receipt issued for invoice term fees (Ref: EST-8041).</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How Eduflow Works Section -->
+    <section class="features-section" id="demo" style="background: rgba(27, 31, 59, 0.02); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+      <div class="container" style="text-align: center;">
+        <h2>How Eduflow powers your academy</h2>
+        <p style="color: var(--text-muted); max-width: 650px; margin: 12px auto 48px auto;">Choose your institutional profile to explore tailored implementation blueprints and setup workflows.</p>
+        
+        <!-- Category Selector Toggles -->
+        <div class="category-tabs-container">
+          <button class="role-btn active" id="btn-cat-k12" onclick="toggleWorksCategory('k12')">Physical Learning</button>
+          <button class="role-btn" id="btn-cat-virtual" onclick="toggleWorksCategory('virtual')">Distance Learning</button>
+          <button class="role-btn" id="btn-cat-tutor" onclick="toggleWorksCategory('tutor')">Private Coaching</button>
+        </div>
+
+        <!-- 3-Step Setup Cards (Physical K-12) -->
+        <div class="how-it-works-grid active" id="works-k12">
+          <div class="feature-card glass-card" style="position: relative; padding: 48px 36px 36px 36px;">
+            <div style="position: absolute; top: -20px; left: 36px; width: 44px; height: 44px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: var(--font-family-title); font-size: 1.1rem; box-shadow: 0 4px 10px var(--primary-glow);">1</div>
+            <h3>Configure Classes & Fees</h3>
+            <p style="margin-top: 12px; line-height: 1.6;">Input classrooms (e.g. Grade 10A) and associate terminal tuition fees packages. Outstanding balances generate automatically for student accounts.</p>
+          </div>
+          <div class="feature-card glass-card" style="position: relative; padding: 48px 36px 36px 36px;">
+            <div style="position: absolute; top: -20px; left: 36px; width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: var(--font-family-title); font-size: 1.1rem; box-shadow: 0 4px 10px rgba(249, 115, 22, 0.25);">2</div>
+            <h3>Mark Daily Attendance</h3>
+            <p style="margin-top: 12px; line-height: 1.6;">Teachers log daily attendance registers. The automated gateway dispatches instant SMS alerts to parents of late or absent children.</p>
+          </div>
+          <div class="feature-card glass-card" style="position: relative; padding: 48px 36px 36px 36px;">
+            <div style="position: absolute; top: -20px; left: 36px; width: 44px; height: 44px; border-radius: 50%; background: var(--teal-accent); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: var(--font-family-title); font-size: 1.1rem; box-shadow: 0 4px 10px rgba(15, 118, 110, 0.25);">3</div>
+            <h3>Compile Grade Sheets</h3>
+            <p style="margin-top: 12px; line-height: 1.6;">Submit continuous assessment and exam grades. Instantly generate official digital progress transcripts and download report cards as PDFs.</p>
+          </div>
+        </div>
+
+        <!-- 3-Step Setup Cards (Virtual Academies) -->
+        <div class="how-it-works-grid" id="works-virtual">
+          <div class="feature-card glass-card" style="position: relative; padding: 48px 36px 36px 36px;">
+            <div style="position: absolute; top: -20px; left: 36px; width: 44px; height: 44px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: var(--font-family-title); font-size: 1.1rem; box-shadow: 0 4px 10px var(--primary-glow);">1</div>
+            <h3>Enrol Distance Cohorts</h3>
+            <p style="margin-top: 12px; line-height: 1.6;">Onboard virtual student rosters globally. Generate institutional email routing and configure classes database in local storage modules.</p>
+          </div>
+          <div class="feature-card glass-card" style="position: relative; padding: 48px 36px 36px 36px;">
+            <div style="position: absolute; top: -20px; left: 36px; width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: var(--font-family-title); font-size: 1.1rem; box-shadow: 0 4px 10px rgba(249, 115, 22, 0.25);">2</div>
+            <h3>Track Virtual Presence</h3>
+            <p style="margin-top: 12px; line-height: 1.6;">Monitor web session logins, live class registers, and online submissions. Dispatches email warnings for unexcused attendance gaps.</p>
+          </div>
+          <div class="feature-card glass-card" style="position: relative; padding: 48px 36px 36px 36px;">
+            <div style="position: absolute; top: -20px; left: 36px; width: 44px; height: 44px; border-radius: 50%; background: var(--teal-accent); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: var(--font-family-title); font-size: 1.1rem; box-shadow: 0 4px 10px rgba(15, 118, 110, 0.25);">3</div>
+            <h3>Process Digital Payments</h3>
+            <p style="margin-top: 12px; line-height: 1.6;">Embed Paystack-style payment overlays. Parents pay outstanding tuition online with instant email invoice notifications and receipt exports.</p>
+          </div>
+        </div>
+
+        <!-- 3-Step Setup Cards (Tutors & Homeschools) -->
+        <div class="how-it-works-grid" id="works-tutor">
+          <div class="feature-card glass-card" style="position: relative; padding: 48px 36px 36px 36px;">
+            <div style="position: absolute; top: -20px; left: 36px; width: 44px; height: 44px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: var(--font-family-title); font-size: 1.1rem; box-shadow: 0 4px 10px var(--primary-glow);">1</div>
+            <h3>Schedule Lesson Slots</h3>
+            <p style="margin-top: 12px; line-height: 1.6;">Design custom class calendars and slot assignments. Assign private tutors, subjects, and classroom time slots from the scheduler console.</p>
+          </div>
+          <div class="feature-card glass-card" style="position: relative; padding: 48px 36px 36px 36px;">
+            <div style="position: absolute; top: -20px; left: 36px; width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: var(--font-family-title); font-size: 1.1rem; box-shadow: 0 4px 10px rgba(249, 115, 22, 0.25);">2</div>
+            <h3>Log Hourly Attendance</h3>
+            <p style="margin-top: 12px; line-height: 1.6;">Record attendance rolls for individual tutoring blocks. Instantly log lesson comments and grades for parents to review on their portals.</p>
+          </div>
+          <div class="feature-card glass-card" style="position: relative; padding: 48px 36px 36px 36px;">
+            <div style="position: absolute; top: -20px; left: 36px; width: 44px; height: 44px; border-radius: 50%; background: var(--teal-accent); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: var(--font-family-title); font-size: 1.1rem; box-shadow: 0 4px 10px rgba(15, 118, 110, 0.25);">3</div>
+            <h3>Collect Direct Payments</h3>
+            <p style="margin-top: 12px; line-height: 1.6;">Send billing links to parents via social chats (WhatsApp/Instagram) and collect secured card deposits instantly with automatic ledger updates.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Marketing Features Grid -->
+    <section class="features-section" id="features">
+      <div class="container">
+        <h2 style="text-align: center;">One Platform, Full Institutional Control</h2>
+        <div class="features-grid" style="margin-top: 48px;">
+          <div class="feature-card glass-card">
+            <div class="feature-icon">🛡️</div>
+            <h3>Decentralized Database Sync</h3>
+            <p>Runs locally in your browser storage. Supports data exports and file uploads to guarantee you own your institutional records.</p>
+          </div>
+          <div class="feature-card glass-card">
+            <div class="feature-icon">💸</div>
+            <h3>Paystack Checkout Simulator</h3>
+            <p>Secure digital terminal sandbox. Tweak fees packages by classroom and process card transactions instantly.</p>
+          </div>
+          <div class="feature-card glass-card">
+            <div class="feature-icon">📝</div>
+            <h3>Dynamic PDF Report Cards</h3>
+            <p>Generates premium terminal progress reports, averages performances, and exports print-ready PDFs with seals in one click.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="features-section" id="pricing" style="background: rgba(27, 31, 59, 0.02); border-top: 1px solid var(--border-color);">
+      <div class="container" style="text-align: center;">
+        <h2>Honest plans for institutions of all sizes</h2>
+        <p style="color: var(--text-muted); max-width: 600px; margin: 12px auto 48px auto;">Choose the operational tier built for your classroom size. Cancel or adjust plans anytime.</p>
+        
+        <div class="pricing-grid">
+          <!-- Plan Card 1: Free -->
+          <div class="pricing-card">
+            <span class="badge" style="position: absolute; top: 16px; right: 16px; background: var(--bg-base); color: var(--text-secondary); font-weight: 500;">SANDBOX</span>
+            <div>
+              <h3 style="margin-top: 10px;">Starter Sandbox</h3>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">Test drive the OS engine locally.</p>
+              <div class="price">₦0</div>
+              <ul>
+                <li>Simulate up to 10 mock students</li>
+                <li>Basic attendance logs & records</li>
+                <li>Offline browser DB operations</li>
+                <li>Developer Console control</li>
+              </ul>
+            </div>
+            <button class="btn btn-secondary" style="width: 100%;" onclick="loginRedirect('admin')">Launch Sandbox</button>
+          </div>
+
+          <!-- Plan Card 2: Standard (Middle) -->
+          <div class="pricing-card">
+            <span class="badge" style="position: absolute; top: 16px; right: 16px; background: var(--primary-light); color: var(--primary); font-weight: 500;">GROWING</span>
+            <div>
+              <h3 style="margin-top: 10px;">Standard Academy</h3>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">Perfect for growing single campuses.</p>
+              <div class="price">₦7,500<span>/month</span></div>
+              <ul>
+                <li>Up to 150 enrolled students</li>
+                <li>Classroom attendance registers</li>
+                <li>Manual PDF report card downloads</li>
+                <li>Standard timetable planner</li>
+              </ul>
+            </div>
+            <button class="btn btn-secondary" style="width: 100%; border: 1px solid var(--primary); color: var(--primary);" onclick="openSchoolRegistrationModal()">Start Standard</button>
+          </div>
+
+          <!-- Plan Card 3: Pro (Top) -->
+          <div class="pricing-card popular">
+            <span class="badge badge-success" style="position: absolute; top: 16px; right: 16px; font-weight: 500;">RECOMMENDED</span>
+            <div>
+              <h3 style="margin-top: 10px;">Pro School OS</h3>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">Complete operational control for campuses.</p>
+              <div class="price">₦15,000<span>/month</span></div>
+              <ul>
+                <li>Unlimited student rosters & registers</li>
+                <li>Automated parent alert dispatches</li>
+                <li>Watermarked report card compilation</li>
+                <li>Full School Settings control</li>
+              </ul>
+            </div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="openSchoolRegistrationModal()">Deploy Pro OS</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Closing CTA Section -->
+    <section class="cta-section" style="padding: 100px 0; background: linear-gradient(135deg, var(--bg-sidebar) 0%, #1b1f3b 100%); color: white; border-top: 1px solid var(--border-color); text-align: center; position: relative; overflow: hidden;">
+      <div style="width: 250px; height: 250px; border-radius: 50%; background: radial-gradient(circle, rgba(23,184,166,0.15) 0%, transparent 70%); position: absolute; top: -10%; left: -5%; filter: blur(40px);"></div>
+      <div style="width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(91,79,224,0.12) 0%, transparent 70%); position: absolute; bottom: -10%; right: -5%; filter: blur(40px);"></div>
+      
+      <div class="container" style="position: relative; z-index: 10; max-width: 650px;">
+        <h2 style="font-size: 2.5rem; color: white; margin-bottom: 16px; letter-spacing: -0.03em;">Ready to modernize your academy?</h2>
+        <p style="color: rgba(255,255,255,0.7); font-size: 1.05rem; line-height: 1.6; margin-bottom: 40px;">Deploy your local school portal in less than two minutes. Connect parents, streamline registers, and compile results effortlessly.</p>
+        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="openSchoolRegistrationModal()" style="background: white; color: var(--text-main); box-shadow: 0 4px 14px rgba(255,255,255,0.1);">Start Trial</button>
+          <button class="btn btn-secondary" onclick="loginRedirect('admin')" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white;">Launch Sandbox</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section" id="faq" style="padding: 100px 0; background: rgba(27, 31, 59, 0.01); border-top: 1px solid var(--border-color);">
+      <div class="container" style="max-width: 800px; margin: 0 auto; padding: 0 20px;">
+        <div style="text-align: center; margin-bottom: 48px;">
+          <h2 style="font-size: 2.2rem; font-weight: 800; font-family: var(--font-family-title); letter-spacing: -0.5px; color: var(--text-main);">Frequently Asked Questions</h2>
+          <p style="color: var(--text-muted); margin-top: 12px; font-size: 0.95rem;">Everything you need to know about the Eduflow Operating System and licensing.</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <!-- FAQ Item 1 -->
+          <div class="faq-item" style="border: 1px solid var(--border-color); border-radius: var(--border-radius-md); background: #ffffff; overflow: hidden; transition: var(--transition-smooth);">
+            <button onclick="toggleFaq(this)" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 20px; border: none; background: transparent; text-align: left; cursor: pointer; outline: none;">
+              <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); font-family: var(--font-family-title); transition: color 0.2s;">How does the School OS database sync work?</span>
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="transition: transform 0.3s ease; color: var(--text-secondary);"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+            </button>
+            <div class="faq-answer" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; padding: 0 20px;">
+              <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; padding-bottom: 20px; margin: 0;">
+                Eduflow is engineered with a hybrid database sync mechanism. Registers, timetables, and academic score sheets are cached locally in your browser storage for high-speed responsiveness, and synchronized with our secure server databases to ensure data consistency across multiple admin workspaces.
+              </p>
+            </div>
+          </div>
+
+          <!-- FAQ Item 2 -->
+          <div class="faq-item" style="border: 1px solid var(--border-color); border-radius: var(--border-radius-md); background: #ffffff; overflow: hidden; transition: var(--transition-smooth);">
+            <button onclick="toggleFaq(this)" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 20px; border: none; background: transparent; text-align: left; cursor: pointer; outline: none;">
+              <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); font-family: var(--font-family-title); transition: color 0.2s;">Can we customize report card formats and pricing parameters?</span>
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="transition: transform 0.3s ease; color: var(--text-secondary);"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+            </button>
+            <div class="faq-answer" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; padding: 0 20px;">
+              <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; padding-bottom: 20px; margin: 0;">
+                Yes! Every school has access to a dedicated Settings console where you can upload custom crests, adjust fee structures (tuition, development, and libraries), change color themes to match your brand logo, and customize grading profiles to fit nursery, primary, or secondary high school structures.
+              </p>
+            </div>
+          </div>
+
+          <!-- FAQ Item 3 -->
+          <div class="faq-item" style="border: 1px solid var(--border-color); border-radius: var(--border-radius-md); background: #ffffff; overflow: hidden; transition: var(--transition-smooth);">
+            <button onclick="toggleFaq(this)" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 20px; border: none; background: transparent; text-align: left; cursor: pointer; outline: none;">
+              <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); font-family: var(--font-family-title); transition: color 0.2s;">What payment options do you support for school subscriptions?</span>
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="transition: transform 0.3s ease; color: var(--text-secondary);"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+            </button>
+            <div class="faq-answer" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; padding: 0 20px;">
+              <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; padding-bottom: 20px; margin: 0;">
+                We support instant online checkout using standard payment gateways (such as card payments) as well as manual bank transfers. If you select manual transfer, you can upload your transaction receipt directly in the onboarding panel for instant review and activation by our support operations dashboard.
+              </p>
+            </div>
+          </div>
+
+          <!-- FAQ Item 4 -->
+          <div class="faq-item" style="border: 1px solid var(--border-color); border-radius: var(--border-radius-md); background: #ffffff; overflow: hidden; transition: var(--transition-smooth);">
+            <button onclick="toggleFaq(this)" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 20px; border: none; background: transparent; text-align: left; cursor: pointer; outline: none;">
+              <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); font-family: var(--font-family-title); transition: color 0.2s;">How does the Parents Alert Gateway transmit SMS notifications?</span>
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="transition: transform 0.3s ease; color: var(--text-secondary);"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+            </button>
+            <div class="faq-answer" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; padding: 0 20px;">
+              <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; padding-bottom: 20px; margin: 0;">
+                The parents alert node links administrative check-ins, fee collections, and timetables to a built-in virtual cell phone engine. When triggers occur (e.g. check-in absences, fee receipts), SMS texts compile and display live previews on our interactive virtual simulator to test deliverability prior to production API broadcast.
+              </p>
+            </div>
+          </div>
+
+          <!-- FAQ Item 5 -->
+          <div class="faq-item" style="border: 1px solid var(--border-color); border-radius: var(--border-radius-md); background: #ffffff; overflow: hidden; transition: var(--transition-smooth);">
+            <button onclick="toggleFaq(this)" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 20px; border: none; background: transparent; text-align: left; cursor: pointer; outline: none;">
+              <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); font-family: var(--font-family-title); transition: color 0.2s;">Are there different grade cohorts automatically seeded for Nigeria?</span>
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="transition: transform 0.3s ease; color: var(--text-secondary);"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+            </button>
+            <div class="faq-answer" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; padding: 0 20px;">
+              <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; padding-bottom: 20px; margin: 0;">
+                Yes! When creating your school profile, you can select standard stages such as Nursery & Early Years, Primary, Secondary, or a full K-12 setup. The onboarding wizard populates standard Nigerian classrooms (Basic 1-6, JSS 1-3, SSS 1-3) and pre-registers student records so your workspace feels alive and ready to operate instantly.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Professional Multi-Column Footer -->
+    <footer class="landing-footer">
+      <div class="container">
+        <div class="footer-grid">
+          <!-- Column 1: Brand Info -->
+          <div class="footer-column">
+            <div class="logo-container" onclick="window.location.reload()" style="cursor: pointer; font-size: 1.3rem; margin-bottom: 16px; color: white;">
+              <div class="logo-icon" style="background: transparent; border: none; width: 28px; height: 28px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                <svg width="100%" height="100%" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="eduflow-grad-footer" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#17B8A6" />
+                      <stop offset="100%" stop-color="#5B4FE0" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M 78 35 A 32 32 0 1 0 78 65" stroke="url(#eduflow-grad-footer)" stroke-width="12" stroke-linecap="round" fill="none" />
+                  <path d="M 22 50 H 74" stroke="url(#eduflow-grad-footer)" stroke-width="12" stroke-linecap="round" />
+                  <circle cx="78" cy="35" r="8" fill="#17B8A6" />
+                </svg>
+              </div>
+              <span>Eduflow</span>
+            </div>
+            <p style="font-size: 0.88rem; line-height: 1.6; margin-bottom: 20px; color: var(--text-secondary); max-width: 260px;">
+              Next-generation operating system built for physical learning, distance learning, and private coaching institutions.
+            </p>
+          </div>
+
+          <!-- Column 2: Product -->
+          <div class="footer-column">
+            <h4 style="font-family: var(--font-family-mono); font-size: 0.75rem; font-weight: 700; color: white; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;">Product</h4>
+            <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: 0.85rem;">
+              <li><a href="#walkthrough" style="transition: var(--transition-smooth); color: var(--text-secondary);" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text-secondary)'">OS Features</a></li>
+              <li><a href="#pricing" style="transition: var(--transition-smooth); color: var(--text-secondary);" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text-secondary)'">Pricing & Plans</a></li>
+              <li><a href="#" onclick="openPortalLoginModal()" style="transition: var(--transition-smooth); color: var(--text-secondary);" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text-secondary)'">Portal Sign-In</a></li>
+            </ul>
+          </div>
+
+          <!-- Column 3: Resources -->
+          <div class="footer-column">
+            <h4 style="font-family: var(--font-family-mono); font-size: 0.75rem; font-weight: 700; color: white; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;">Resources</h4>
+            <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: 0.85rem;">
+              <li><a href="#" onclick="openPortalLoginModal()" style="transition: var(--transition-smooth); color: var(--text-secondary);" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text-secondary)'">Developer Tools</a></li>
+              <li><a href="dashboard.html?role=superadmin" style="transition: var(--transition-smooth); color: var(--super-accent);" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--super-accent)'">SaaS Super Portal</a></li>
+              <li><a href="https://github.com" target="_blank" style="transition: var(--transition-smooth); color: var(--text-secondary);" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text-secondary)'">VectorDev Repository</a></li>
+            </ul>
+          </div>
+
+          <!-- Column 4: Compliance -->
+          <div class="footer-column">
+            <h4 style="font-family: var(--font-family-mono); font-size: 0.75rem; font-weight: 700; color: white; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;">Compliance</h4>
+            <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: 0.85rem;">
+              <li><span style="color: var(--text-secondary);">Local Database Sync</span></li>
+              <li><span style="color: var(--text-secondary);">Paystack Integrations</span></li>
+              <li><span style="color: var(--text-secondary);">Compliance Clearance</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Divider and Copyright -->
+        <div class="footer-bottom-bar">
+          <span>© 2026 Eduflow OS. All rights reserved.</span>
+          <span style="font-family: var(--font-family-mono);">Engineered by VectorDev</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- SCHOOL REGISTRATION / ONBOARDING MODAL -->
+  <div class="modal-overlay" id="school-modal-overlay">
+    <div class="payment-modal responsive-modal">
+      <div class="modal-header" style="margin-bottom: 16px;">
+        <div class="logo-container" style="font-size: 1.2rem;">
+          <div class="logo-icon" style="background: transparent; border: none; width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center;">
+            <svg width="100%" height="100%" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="eduflow-grad-modal" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#17B8A6" />
+                  <stop offset="100%" stop-color="#5B4FE0" />
+                </linearGradient>
+              </defs>
+              <path d="M 78 35 A 32 32 0 1 0 78 65" stroke="url(#eduflow-grad-modal)" stroke-width="12" stroke-linecap="round" fill="none" />
+              <path d="M 22 50 H 74" stroke="url(#eduflow-grad-modal)" stroke-width="12" stroke-linecap="round" />
+              <circle cx="78" cy="35" r="8" fill="#17B8A6" />
+            </svg>
+          </div>
+          <span style="font-weight: 800; color: var(--text-main);">Onboard Your School</span>
+        </div>
+        <button class="icon-btn" onclick="closeSchoolRegistrationModal()" style="font-size: 1.4rem; font-weight: 700; background: none; border: none; cursor: pointer; color: var(--text-secondary);">&times;</button>
+      </div>
+
+      <!-- Step Indicator -->
+      <div id="onboarding-steps-indicator" style="display: flex; justify-content: space-between; align-items: center; margin: 8px 0 20px 0; position: relative;">
+        <!-- Line connecting steps -->
+        <div style="position: absolute; top: 18px; left: 10%; right: 10%; height: 2px; background: var(--border-color); z-index: 1;"></div>
+        <div id="step-line-progress" style="position: absolute; top: 18px; left: 10%; width: 0%; height: 2px; background: var(--primary); z-index: 2; transition: width 0.4s ease;"></div>
+        
+        <!-- Step 1 -->
+        <div style="text-align: center; position: relative; z-index: 3; flex: 1;">
+          <div id="ind-step-1" style="width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 0 auto 4px auto; font-size: 0.75rem; border: 2px solid white; box-shadow: 0 4px 10px rgba(91, 79, 224, 0.2); transition: all 0.3s ease;">1</div>
+          <span id="txt-step-1" style="font-size: 0.62rem; font-weight: 700; color: var(--text-main); transition: all 0.3s ease;">Email Verification</span>
+        </div>
+        <!-- Step 2 -->
+        <div style="text-align: center; position: relative; z-index: 3; flex: 1;">
+          <div id="ind-step-2" style="width: 32px; height: 32px; border-radius: 50%; background: var(--border-color); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 0 auto 4px auto; font-size: 0.75rem; border: 2px solid white; transition: all 0.3s ease;">2</div>
+          <span id="txt-step-2" style="font-size: 0.62rem; font-weight: 700; color: var(--text-secondary); transition: all 0.3s ease;">Campus Details</span>
+        </div>
+        <!-- Step 3 -->
+        <div style="text-align: center; position: relative; z-index: 3; flex: 1;">
+          <div id="ind-step-3" style="width: 32px; height: 32px; border-radius: 50%; background: var(--border-color); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 0 auto 4px auto; font-size: 0.75rem; border: 2px solid white; transition: all 0.3s ease;">3</div>
+          <span id="txt-step-3" style="font-size: 0.62rem; font-weight: 700; color: var(--text-secondary); transition: all 0.3s ease;">Admin Account</span>
+        </div>
+      </div>
+
+      <div class="payment-form">
+        <!-- BATCH 1: EMAIL VERIFICATION -->
+        <div id="onboarding-batch-1" class="onboarding-step-content">
+          <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--primary); letter-spacing: 0.5px; margin-bottom: 12px; font-weight: 700; text-align: left;">1. Verify School Email</h4>
+          
+          <div class="input-group" style="text-align: left; margin-bottom: 16px;">
+            <label for="reg-school-name" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px; display: block;">School Name</label>
+            <input type="text" class="form-input" id="reg-school-name" placeholder="" style="width: 100%;" required>
+          </div>
+
+          <div class="input-group" style="text-align: left; margin-bottom: 24px;">
+            <label for="reg-school-email" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px; display: block;">School Email Address</label>
+            <input type="email" class="form-input" id="reg-school-email" placeholder="" style="width: 100%;" required>
+          </div>
+
+          <button class="btn btn-primary" onclick="sendOnboardingConfirmationEmail()" style="width: 100%; height: 42px; font-weight: 700;">Send Confirmation Link</button>
+        </div>
+
+        <!-- BATCH 1 PENDING SIMULATOR -->
+        <div id="onboarding-batch-1-pending" class="onboarding-step-content" style="display: none; text-align: center; padding: 20px 0;">
+          <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(23, 184, 166, 0.1); color: var(--teal); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto;">
+            <svg width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+          </div>
+          <h4 style="font-family: var(--font-family-title); font-size: 1.1rem; color: var(--text-main); margin-bottom: 8px;">Confirmation Link Sent!</h4>
+          <p style="color: var(--text-muted); font-size: 0.8rem; line-height: 1.5; max-width: 320px; margin: 0 auto 24px auto;">
+            We have sent an email confirmation link to <strong id="verify-email-target" style="color: var(--text-main);"></strong>. Please confirm your email to continue registration.
+          </p>
+          
+          <div style="background: rgba(91, 79, 224, 0.03); border: 1px dashed var(--primary); border-radius: var(--border-radius-md); padding: 16px; margin-bottom: 20px; text-align: left;">
+            <div style="font-size: 0.65rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+              <span style="display:inline-block; width: 6px; height: 6px; border-radius: 50%; background: #17B8A6; animation: pulseLogo 1.5s infinite;"></span>
+              VectorDev Mail Service Simulator:
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-main); font-weight: 600; margin-bottom: 4px;">Subject: Confirm your school onboarding email</div>
+            <p style="font-size: 0.65rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px;">Click the button below to simulate confirming the onboarding verification email link.</p>
+            <button class="btn btn-teal" onclick="simulateConfirmOnboardingEmail()" style="font-size: 0.7rem; padding: 6px 12px; width: 100%;">✓ Verify Email & Continue Setup</button>
+          </div>
+        </div>
+
+        <!-- BATCH 2: CAMPUS DETAILS & BILLING CONFIG -->
+        <div id="onboarding-batch-2" class="onboarding-step-content" style="display: none;">
+          <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--primary); letter-spacing: 0.5px; margin-bottom: 12px; font-weight: 700; text-align: left;">2. Campus Details & Billing</h4>
+          
+          <div class="modal-form-grid">
+            <div class="input-group" style="text-align: left;">
+              <label for="reg-school-type" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px; display: block;">Campus Category</label>
+              <select class="form-select" id="reg-school-type" style="width: 100%; height: 36px; padding: 4px 10px;">
+                <option value="Physical Learning">Physical Learning Campus</option>
+                <option value="Distance Learning">Distance Learning Academy</option>
+                <option value="Private Coaching">Private Coaching Center</option>
+              </select>
+            </div>
+            <div class="input-group" style="text-align: left;">
+              <label for="reg-school-level" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px; display: block;">Educational Stage</label>
+              <select class="form-select" id="reg-school-level" onchange="renderOnboardingClasses(this.value)" style="width: 100%; height: 36px; padding: 4px 10px;">
+                <option value="Nursery">Nursery & Early Years (Creche - Nursery 2)</option>
+                <option value="Primary">Primary School (Basic 1 - Basic 6)</option>
+                <option value="Secondary" selected>Secondary School (JSS 1 - SSS 3)</option>
+                <option value="K12">K-12 Academy (Complete Stage Cohorts)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="modal-form-grid">
+            <div class="input-group" style="text-align: left;">
+              <label for="reg-school-state" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px; display: block;">State</label>
+              <select class="form-select" id="reg-school-state" onchange="populateLgas(this.value)" style="width: 100%; height: 36px; padding: 4px 10px;">
+                <option value="">-- Select State --</option>
+              </select>
+            </div>
+            <div class="input-group" style="text-align: left;">
+              <label for="reg-school-lga" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px; display: block;">Local Government (LGA)</label>
+              <select class="form-select" id="reg-school-lga" style="width: 100%; height: 36px; padding: 4px 10px;" disabled>
+                <option value="">-- Select State First --</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="input-group" style="text-align: left; margin-bottom: 16px;">
+            <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 8px; display: block;">Select Classes to Activate</label>
+            <div id="onboarding-classes-checklist" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 8px; padding: 10px; border: 1px solid var(--border-color); border-radius: var(--border-radius-md); background: rgba(0,0,0,0.01); max-height: 110px; overflow-y: auto;">
+              <!-- Will load checkboxes dynamically -->
+            </div>
+          </div>
+
+          <div class="modal-form-grid">
+            <div class="input-group" style="text-align: left;">
+              <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px; display: block;">School Logo</label>
+              <div onclick="document.getElementById('reg-school-logo').click()" style="border: 2px dashed rgba(18, 19, 42, 0.12); border-radius: var(--border-radius-md); padding: 8px; text-align: center; cursor: pointer; background: rgba(0,0,0,0.01); transition: var(--transition-smooth); display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80px; overflow: hidden;" onmouseover="this.style.borderColor='var(--primary)';" onmouseout="this.style.borderColor='rgba(18, 19, 42, 0.12)';">
+                <input type="file" id="reg-school-logo" accept="image/*" style="display: none;" onchange="handleLogoUpload(this)">
+                <div id="logo-upload-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-bottom: 2px; color: var(--text-secondary);"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"/></svg>
+                  <span style="font-size: 0.6rem; font-weight: 600; color: var(--text-secondary);">Upload Logo</span>
+                </div>
+                <img id="logo-preview-img" src="" style="max-height: 60px; max-width: 100%; display: none; margin: 0 auto; border-radius: 4px; border: 1px solid var(--border-color);">
+              </div>
+            </div>
+            <div class="input-group" style="text-align: left;">
+              <label for="reg-school-address" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px; display: block;">Campus Address</label>
+              <textarea class="form-input" id="reg-school-address" placeholder="" style="width: 100%; height: 80px; resize: none; padding: 8px; font-size: 0.75rem; line-height: 1.4;" required></textarea>
+            </div>
+          </div>
+
+          <h5 style="font-size: 0.72rem; font-weight: 700; color: var(--text-main); margin: 12px 0 8px 0; text-align: left; text-transform: uppercase; letter-spacing: 0.5px;">Select Service Plan</h5>
+          
+          <div class="modal-form-grid" style="grid-template-columns: repeat(3, 1fr);">
+            <label id="label-plan-free" style="border: 2px solid var(--primary); background: rgba(91,79,224,0.02); padding: 8px; border-radius: 8px; cursor: pointer; text-align: center; display: block;">
+              <input type="radio" name="reg-plan-tier" value="Free" checked onchange="toggleOnboardingPlan('Free')" style="margin-bottom: 4px;">
+              <div style="font-weight: 700; font-size: 0.75rem; color: var(--text-main);">Starter</div>
+              <div style="font-size: 0.65rem; color: var(--primary); font-weight: 700;">Free Trial</div>
+            </label>
+            <label id="label-plan-standard" style="border: 1px solid var(--border-color); padding: 8px; border-radius: 8px; cursor: pointer; text-align: center; display: block;">
+              <input type="radio" name="reg-plan-tier" value="Standard" onchange="toggleOnboardingPlan('Standard')" style="margin-bottom: 4px;">
+              <div style="font-weight: 700; font-size: 0.75rem; color: var(--text-main);">Standard</div>
+              <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 700;">₦25,000/term</div>
+            </label>
+            <label id="label-plan-pro" style="border: 1px solid var(--border-color); padding: 8px; border-radius: 8px; cursor: pointer; text-align: center; display: block;">
+              <input type="radio" name="reg-plan-tier" value="Pro" onchange="toggleOnboardingPlan('Pro')" style="margin-bottom: 4px;">
+              <div style="font-weight: 700; font-size: 0.75rem; color: var(--text-main);">Premium</div>
+              <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 700;">₦50,000/term</div>
+            </label>
+          </div>
+
+          <!-- MANUAL PAYMENT METHOD PANEL -->
+          <div id="onboarding-payment-method-section" style="display: none; margin-bottom: 12px;">
+            <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px; text-align: left;">Payment Method:</div>
+            <div style="display: flex; gap: 16px; margin-bottom: 10px;">
+              <label style="font-size: 0.75rem; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                <input type="radio" name="reg-payment-method" value="Online" checked onchange="toggleOnboardingPaymentMethod('Online')"> Paystack Card
+              </label>
+              <label style="font-size: 0.75rem; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                <input type="radio" name="reg-payment-method" value="Manual" onchange="toggleOnboardingPaymentMethod('Manual')"> Bank Transfer
+              </label>
+            </div>
+          </div>
+
+          <div id="onboarding-manual-payment-info" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); padding: 12px; border-radius: var(--border-radius-md); margin-bottom: 16px; text-align: left;">
+            <div style="font-size: 0.7rem; font-weight: 800; color: var(--primary); margin-bottom: 6px; font-family: var(--font-family-mono);">🏦 WEMA BANK DETAILS:</div>
+            <div style="font-size: 0.7rem; color: var(--text-main); line-height: 1.5; background: white; padding: 8px; border-radius: 4px; border: 1px solid var(--border-color); margin-bottom: 10px;">
+              Account Name: <strong>VectorDev Technologies</strong><br>
+              Account Number: <strong style="font-family: var(--font-family-mono);">1023456789</strong> (Wema Bank)
+            </div>
+            <div class="input-group">
+              <label style="font-size: 0.65rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px; display: block;">Upload Transfer Receipt Image</label>
+              <div onclick="document.getElementById('reg-payment-proof').click()" style="border: 2px dashed rgba(18, 19, 42, 0.12); border-radius: var(--border-radius-md); padding: 8px; text-align: center; cursor: pointer; background: white; transition: var(--transition-smooth); display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70px; overflow: hidden;" onmouseover="this.style.borderColor='var(--primary)';" onmouseout="this.style.borderColor='rgba(18, 19, 42, 0.12)';">
+                <input type="file" id="reg-payment-proof" accept="image/*" style="display: none;" onchange="handlePaymentReceiptUpload(this)">
+                <div id="receipt-upload-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-bottom: 2px; color: var(--text-secondary);"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                  <span style="font-size: 0.55rem; font-weight: 700; color: var(--text-secondary);">Select Receipt Image</span>
+                </div>
+                <img id="receipt-preview-img" src="" style="max-height: 55px; max-width: 100%; display: none; border-radius: 4px;">
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" onclick="goToOnboardingStep3()" style="width: 100%; height: 42px; font-weight: 700;">Continue to Admin Setup</button>
+        </div>
+
+        <!-- BATCH 3: ADMIN ACCOUNT SETUP -->
+        <div id="onboarding-batch-3" class="onboarding-step-content" style="display: none;">
+          <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--primary); letter-spacing: 0.5px; margin-bottom: 12px; font-weight: 700; text-align: left;">3. Registrar / Admin Contact</h4>
+          
+          <div class="modal-form-grid">
+            <div class="input-group" style="text-align: left;">
+              <label for="reg-admin-name" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px; display: block;">Contact Person Name</label>
+              <input type="text" class="form-input" id="reg-admin-name" placeholder="" style="width: 100%;" required>
+            </div>
+            <div class="input-group" style="text-align: left;">
+              <label for="reg-school-phone" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px; display: block;">Administrator Phone</label>
+              <input type="tel" class="form-input" id="reg-school-phone" placeholder="" style="width: 100%;" required>
+            </div>
+          </div>
+
+          <div class="modal-form-grid" style="margin-bottom: 20px;">
+            <div class="input-group" style="text-align: left;">
+              <label for="reg-school-admin-email" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px; display: block;">Registrar Email (Verified)</label>
+              <input type="email" class="form-input" id="reg-school-admin-email" placeholder="" style="width: 100%; background: #f8fafc;" readonly required>
+            </div>
+            <div class="input-group" style="text-align: left;">
+              <label for="reg-school-pass" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px; display: block;">Admin Access Password</label>
+              <input type="password" class="form-input" id="reg-school-pass" placeholder="" style="width: 100%;" required>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <button class="btn btn-secondary" onclick="backToOnboardingStep2()" style="height: 40px;">Back</button>
+            <button class="btn btn-primary" onclick="registerSchoolOnboarding()" style="height: 40px; font-weight: 700;">Configure Campus OS</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UNIFIED PORTAL LOGIN / SIGN-IN MODAL -->
+  <div class="modal-overlay" id="login-modal-overlay">
+    <div class="payment-modal responsive-modal">
+      <div class="modal-header" style="margin-bottom: 16px;">
+        <div class="logo-container" style="font-size: 1.2rem;">
+          <div class="logo-icon" style="background: transparent; border: none; width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center;">
+            <svg width="100%" height="100%" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="eduflow-grad-login" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#17B8A6" />
+                  <stop offset="100%" stop-color="#5B4FE0" />
+                </linearGradient>
+              </defs>
+              <path d="M 78 35 A 32 32 0 1 0 78 65" stroke="url(#eduflow-grad-login)" stroke-width="12" stroke-linecap="round" fill="none" />
+              <path d="M 22 50 H 74" stroke="url(#eduflow-grad-login)" stroke-width="12" stroke-linecap="round" />
+              <circle cx="78" cy="35" r="8" fill="#17B8A6" />
+            </svg>
+          </div>
+          <span style="font-weight: 800; color: var(--text-main);">Sign In</span>
+        </div>
+        <button class="icon-btn" onclick="closePortalLoginModal()" style="font-size: 1.4rem; font-weight: 700; background: none; border: none; cursor: pointer; color: var(--text-secondary);">&times;</button>
+      </div>
+
+      <form id="portal-login-form" onsubmit="handlePortalLoginUnified(event)" style="text-align: left;">
+        <div class="input-group" style="margin-bottom: 16px;">
+          <label for="login-identifier" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px; display: block;">Username</label>
+          <input type="text" class="form-input" id="login-identifier" placeholder="" style="width: 100%;" required>
+        </div>
+
+        <div class="input-group" style="margin-bottom: 24px;">
+          <label for="login-password" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px; display: block;">Password</label>
+          <input type="password" class="form-input" id="login-password" placeholder="" style="width: 100%;">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; height: 42px; font-weight: 700; font-size: 0.85rem; margin-bottom: 10px;">Access School Portal</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

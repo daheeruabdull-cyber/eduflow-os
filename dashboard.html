@@ -1,0 +1,2467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eduflow School OS | Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css">
+  <!-- PWA Settings -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#5B4FE0">
+  <!-- html2pdf.js for client-side PDF downloads -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- Chart.js for proprietor dashboard analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- MAIN APP DASHBOARD VIEW -->
+  <div id="app-container" class="app-container">
+    
+    <!-- Sidebar -->
+    <aside class="app-sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-container" onclick="window.location.href='index.html'" style="cursor: pointer;">
+          <div class="logo-icon" style="background: transparent; border: none; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;">
+            <svg width="100%" height="100%" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="eduflow-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#17B8A6" />
+                  <stop offset="100%" stop-color="#5B4FE0" />
+                </linearGradient>
+              </defs>
+              <path d="M 78 35 A 32 32 0 1 0 78 65" stroke="url(#eduflow-grad)" stroke-width="12" stroke-linecap="round" fill="none" />
+              <path d="M 22 50 H 74" stroke="url(#eduflow-grad)" stroke-width="12" stroke-linecap="round" />
+              <circle cx="78" cy="35" r="8" fill="#17B8A6" />
+            </svg>
+          </div>
+          <span>Eduflow</span>
+        </div>
+      </div>
+      
+      <!-- Standard School Menu -->
+      <ul class="sidebar-menu" id="sidebar-school-menu">
+        <li class="menu-item active" id="nav-home">
+          <a href="#" onclick="showSection('home', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            Dashboard
+          </a>
+        </li>
+        <li class="menu-item" id="nav-attendance">
+          <a href="#" onclick="showSection('attendance', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            Attendance
+          </a>
+        </li>
+        <li class="menu-item" id="nav-results">
+          <a href="#" onclick="showSection('results', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Result Sheets
+          </a>
+        </li>
+        <li class="menu-item" id="nav-fees">
+          <a href="#" onclick="showSection('fees', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            School Fees
+          </a>
+        </li>
+        <li class="menu-item" id="nav-schedules">
+          <a href="#" onclick="showSection('schedules', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Schedules
+          </a>
+        </li>
+        <li class="menu-item" id="nav-notifications">
+          <a href="#" onclick="showSection('notifications', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            Notifications
+          </a>
+        </li>
+        <li class="menu-item" id="nav-settings">
+          <a href="#" onclick="showSection('settings', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            School Control
+          </a>
+        </li>
+        <li class="menu-item" id="nav-analytics">
+          <a href="#" onclick="showSection('analytics', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z"/></svg>
+            SaaS Analytics
+          </a>
+        </li>
+      </ul>
+
+      <!-- Parent Portal Menu -->
+      <ul class="sidebar-menu" id="sidebar-parent-menu" style="display: none; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px;">
+        <li style="font-size: 0.65rem; text-transform: uppercase; font-family: var(--font-family-mono); color: rgba(255,255,255,0.4); padding: 0 16px; margin-bottom: 8px; font-weight: 700; letter-spacing: 1px;">Parent Portal</li>
+        <li class="menu-item active" id="nav-parent-dashboard">
+          <a href="#" onclick="showSection('parent-dashboard', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+            My Children
+          </a>
+        </li>
+      </ul>
+
+      <!-- SaaS Super-Admin Menu -->
+      <ul class="sidebar-menu" id="sidebar-superadmin-menu" style="display: none; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px;">
+        <li style="font-size: 0.65rem; text-transform: uppercase; font-family: var(--font-family-mono); color: rgba(255,255,255,0.4); padding: 0 16px; margin-bottom: 8px; font-weight: 700; letter-spacing: 1px;">SaaS Control Hubs</li>
+        <li class="menu-item active" id="nav-super-overview">
+          <a href="#" onclick="showSection('super-overview', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
+            Platform Overview & AI
+          </a>
+        </li>
+        <li class="menu-item" id="nav-super-directory">
+          <a href="#" onclick="showSection('super-directory', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.33L12 4.5 4.5 10.33V21h15z"/></svg>
+            Tenant Campuses
+          </a>
+        </li>
+        <li class="menu-item" id="nav-super-kyc">
+          <a href="#" onclick="showSection('super-kyc', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            KYC Compliance Vault
+          </a>
+        </li>
+        <li class="menu-item" id="nav-super-setup">
+          <a href="#" onclick="showSection('super-setup', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            Master Accounts & Setup
+          </a>
+        </li>
+        <li class="menu-item" id="nav-super-security">
+          <a href="#" onclick="showSection('super-security', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+            Security & Operations
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div class="user-avatar" id="current-user-avatar">A</div>
+        <div class="user-info">
+          <span class="user-name" id="current-user-name">Admin Portal</span>
+          <span class="user-role" id="current-user-role">Principal / Teacher</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- App Body Content -->
+    <main class="app-content">
+      <header class="app-header">
+        <div class="app-header-inner">
+          <button class="mobile-menu-toggle btn btn-secondary" onclick="toggleMobileSidebar()" style="padding: 6px 10px; font-size: 1.1rem; margin-right: 12px; font-weight: 700;">☰</button>
+          
+          <div class="header-search" id="header-search-container">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" placeholder="Search students, classes, or broadsheets...">
+          </div>
+          
+          <!-- Rezta-Style Academic Session & Term Switcher -->
+          <div id="school-session-switcher" style="display: flex; align-items: center; gap: 8px; margin-left: 16px; margin-right: auto;">
+            <div style="background: rgba(91,79,224,0.08); border: 1px solid rgba(91,79,224,0.2); padding: 4px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 700; color: var(--primary);">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75"/></svg>
+              <span id="header-session-term-text">2025/2026 Session • First Term</span>
+            </div>
+            <span class="badge badge-success" id="header-school-level-badge" style="font-size: 0.68rem; font-weight: 700;">Secondary (JSS / SSS)</span>
+          </div>
+
+          <!-- Integrated Super-Admin Campus Selector -->
+          <div id="super-header-selector" style="display: none; align-items: center; gap: 16px; flex-wrap: nowrap; margin-right: auto; margin-left: 20px; overflow: hidden;">
+            <span style="font-weight: 700; font-size: 0.85rem; color: var(--text-main); font-family: var(--font-family-title); white-space: nowrap;">Managing Campus:</span>
+            <select class="form-select" id="super-school-select" onchange="loadSuperTenantContext()" style="width: 280px; flex-shrink: 0; font-weight: 600; height: 36px; padding: 4px 10px !important; margin: 0;">
+              <!-- Populated dynamically -->
+            </select>
+            <div id="super-school-details-badge" style="display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; font-size: 0.75rem;">
+              <!-- Dynamic Badges -->
+            </div>
+          </div>
+
+          <div class="header-actions">
+            <button class="btn btn-secondary" id="clean-mode-toggle-btn" onclick="toggleCleanProductionMode()" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; display: flex; align-items: center; gap: 6px; border-color: var(--accent); color: var(--accent);">
+              🧹 Clean Mode (No Demo)
+            </button>
+            <button class="btn btn-secondary" id="theme-toggle-btn" onclick="toggleDashboardTheme()" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+              🌙 Dark Mode
+            </button>
+            <button class="icon-btn" onclick="alert('System notification log: 0 unread alerts.')">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            </button>
+            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="window.location.href='index.html'">Exit OS</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- 2.1 OVERVIEW / HOME PANEL -->
+      <section id="sect-home" class="dashboard-panel panel-section active">
+        <!-- STUDENT ALERT BANNER (Shown for student role) -->
+        <div id="student-pending-invoice-banner" class="glass-card" style="display: none; padding: 16px 24px; margin-bottom: 24px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="background: rgba(239, 68, 68, 0.15); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #ef4444;">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
+            </div>
+            <div>
+              <p style="font-weight: 700; font-size: 0.9rem; color: #ef4444; margin-bottom: 2px;" id="student-banner-title">Outstanding Invoice Payment Due</p>
+              <p style="font-size: 0.78rem; color: var(--text-secondary);" id="student-banner-sub">Tuition fees balance pending clearance for First Term 2026.</p>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="background: #ef4444; border-color: #ef4444; font-weight: 700; font-size: 0.8rem;" onclick="showSection('fees')">Pay Now ₦</button>
+        </div>
+
+        <div class="panel-title-block">
+          <h2 class="panel-title" id="welcome-message">Welcome back, Principal</h2>
+          <span class="panel-subtitle" id="welcome-sub">Here is what is happening with Eduflow today.</span>
+        </div>
+
+        <!-- QUICK ACTION BAR FOR ADMIN -->
+        <div id="admin-quick-action-bar" style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+          <button class="btn btn-teal" style="font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 6px;" onclick="openOnboardingStudentModal()">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+            + Add Student
+          </button>
+          <button class="btn btn-primary" style="font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 6px;" onclick="showSection('attendance')">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            📝 Mark Attendance
+          </button>
+          <button class="btn btn-secondary" style="font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 6px;" onclick="showSection('fees')">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5h16.5a1.5 1.5 0 011.5 1.5v9.75a1.5 1.5 0 01-1.5 1.5H3.75a1.5 1.5 0 01-1.5-1.5V6a1.5 1.5 0 011.5-1.5z"/></svg>
+            ₦ Record Payment
+          </button>
+          <button class="btn btn-secondary" style="font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; background: rgba(91,79,224,0.1); border-color: rgba(91,79,224,0.3); color: var(--primary);" onclick="showSection('notifications')">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.38-.09-2.072-.09M2.25 15a4.5 4.5 0 004.5 4.5h10.5a4.5 4.5 0 004.5-4.5v-6a4.5 4.5 0 00-4.5-4.5H6.75a4.5 4.5 0 00-4.5 4.5v6z"/></svg>
+            📢 Send Broadcast
+          </button>
+          <button class="btn btn-secondary" style="font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; background: rgba(23,184,166,0.1); border-color: rgba(23,184,166,0.3); color: var(--accent-teal);" onclick="openOfficialReportCardModal(1)">
+            📜 Official Report Card
+          </button>
+        </div>
+
+        <!-- STATS GRID -->
+        <div class="stats-grid">
+          <div class="stat-card glass-card">
+            <div class="stat-header">
+              <span>ATTENDANCE RATE</span>
+              <span class="badge badge-success" id="stat-attendance-badge">HIGH</span>
+            </div>
+            <div class="stat-value" id="stat-attendance-rate">94.8%</div>
+            <span class="stat-trend trend-up">▲ Live campus tracking</span>
+          </div>
+
+          <div class="stat-card glass-card">
+            <div class="stat-header">
+              <span>ACADEMIC AVERAGE</span>
+              <span class="badge badge-warning" id="stat-academic-badge">AVERAGE</span>
+            </div>
+            <div class="stat-value" id="stat-class-average">72.4%</div>
+            <span class="stat-trend trend-up">▲ Cumulative term mark</span>
+          </div>
+
+          <div class="stat-card glass-card">
+            <div class="stat-header">
+              <span>FEES REVENUE</span>
+              <span class="badge badge-success" id="fees-stat-badge">85% PAID</span>
+            </div>
+            <div class="stat-value" id="stat-fees-collected">₦4.2M</div>
+            <!-- Fee Recovery Target Progress Bar -->
+            <div style="margin-top: 8px;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 4px;">
+                <span>Recovery Target</span>
+                <span id="fee-recovery-pct-text">85%</span>
+              </div>
+              <div style="width: 100%; height: 6px; background: var(--bg-dark-border); border-radius: 4px; overflow: hidden;">
+                <div id="fee-recovery-progress-bar" style="width: 85%; height: 100%; background: linear-gradient(90deg, var(--accent-teal), var(--primary)); border-radius: 4px; transition: width 0.4s ease;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STUDENT DASHBOARD ENHANCEMENT ROW (Shown for student role) -->
+        <div id="student-dashboard-widgets" style="display: none; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;">
+          <!-- Next Class Widget -->
+          <div class="glass-card" id="student-next-class-card" style="padding: 20px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+              <span style="font-size: 0.72rem; text-transform: uppercase; color: var(--accent-teal); font-weight: 700; font-family: var(--font-family-mono);">NEXT SCHEDULED CLASS</span>
+              <span class="badge badge-success" style="font-size: 0.65rem;">LIVE TODAY</span>
+            </div>
+            <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;" id="student-next-class-title">Mathematics</h3>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;" id="student-next-class-detail">12:00 PM • Room 4B • Dr. Okon</p>
+            <div style="padding: 8px 12px; background: rgba(23,184,166,0.08); border-radius: 8px; border: 1px solid rgba(23,184,166,0.2); font-size: 0.75rem; color: var(--accent-teal); font-weight: 600;" id="student-next-class-countdown">
+              Starts in approx. 45 minutes
+            </div>
+          </div>
+
+          <!-- Attendance Streaks Card -->
+          <div class="glass-card" id="student-attendance-streak-card" style="padding: 20px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+              <span style="font-size: 0.72rem; text-transform: uppercase; color: var(--primary); font-weight: 700; font-family: var(--font-family-mono);">ATTENDANCE CONSISTENCY</span>
+              <span class="badge badge-success" style="font-size: 0.65rem;" id="student-streak-badge">🔥 5-DAY STREAK</span>
+            </div>
+            <h3 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 4px;" id="student-streak-pct">97.5%</h3>
+            <p style="font-size: 0.78rem; color: var(--text-secondary);">Excellent consistency! 19 present sessions out of 20 school days this term.</p>
+          </div>
+        </div>
+
+        <!-- STUDENT TRAJECTORY LINE CHART CONTAINER -->
+        <div id="student-trajectory-container" class="glass-card" style="display: none; padding: 24px; margin-top: 24px;">
+          <h3 style="font-size: 0.95rem; margin-bottom: 16px; font-family: var(--font-family-title); color: var(--text-main);">My Academic Grade Trajectory</h3>
+          <div style="height: 200px; position: relative;">
+            <canvas id="chart-student-grade-trajectory"></canvas>
+          </div>
+        </div>
+
+        <!-- ADMIN DASHBOARD ANALYTICS ROW -->
+        <div id="admin-dashboard-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 32px;">
+          <!-- Left: Daily Attendance Breakdown Donut Chart -->
+          <div class="glass-card" style="padding: 24px;">
+            <h3 style="margin-bottom: 16px; font-size: 0.95rem; font-family: var(--font-family-title);">Today's Attendance Snapshot</h3>
+            <div style="height: 220px; position: relative;">
+              <canvas id="chart-daily-attendance-breakdown"></canvas>
+            </div>
+          </div>
+
+          <!-- Right: Top Performing Students Leaderboard Card -->
+          <div class="glass-card" style="padding: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h3 style="font-size: 0.95rem; font-family: var(--font-family-title); margin: 0;">🏆 Top Performing Students</h3>
+              <span style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-family-mono);">TERM AVERAGES</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;" id="top-students-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 32px; margin-top: 32px;">
+          <!-- Left Widget: Recent Alerts -->
+          <div class="glass-card" style="padding: 24px;">
+            <h3 style="margin-bottom: 20px;">System Overview Logs</h3>
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              <div style="display: flex; gap: 12px; align-items: flex-start; padding-bottom: 12px; border-bottom: 1px solid var(--bg-dark-border);">
+                <div class="badge badge-success" style="padding: 6px;">INFO</div>
+                <div>
+                  <p style="font-size: 0.9rem; font-weight: 600;">Daily Attendance Completed</p>
+                  <p style="font-size: 0.75rem; color: var(--text-muted);">Grade 10A Marked by teacher Mrs. Adeleke • 9:15 AM</p>
+                </div>
+              </div>
+              <div style="display: flex; gap: 12px; align-items: flex-start; padding-bottom: 12px; border-bottom: 1px solid var(--bg-dark-border);">
+                <div class="badge badge-warning" style="padding: 6px;">FEES</div>
+                <div>
+                  <p style="font-size: 0.9rem; font-weight: 600;">New Payment Received</p>
+                  <p style="font-size: 0.75rem; color: var(--text-muted);">Chinedu Okafor paid Tuition Fees (₦150,000) • 10:42 AM</p>
+                </div>
+              </div>
+              <div style="display: flex; gap: 12px; align-items: flex-start;">
+                <div class="badge badge-danger" style="padding: 6px;">GRADES</div>
+                <div>
+                  <p style="font-size: 0.9rem; font-weight: 600;">Term Exam Scores Updated</p>
+                  <p style="font-size: 0.75rem; color: var(--text-muted);">Mathematics results submitted for Grade 11B • Yesterday</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Right Widget: Quick Shortcuts -->
+          <div class="glass-card" style="padding: 24px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <h3 style="margin-bottom: 16px;">Quick Actions</h3>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px;">Jump directly into administration workflows by selecting a module from the menu or shortcuts below.</p>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <button class="btn btn-teal" style="width: 100%;" onclick="showSection('attendance')">Mark Attendance</button>
+              <button class="btn btn-primary" style="width: 100%;" onclick="showSection('results')">Update Grade Sheet</button>
+              <button class="btn btn-secondary" style="width: 100%;" onclick="showSection('fees')">View Fees Dashboard</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2.2 ATTENDANCE TRACKER PANEL -->
+      <section id="sect-attendance" class="dashboard-panel panel-section">
+        <div class="panel-title-block">
+          <h2 class="panel-title">Classroom Registers & Attendance</h2>
+          <span class="panel-subtitle">Mark daily classroom attendance rolls or view individual history charts.</span>
+        </div>
+
+        <!-- Admin View: Table marker -->
+        <div id="attendance-admin-view" class="glass-card" style="padding: 32px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+            <div class="filter-bar">
+              <select class="form-select" id="attendance-class-select" onchange="renderAttendanceRoster()">
+                <optgroup label="Senior Secondary (SSS 1 - SSS 3)">
+                  <option value="SSS 1 Science" selected>SSS 1 Science</option>
+                  <option value="SSS 1 Arts">SSS 1 Arts</option>
+                  <option value="SSS 1 Commercial">SSS 1 Commercial</option>
+                  <option value="SSS 2 Science">SSS 2 Science</option>
+                  <option value="SSS 2 Commercial">SSS 2 Commercial</option>
+                  <option value="SSS 3 WAEC">SSS 3 (WAEC Candidate Class)</option>
+                </optgroup>
+                <optgroup label="Junior Secondary (JSS 1 - JSS 3)">
+                  <option value="JSS 1">JSS 1</option>
+                  <option value="JSS 2">JSS 2</option>
+                  <option value="JSS 3">JSS 3 (BECE Class)</option>
+                </optgroup>
+                <optgroup label="Primary School (Primary 1 - Primary 6)">
+                  <option value="Primary 1">Primary 1</option>
+                  <option value="Primary 2">Primary 2</option>
+                  <option value="Primary 3">Primary 3</option>
+                  <option value="Primary 4">Primary 4</option>
+                  <option value="Primary 5">Primary 5</option>
+                  <option value="Primary 6">Primary 6 (Common Entrance)</option>
+                </optgroup>
+                <optgroup label="Nursery & Early Years">
+                  <option value="Creche">Creche / Daycare</option>
+                  <option value="Reception">Reception</option>
+                  <option value="Nursery 1">Nursery 1</option>
+                  <option value="Nursery 2">Nursery 2</option>
+                </optgroup>
+              </select>
+              <input type="date" class="form-input" id="attendance-date" value="2026-07-11" onchange="renderAttendanceRoster()">
+            </div>
+            <button class="btn btn-primary" onclick="saveAttendanceRoster()">Save Register</button>
+          </div>
+
+          <div class="table-wrapper">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Roll Number</th>
+                  <th>Attendance Rate</th>
+                  <th>Attendance Status</th>
+                </tr>
+              </thead>
+              <tbody id="attendance-table-body">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Student View: Read-only summary stats -->
+        <div id="attendance-student-view" style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 32px; align-items: start;">
+          <!-- Left Column (Counters) -->
+          <div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+              <div style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: var(--border-radius-md); border: 1px solid var(--bg-dark-border);">
+                <p style="font-size: 0.8rem; color: var(--text-muted);">PRESENTS</p>
+                <p style="font-size: 2.2rem; font-weight: 800; color: var(--success);" id="student-present-count">0</p>
+              </div>
+              <div style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: var(--border-radius-md); border: 1px solid var(--bg-dark-border);">
+                <p style="font-size: 0.8rem; color: var(--text-muted);">ABSENTS</p>
+                <p style="font-size: 2.2rem; font-weight: 800; color: var(--danger);" id="student-absent-count">0</p>
+              </div>
+            </div>
+
+            <div class="glass-card" style="text-align: left; padding: 20px;">
+              <h4 style="margin-bottom: 12px; font-size: 0.95rem;">Recent Attendance History</h4>
+              <div style="display: flex; flex-direction: column; gap: 12px;" id="student-attendance-log">
+                <!-- Dynamically filled -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2.3 RESULTS SHEET & GRADING PANEL -->
+      <section id="sect-results" class="dashboard-panel panel-section">
+        <div class="panel-title-block">
+          <h2 class="panel-title">Academic Results & Grades</h2>
+          <span class="panel-subtitle">Grade examinations, track continuous assessments, and generate report cards.</span>
+        </div>
+
+        <div class="results-flex-container">
+          <!-- Left Column (Admin student picker list) -->
+          <div id="results-admin-sidebar" class="glass-card" style="padding: 24px;">
+            <div style="margin-bottom: 20px; display: flex; gap: 12px; flex-direction: column;">
+              <select class="form-select" id="results-class-select" style="width: 100%;" onchange="renderResultsRoster()">
+                <optgroup label="Senior Secondary (SSS 1 - SSS 3)">
+                  <option value="SSS 1 Science" selected>SSS 1 Science</option>
+                  <option value="SSS 1 Arts">SSS 1 Arts</option>
+                  <option value="SSS 1 Commercial">SSS 1 Commercial</option>
+                  <option value="SSS 2 Science">SSS 2 Science</option>
+                  <option value="SSS 2 Commercial">SSS 2 Commercial</option>
+                  <option value="SSS 3 WAEC">SSS 3 (WAEC / NECO Class)</option>
+                </optgroup>
+                <optgroup label="Junior Secondary (JSS 1 - JSS 3)">
+                  <option value="JSS 1">JSS 1</option>
+                  <option value="JSS 2">JSS 2</option>
+                  <option value="JSS 3">JSS 3 (BECE Class)</option>
+                </optgroup>
+                <optgroup label="Primary School (Primary 1 - Primary 6)">
+                  <option value="Primary 1">Primary 1</option>
+                  <option value="Primary 2">Primary 2</option>
+                  <option value="Primary 3">Primary 3</option>
+                  <option value="Primary 4">Primary 4</option>
+                  <option value="Primary 5">Primary 5</option>
+                  <option value="Primary 6">Primary 6 (Common Entrance)</option>
+                </optgroup>
+                <optgroup label="Nursery & Early Years">
+                  <option value="Creche">Creche / Daycare</option>
+                  <option value="Reception">Reception</option>
+                  <option value="Nursery 1">Nursery 1</option>
+                  <option value="Nursery 2">Nursery 2</option>
+                </optgroup>
+              </select>
+              <button class="btn btn-secondary" style="width: 100%; padding: 8px 12px; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 4px;" onclick="openStudentRegistrationModal()">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Register Student
+              </button>
+            </div>
+            
+            <h4 style="margin-bottom: 12px; font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted);">Select Student</h4>
+            <div style="display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto;" id="results-student-list">
+              <!-- Dynamically populated roster list -->
+            </div>
+          </div>
+
+          <!-- Right Column / Primary Grade Sheet Display -->
+          <div>
+            <div id="results-admin-form" class="glass-card" style="padding: 32px; margin-bottom: 32px;">
+              <h3 style="margin-bottom: 6px;" id="grading-student-title">Grade: Tobi Adebayo</h3>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px;">Update continuous assessment (30%) and term exam (70%) scores below.</p>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+                <div class="input-group">
+                  <label for="grade-subject-select">Subject Category</label>
+                  <select class="form-select" id="grade-subject-select" style="width: 100%;" onchange="loadStudentSubjectScores()">
+                    <optgroup label="Core General Subjects">
+                      <option value="Mathematics">Mathematics</option>
+                      <option value="English Language">English Language</option>
+                      <option value="Civic Education">Civic Education</option>
+                      <option value="Computer Studies / ICT">Computer Studies / ICT</option>
+                    </optgroup>
+                    <optgroup label="Senior Secondary STEM / Sciences">
+                      <option value="Physics">Physics</option>
+                      <option value="Chemistry">Chemistry</option>
+                      <option value="Biology">Biology</option>
+                      <option value="Further Mathematics">Further Mathematics</option>
+                      <option value="Agricultural Science">Agricultural Science</option>
+                      <option value="Technical Drawing">Technical Drawing</option>
+                    </optgroup>
+                    <optgroup label="Senior Secondary Humanities & Arts">
+                      <option value="Literature-in-English">Literature-in-English</option>
+                      <option value="Government">Government</option>
+                      <option value="History">History</option>
+                      <option value="Christian Religious Studies (CRS)">Christian Religious Studies (CRS)</option>
+                      <option value="Islamic Studies (IRS)">Islamic Studies (IRS)</option>
+                      <option value="Yoruba Language">Yoruba Language</option>
+                      <option value="Igbo Language">Igbo Language</option>
+                      <option value="Hausa Language">Hausa Language</option>
+                      <option value="French Language">French Language</option>
+                      <option value="Visual Arts">Visual Arts</option>
+                    </optgroup>
+                    <optgroup label="Senior Secondary Commercial & Business">
+                      <option value="Economics">Economics</option>
+                      <option value="Financial Accounting">Financial Accounting</option>
+                      <option value="Commerce">Commerce</option>
+                      <option value="Office Practice">Office Practice</option>
+                      <option value="Marketing">Marketing</option>
+                    </optgroup>
+                    <optgroup label="Junior Secondary (JSS 1 - 3)">
+                      <option value="Basic Science">Basic Science</option>
+                      <option value="Basic Technology">Basic Technology</option>
+                      <option value="Social Studies">Social Studies</option>
+                      <option value="Cultural & Creative Arts (CCA)">Cultural & Creative Arts (CCA)</option>
+                      <option value="Home Economics">Home Economics</option>
+                      <option value="Business Studies">Business Studies</option>
+                      <option value="Physical & Health Education (PHE)">Physical & Health Education (PHE)</option>
+                    </optgroup>
+                    <optgroup label="Primary School (Basic 1 - 6)">
+                      <option value="Primary Mathematics">Primary Mathematics</option>
+                      <option value="English Studies">English Studies</option>
+                      <option value="Basic Science & Technology">Basic Science & Technology</option>
+                      <option value="National Values Education">National Values Education</option>
+                      <option value="Quantitative Reasoning">Quantitative Reasoning</option>
+                      <option value="Verbal Reasoning">Verbal Reasoning</option>
+                    </optgroup>
+                    <optgroup label="Nursery & Early Years">
+                      <option value="Numeracy">Numeracy</option>
+                      <option value="Literacy">Literacy</option>
+                      <option value="Rhymes & Phonics">Rhymes & Phonics</option>
+                      <option value="Social Norms & Health Habits">Social Norms & Health Habits</option>
+                      <option value="Handwriting & Coloring">Handwriting & Coloring</option>
+                    </optgroup>
+                  </select>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                  <div class="input-group">
+                    <label for="grade-ca">CA Score /30</label>
+                    <input type="number" class="form-input" id="grade-ca" min="0" max="30" oninput="calculateLiveGradeTotal()">
+                  </div>
+                  <div class="input-group">
+                    <label for="grade-exam">Exam Score /70</label>
+                    <input type="number" class="form-input" id="grade-exam" min="0" max="70" oninput="calculateLiveGradeTotal()">
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 24px; padding: 16px; background: rgba(255,255,255,0.02); border-radius: var(--border-radius-md); border: 1px solid var(--bg-dark-border);">
+                <div>
+                  <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">TOTAL SCORE</span>
+                  <span style="font-size: 1.4rem; font-weight: 700; color: white;" id="grade-total-preview">0/100</span>
+                </div>
+                <div>
+                  <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">COMPUTED GRADE</span>
+                  <span style="font-size: 1.4rem; font-weight: 700; color: var(--accent-teal);" id="grade-letter-preview">F</span>
+                </div>
+                <div>
+                  <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">REMARK</span>
+                  <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; height: 100%;" id="grade-remark-preview">Fail</span>
+                </div>
+              </div>
+
+              <div style="margin-top: 24px; display: flex; justify-content: space-between; align-items: center;">
+                <button class="btn btn-secondary" onclick="generateClassBroadsheet()" style="font-size: 0.8rem; font-weight: 700;">📊 View Class Broadsheet</button>
+                <button class="btn btn-primary" onclick="submitGradeRecord()">Submit Marks</button>
+              </div>
+            </div>
+
+            <!-- NIGERIAN PSYCHOMOTOR & AFFECTIVE DOMAIN CARD -->
+            <div id="psychomotor-rating-card" class="glass-card" style="padding: 24px; margin-bottom: 32px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h4 style="font-size: 0.95rem; font-family: var(--font-family-title); color: var(--text-main); margin: 0;">🧠 Behavioral, Affective & Psychomotor Ratings (1-5 Scale)</h4>
+                <span class="badge badge-success" style="font-size: 0.65rem;">MOE COMPLIANT</span>
+              </div>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 16px;">Rate student development (1 = Poor, 5 = Excellent) for official report card transcripts.</p>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 0.8rem;">
+                <div>
+                  <span style="font-weight: 700; color: var(--accent-teal); display: block; margin-bottom: 8px;">AFFECTIVE DOMAIN</span>
+                  <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span>Punctuality:</span>
+                      <input type="number" min="1" max="5" value="5" class="form-input" id="psy-punctuality" style="width: 60px; padding: 4px 8px; text-align: center;">
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span>Neatness & Hygiene:</span>
+                      <input type="number" min="1" max="5" value="4" class="form-input" id="psy-neatness" style="width: 60px; padding: 4px 8px; text-align: center;">
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span>Politeness & Conduct:</span>
+                      <input type="number" min="1" max="5" value="5" class="form-input" id="psy-politeness" style="width: 60px; padding: 4px 8px; text-align: center;">
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <span style="font-weight: 700; color: var(--primary); display: block; margin-bottom: 8px;">PSYCHOMOTOR DOMAIN</span>
+                  <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span>Handwriting Skills:</span>
+                      <input type="number" min="1" max="5" value="4" class="form-input" id="psy-handwriting" style="width: 60px; padding: 4px 8px; text-align: center;">
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span>Sports & Games:</span>
+                      <input type="number" min="1" max="5" value="5" class="form-input" id="psy-sports" style="width: 60px; padding: 4px 8px; text-align: center;">
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span>Crafts & Artistry:</span>
+                      <input type="number" min="1" max="5" value="4" class="form-input" id="psy-crafts" style="width: 60px; padding: 4px 8px; text-align: center;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- REZTA CLASS BROADSHEET CONTAINER -->
+            <div id="broadsheet-view-container" class="glass-card" style="display: none; padding: 24px; margin-bottom: 32px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h4 style="font-size: 1rem; font-family: var(--font-family-title); color: var(--text-main); margin: 0;" id="broadsheet-title">Class Broadsheet Overview</h4>
+                <button class="btn btn-secondary" onclick="document.getElementById('broadsheet-view-container').style.display='none'" style="font-size: 0.75rem;">Close Broadsheet</button>
+              </div>
+              <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.78rem; text-align: left;" id="broadsheet-table">
+                  <thead>
+                    <tr style="border-bottom: 2px solid var(--primary); font-family: var(--font-family-mono); color: var(--text-secondary);">
+                      <th style="padding: 8px;">Pos</th>
+                      <th style="padding: 8px;">Student Name</th>
+                      <th style="padding: 8px;">1st CA (/15)</th>
+                      <th style="padding: 8px;">2nd CA (/15)</th>
+                      <th style="padding: 8px;">Exam (/70)</th>
+                      <th style="padding: 8px;">Total Score</th>
+                      <th style="padding: 8px;">Grade</th>
+                      <th style="padding: 8px;">Remark</th>
+                    </tr>
+                  </thead>
+                  <tbody id="broadsheet-tbody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- PREMIUM MOCK REPORT CARD -->
+            <div class="report-card-container">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h4 style="font-size: 0.95rem;">Active Term Report Card</h4>
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="window.print()">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 4px;"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    Print
+                  </button>
+                  <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8rem; background: var(--primary);" onclick="downloadReportCardPDF()">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 4px;"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    Download PDF
+                  </button>
+                </div>
+              </div>
+
+              <div class="report-card">
+                <div class="card-watermark">
+                  <svg width="100%" height="100%" viewBox="0 0 100 100" fill="currentColor" color="white"><circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2" fill="none"/><path d="M30 40 L50 20 L70 40 L60 40 L60 70 L40 70 L40 40 Z"/></svg>
+                </div>
+                
+                <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 2px solid var(--primary); padding-bottom: 16px; margin-bottom: 20px; text-align: left;">
+                  <div style="flex: 1;">
+                    <div class="card-school-name" id="card-school-name" style="margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--primary);">EDULITE ACADEMY, LAGOS</div>
+                    <div class="card-doc-type" style="margin: 4px 0 0 0; font-size: 0.75rem; font-family: var(--font-family-mono); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px;">OFFICIAL TRANSCRIPT & PROGRESS REPORT</div>
+                  </div>
+                  <div id="card-school-logo-container" style="width: 60px; height: 60px; display: none; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--border-color); padding: 4px; border-radius: 6px; background: white;">
+                    <img id="card-school-logo-img" src="" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                  </div>
+                </div>
+
+                <div class="card-student-meta">
+                  <div>
+                    <span class="meta-label">Student Name:</span>
+                    <span class="meta-value" id="card-student-name" style="float: right;">Tobi Adebayo</span>
+                  </div>
+                  <div>
+                    <span class="meta-label">Class Level:</span>
+                    <span class="meta-value" id="card-student-class" style="float: right;">Grade 10A</span>
+                  </div>
+                  <div>
+                    <span class="meta-label">Roll Number:</span>
+                    <span class="meta-value" id="card-student-roll" style="float: right;">2026/G10/042</span>
+                  </div>
+                  <div>
+                    <span class="meta-label">Academic Term:</span>
+                    <span class="meta-value" id="card-active-term" style="float: right;">First Term 2026</span>
+                  </div>
+                </div>
+
+                <table class="card-table">
+                  <thead>
+                    <tr>
+                      <th>Subject Name</th>
+                      <th>CA /30</th>
+                      <th>Exam /70</th>
+                      <th>Total /100</th>
+                      <th>Grade</th>
+                      <th>Remarks</th>
+                    </tr>
+                  </thead>
+                  <tbody id="card-grades-body">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+
+                <div class="card-footer">
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 32px;">
+                    <div style="border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 8px; text-align: center;">
+                      <span style="font-size: 0.7rem; color: var(--text-muted); display: block;">CLASS TEACHER SIGNATURE</span>
+                      <span style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; font-style: italic; color: rgba(255,255,255,0.7);" id="card-teacher-sign">Mrs. Adeleke. A</span>
+                    </div>
+                    <div style="border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 8px; text-align: center;">
+                      <span style="font-size: 0.7rem; color: var(--text-muted); display: block;">OFFICIAL REGISTRAR STAMP</span>
+                      <span style="font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--accent-teal);">EDULITE OS SIGNED</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2.4 SCHOOL FEES PANEL -->
+      <section id="sect-fees" class="dashboard-panel panel-section">
+        <div class="panel-title-block">
+          <h2 class="panel-title">School Fees Ledger</h2>
+          <span class="panel-subtitle">Oversee invoice cycles, check collections records, or make digital card payments.</span>
+        </div>
+
+        <!-- SaaS School Admin Global View -->
+        <div id="admin-fees-view" style="display: none; margin-bottom: 32px;">
+          <div class="stats-grid" style="margin-bottom: 24px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+            <div class="stat-card glass-card" style="padding: 20px;">
+              <span style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-family-mono); font-weight: 600;">Total Revenue Collected</span>
+              <div style="font-size: 1.8rem; font-weight: 700; margin-top: 6px; color: var(--accent-teal);" id="admin-fees-total-collected">₦0</div>
+            </div>
+            <div class="stat-card glass-card" style="padding: 20px;">
+              <span style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-family-mono); font-weight: 600;">Expected Outstanding Invoices</span>
+              <div style="font-size: 1.8rem; font-weight: 700; margin-top: 6px; color: var(--text-main);" id="admin-fees-total-outstanding">₦0</div>
+            </div>
+          </div>
+
+          <div class="glass-card" style="padding: 24px;">
+            <h3 style="font-size: 1.1rem; margin-bottom: 20px; font-family: var(--font-family-title); color: var(--text-main);">Campus Payments Ledger</h3>
+            <div style="overflow-x: auto;">
+              <table class="super-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                  <tr style="border-bottom: 1px solid var(--border-color);">
+                    <th style="padding: 12px; font-size: 0.75rem;">Student</th>
+                    <th style="padding: 12px; font-size: 0.75rem;">Class</th>
+                    <th style="padding: 12px; font-size: 0.75rem;">Payment Item</th>
+                    <th style="padding: 12px; font-size: 0.75rem;">Reference</th>
+                    <th style="padding: 12px; font-size: 0.75rem;">Amount</th>
+                    <th style="padding: 12px; font-size: 0.75rem;">Date</th>
+                    <th style="padding: 12px; font-size: 0.75rem;">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-fees-history-tbody">
+                  <!-- JavaScript populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Student Personal View -->
+        <div id="student-fees-view">
+          <div class="fees-grid">
+            <!-- Left Column (Outstanding Bills/Status) -->
+            <div class="glass-card" style="padding: 32px;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px;">
+                <div>
+                  <h3 style="font-size: 1.6rem; margin-bottom: 4px;" id="fees-outstanding-title">₦0</h3>
+                  <span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Total Outstanding Dues</span>
+                </div>
+                <button class="btn btn-primary" id="btn-trigger-payment" onclick="openPaymentModal()">Pay School Fees</button>
+              </div>
+
+              <h4 style="margin-bottom: 16px; font-size: 0.9rem;">Invoice Breakdown (First Term 2026)</h4>
+              <div style="display: flex; flex-direction: column;" id="fees-invoice-list">
+                <!-- Dynamically populated from JS -->
+              </div>
+            </div>
+
+            <!-- Right Column (Payment Logs) -->
+            <div class="glass-card" style="padding: 32px;">
+              <h3 style="margin-bottom: 20px;">Successful Payment Receipts</h3>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px;">History of processed transactions with downloadable invoice hashes.</p>
+              
+              <div style="display: flex; flex-direction: column; gap: 16px;" id="fees-receipt-list">
+                <!-- Dynamically populated from JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2.5 SCHEDULES & TIMETABLE PANEL -->
+      <section id="sect-schedules" class="dashboard-panel panel-section">
+        <div class="panel-title-block">
+          <h2 class="panel-title">Class Timetables & Schedules</h2>
+          <span class="panel-subtitle">Plan schedules, assign classrooms, and designate subject teachers.</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 32px; align-items: start;">
+          <!-- Left Column (Grid View) -->
+          <div class="glass-card" style="padding: 32px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+              <div class="filter-bar">
+                <select class="form-select" id="schedule-class-select" onchange="renderTimetableGrid()">
+                  <option value="10A">Grade 10A (SS 1)</option>
+                  <option value="11B">Grade 11B (SS 2)</option>
+                </select>
+                <select class="form-select" id="schedule-day-select" onchange="renderTimetableGrid()">
+                  <option value="Monday">Monday</option>
+                  <option value="Tuesday">Tuesday</option>
+                  <option value="Wednesday">Wednesday</option>
+                  <option value="Thursday">Thursday</option>
+                  <option value="Friday">Friday</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-wrapper">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Time Period</th>
+                    <th>Subject Assigned</th>
+                    <th>Teacher Assigned</th>
+                  </tr>
+                </thead>
+                <tbody id="timetable-grid-body">
+                  <!-- Dynamically populated from JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Right Column (Admin Form Editor / Student Hidden) -->
+          <div id="schedule-admin-form" class="glass-card" style="padding: 32px;">
+            <h3 style="margin-bottom: 6px;">Schedule Assignment Editor</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px;">Configure timetables for class groups and assign teachers to time slots.</p>
+
+            <div class="payment-form">
+              <div class="input-group">
+                <label for="schedule-period-select">Select Time Period</label>
+                <select class="form-select" id="schedule-period-select">
+                  <option value="p1">08:00 AM - 09:30 AM</option>
+                  <option value="p2">09:30 AM - 11:00 AM</option>
+                  <option value="p3">11:00 AM - 12:30 PM</option>
+                  <option value="p4">01:30 PM - 03:00 PM</option>
+                </select>
+              </div>
+
+              <div class="input-group">
+                <label for="schedule-subject-input">Subject Name</label>
+                <input type="text" class="form-input" id="schedule-subject-input" placeholder="e.g. Mathematics">
+              </div>
+
+              <div class="input-group">
+                <label for="schedule-teacher-input">Teacher Name</label>
+                <input type="text" class="form-input" id="schedule-teacher-input" placeholder="e.g. Mrs. Adeleke">
+              </div>
+
+              <button class="btn btn-primary" style="margin-top: 12px;" onclick="saveTimetableSlot()">Assign Slot</button>
+            </div>
+          </div>
+          <!-- Student Notice (Shown when role is student) -->
+          <div id="schedule-student-notice" class="glass-card" style="padding: 32px; display: none;">
+            <h3 style="margin-bottom: 8px;">Academic Timetable Details</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Timetable records are managed by the school registrar and are read-only. For room changes or teacher requests, please message your administrator.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2.6 NOTIFICATIONS PANEL -->
+      <section id="sect-notifications" class="dashboard-panel panel-section">
+        <div class="panel-title-block">
+          <h2 class="panel-title">Parent Notification Logs</h2>
+          <span class="panel-subtitle">Track automated SMS and email alerts dispatched to parents and guardians.</span>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card glass-card">
+            <div class="stat-header">
+              <span>TOTAL DISPATCHED ALERTS</span>
+            </div>
+            <div class="stat-value" id="notify-total-count">0</div>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-header">
+              <span>SMS GATEWAY DISPATCH</span>
+            </div>
+            <div class="stat-value" id="notify-sms-count">0</div>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-header">
+              <span>EMAIL GATEWAY DISPATCH</span>
+            </div>
+            <div class="stat-value" id="notify-email-count">0</div>
+          </div>
+        </div>
+
+        <div class="glass-card" style="padding: 32px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3>Gateway Outbox Stream</h3>
+            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="clearNotificationLogs()">Clear logs</button>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px;">Dispatches trigger automatically when registers are saved, grades are updated, or payments are processed.</p>
+          
+          <div style="display: flex; flex-direction: column; gap: 14px;" id="notification-logs-list">
+            <!-- Dynamically populated from JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 2.7 SETTINGS & CONTROL CENTER PANEL -->
+      <section id="sect-settings" class="dashboard-panel panel-section">
+        <div class="panel-title-block" style="margin-bottom: 28px;">
+          <h2 class="panel-title" style="font-family: var(--font-family-title); font-weight: 800; font-size: 2rem; color: var(--text-main); margin-bottom: 6px;">School OS Control Center</h2>
+          <span class="panel-subtitle" style="color: var(--text-secondary); font-size: 0.95rem;">Configure school fees, manage Form Masters and teachers, update profile data, and perform system backups.</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 28px; width: 100%; max-width: 1300px;">
+          
+          <!-- 1. Dedicated Form Master & Staff Management Console for Principal -->
+          <div class="glass-card" style="padding: 28px 32px; border: 1px solid rgba(91,79,224,0.3); background: rgba(91,79,224,0.02); border-radius: var(--border-radius-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 16px;">
+              <div>
+                <h3 style="margin: 0; font-size: 1.25rem; color: var(--text-main); font-family: var(--font-family-title); font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                  👩‍🏫 Form Master & Staff Management Console
+                </h3>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 4px; margin-bottom: 0;">
+                  Provision Form Masters, assign specific class arms (e.g. SSS 1 Science, JSS 1, Primary 4), generate login credentials, and reset staff passwords.
+                </p>
+              </div>
+              <button class="btn btn-teal" style="font-weight: 700; font-size: 0.85rem; padding: 10px 18px; display: flex; align-items: center; gap: 8px;" onclick="openAddTeacherModal()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                + Provision Teacher / Form Master
+              </button>
+            </div>
+
+            <div style="overflow-x: auto; margin-top: 16px;">
+              <table class="custom-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                  <tr style="border-bottom: 2px solid var(--border-color); background: rgba(0,0,0,0.02);">
+                    <th style="padding: 12px 16px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Staff ID</th>
+                    <th style="padding: 12px 16px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Full Name</th>
+                    <th style="padding: 12px 16px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Role & Class Arm</th>
+                    <th style="padding: 12px 16px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Campus</th>
+                    <th style="padding: 12px 16px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Email / Username</th>
+                    <th style="padding: 12px 16px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); text-align: right;">Principal Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="master-accounts-tbody">
+                  <!-- JavaScript populated via renderMasterAccountsTable() -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 2. School Profile & Academic Calendar Settings Card -->
+          <div class="glass-card" style="padding: 28px 32px; border-radius: var(--border-radius-lg);">
+            <h3 style="font-size: 1.15rem; margin-bottom: 6px; font-family: var(--font-family-title); color: var(--text-main);">🏫 School Profile Settings</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Manage overall institution metadata and current active term context.</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; align-items: end;">
+              <div class="input-group" style="margin-bottom: 0;">
+                <label for="settings-school-name" style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px; display: block;">School Name</label>
+                <input type="text" class="form-input" id="settings-school-name" placeholder="e.g. Eduflow Academy" style="width: 100%;">
+              </div>
+
+              <div class="input-group" style="margin-bottom: 0;">
+                <label for="settings-school-term" style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px; display: block;">Active Academic Term</label>
+                <select class="form-select" id="settings-school-term" style="width: 100%;">
+                  <option value="First Term 2026">First Term 2026</option>
+                  <option value="Second Term 2026">Second Term 2026</option>
+                  <option value="Third Term 2026">Third Term 2026</option>
+                </select>
+              </div>
+
+              <div class="input-group" style="margin-bottom: 0;">
+                <label for="settings-school-email" style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px; display: block;">Administrator Email</label>
+                <input type="email" class="form-input" id="settings-school-email" placeholder="admin@yourschool.com" style="width: 100%;">
+              </div>
+            </div>
+            
+            <div style="margin-top: 20px; text-align: right;">
+              <button class="btn btn-primary" style="padding: 10px 24px; font-weight: 700; font-size: 0.85rem;" onclick="saveSchoolProfileSettings()">Save Profile Details</button>
+            </div>
+          </div>
+
+          <!-- 3. Standard Fees Schedule Control Card -->
+          <div class="glass-card" style="padding: 28px 32px; border-radius: var(--border-radius-lg);">
+            <h3 style="font-size: 1.15rem; margin-bottom: 6px; font-family: var(--font-family-title); color: var(--text-main);">₦ Standard Fee Schedules & Invoice Rates</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Configure standard class invoice packages. Updates apply to outstanding student fees dynamically.</p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; align-items: end;">
+              <div class="input-group" style="margin-bottom: 0;">
+                <label for="settings-fees-class" style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px; display: block;">Class Selector</label>
+                <select class="form-select" id="settings-fees-class" style="width: 100%;" onchange="loadClassFeesSetting()">
+                  <optgroup label="Senior Secondary (SSS 1 - SSS 3)">
+                    <option value="SSS 1 Science" selected>SSS 1 Science</option>
+                    <option value="SSS 1 Arts">SSS 1 Arts</option>
+                    <option value="SSS 1 Commercial">SSS 1 Commercial</option>
+                    <option value="SSS 2 Science">SSS 2 Science</option>
+                    <option value="SSS 2 Commercial">SSS 2 Commercial</option>
+                    <option value="SSS 3 WAEC">SSS 3 (WAEC)</option>
+                  </optgroup>
+                  <optgroup label="Junior Secondary (JSS 1 - JSS 3)">
+                    <option value="JSS 1">JSS 1</option>
+                    <option value="JSS 2">JSS 2</option>
+                    <option value="JSS 3">JSS 3</option>
+                  </optgroup>
+                  <optgroup label="Primary School (Primary 1 - Primary 6)">
+                    <option value="Primary 1">Primary 1</option>
+                    <option value="Primary 2">Primary 2</option>
+                    <option value="Primary 3">Primary 3</option>
+                    <option value="Primary 4">Primary 4</option>
+                    <option value="Primary 5">Primary 5</option>
+                    <option value="Primary 6">Primary 6</option>
+                  </optgroup>
+                  <optgroup label="Nursery & Early Years">
+                    <option value="Creche">Creche</option>
+                    <option value="Nursery 1">Nursery 1</option>
+                    <option value="Nursery 2">Nursery 2</option>
+                  </optgroup>
+                </select>
+              </div>
+
+              <div class="input-group" style="margin-bottom: 0;">
+                <label for="settings-fees-tuition" style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px; display: block;">Tuition Fee (₦)</label>
+                <input type="number" class="form-input" id="settings-fees-tuition" placeholder="e.g. 150000" style="width: 100%;">
+              </div>
+
+              <div class="input-group" style="margin-bottom: 0;">
+                <label for="settings-fees-library" style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px; display: block;">Library Levy (₦)</label>
+                <input type="number" class="form-input" id="settings-fees-library" placeholder="e.g. 10000" style="width: 100%;">
+              </div>
+
+              <div class="input-group" style="margin-bottom: 0;">
+                <label for="settings-fees-dev" style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px; display: block;">Development Levy (₦)</label>
+                <input type="number" class="form-input" id="settings-fees-dev" placeholder="e.g. 15000" style="width: 100%;">
+              </div>
+            </div>
+
+            <div style="margin-top: 20px; text-align: right;">
+              <button class="btn btn-teal" style="padding: 10px 24px; font-weight: 700; font-size: 0.85rem;" onclick="saveClassFeesSetting()">Update Invoice Rates</button>
+            </div>
+          </div>
+
+          <!-- 4. System Backups & Data Integrity Card -->
+          <div class="glass-card" style="padding: 28px 32px; border-radius: var(--border-radius-lg);">
+            <h3 style="font-size: 1.15rem; margin-bottom: 6px; font-family: var(--font-family-title); color: var(--text-main);">💾 System Backups & Data Integrity</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Download copies of your school rosters, grades, payment records, and configuration settings, or reset your local storage cache.</p>
+
+            <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+              <button class="btn btn-secondary" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; font-size: 0.85rem;" onclick="exportDatabaseJSON()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Export DB Backup (.json)
+              </button>
+              
+              <label class="btn btn-secondary" style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 0; padding: 10px 16px; font-size: 0.85rem;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                Import DB Backup (.json)
+                <input type="file" id="import-db-file" style="display: none;" accept=".json" onchange="importDatabaseJSON(this)">
+              </label>
+
+              <button class="btn btn-secondary" style="border-color: var(--warning); color: var(--warning); padding: 10px 16px; font-size: 0.85rem;" onclick="resetToFactoryDefaults()">
+                Reset to Factory Demo
+              </button>
+
+              <button class="btn btn-secondary" style="border-color: var(--danger); color: var(--danger); padding: 10px 16px; font-size: 0.85rem;" onclick="wipeAllDatabaseData()">
+                Wipe Database Clean
+              </button>
+            </div>
+          </div>
+
+          <!-- 5. Developer DevTools Console (Admin Only, for site developer) -->
+          <div class="glass-card" style="padding: 28px 32px; border: 1px solid var(--accent); background: rgba(79, 70, 229, 0.02); border-radius: var(--border-radius-lg);">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+              <div style="width: 10px; height: 10px; border-radius: 50%; background: var(--accent); transform: translate3d(0,0,0);"></div>
+              <h3 style="margin: 0; color: var(--accent); font-size: 1.15rem; font-family: var(--font-family-title);">Developer DevTools Console</h3>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Advanced diagnostics and controls for testing layouts, database values, and stylesheet themes.</p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; align-items: start;">
+              
+              <!-- Raw DB JSON Editor -->
+              <div>
+                <h4 style="margin-bottom: 12px; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Raw Database JSON Editor</h4>
+                <textarea id="dev-db-editor" style="width: 100%; height: 220px; font-family: monospace; font-size: 0.75rem; background: rgba(0,0,0,0.2); color: #10b981; border: 1px solid var(--bg-dark-border); padding: 12px; border-radius: var(--border-radius-sm); resize: vertical; line-height: 1.4;"></textarea>
+                <div style="display: flex; gap: 12px; margin-top: 12px;">
+                  <button class="btn btn-secondary" style="padding: 8px 14px; font-size: 0.8rem;" onclick="loadRawDBIntoDevEditor()">Refresh JSON</button>
+                  <button class="btn btn-primary" style="padding: 8px 14px; font-size: 0.8rem; background: var(--accent); border-color: var(--accent);" onclick="saveRawDBFromDevEditor()">Save JSON Changes</button>
+                </div>
+              </div>
+
+              <!-- Theme Color Overrides & Generators -->
+              <div style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- Theme Customizer -->
+                <div>
+                  <h4 style="margin-bottom: 12px; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">CSS Theme Customizer</h4>
+                  <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span style="font-size: 0.8rem; color: var(--text-secondary);">Primary Color</span>
+                      <input type="color" id="dev-color-primary" onchange="overrideThemeColor('primary', this.value)" style="border: none; background: transparent; width: 32px; height: 32px; cursor: pointer;">
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span style="font-size: 0.8rem; color: var(--text-secondary);">Accent Color</span>
+                      <input type="color" id="dev-color-accent" onchange="overrideThemeColor('accent', this.value)" style="border: none; background: transparent; width: 32px; height: 32px; cursor: pointer;">
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span style="font-size: 0.8rem; color: var(--text-secondary);">Teal Accent</span>
+                      <input type="color" id="dev-color-teal" onchange="overrideThemeColor('teal', this.value)" style="border: none; background: transparent; width: 32px; height: 32px; cursor: pointer;">
+                    </div>
+                  </div>
+                  <button class="btn btn-secondary" style="width: 100%; padding: 6px 12px; font-size: 0.75rem; margin-top: 10px;" onclick="resetThemeColors()">Reset Colors</button>
+                </div>
+
+                <!-- Quick Mock Generators -->
+                <div>
+                  <h4 style="margin-bottom: 12px; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Database Mock Generators</h4>
+                  <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <button class="btn btn-secondary" style="width: 100%; padding: 6px 12px; font-size: 0.8rem; text-align: left;" onclick="devGenerateMockStudents(10)">+ Enrol 10 Mock Students</button>
+                    <button class="btn btn-secondary" style="width: 100%; padding: 6px 12px; font-size: 0.8rem; text-align: left;" onclick="devGenerateAttendanceHistory()">+ Populate Attendance (5 Days)</button>
+                    <button class="btn btn-secondary" style="width: 100%; padding: 6px 12px; font-size: 0.8rem; text-align: left;" onclick="devGeneratePaymentReceipts()">+ Generate Mock Payments</button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SECTION 2.15: PARENT DASHBOARD -->
+      <section id="sect-parent-dashboard" class="dashboard-panel panel-section">
+        <div class="panel-title-block" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <div>
+            <h2 class="panel-title" style="font-size: 1.5rem; font-family: var(--font-family-title); color: var(--text-main);">Parent Dashboard Console</h2>
+            <span class="panel-subtitle">Review academic performance sheets, attendance tracking, and process tuition checkout.</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.02); padding: 8px 16px; border: 1px solid var(--bg-dark-border); border-radius: var(--border-radius-md);">
+            <label for="parent-child-select" style="font-size: 0.72rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; font-family: var(--font-family-mono);">Active Child:</label>
+            <select class="form-select" id="parent-child-select" onchange="switchParentChildContext()" style="min-width: 140px; font-size: 0.75rem; height: 30px; background: var(--bg-dark); border: 1px solid var(--bg-dark-border); color: var(--text-main); border-radius: 4px; padding: 0 8px;"></select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+          <!-- Child profile summary card -->
+          <div class="glass-card" style="padding: 24px; display: flex; align-items: center; gap: 20px;">
+            <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(91, 79, 224, 0.15); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem; border: 1px solid rgba(91, 79, 224, 0.3);" id="parent-child-avatar">T</div>
+            <div>
+              <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 2px;" id="parent-child-name">Tobi Adebayo</h3>
+              <span style="font-size: 0.75rem; color: var(--text-muted); display: block;" id="parent-child-meta">Grade 10A | Roll: 2026/G10/042</span>
+            </div>
+          </div>
+
+          <!-- Attendance Rate Card -->
+          <div class="glass-card" style="padding: 24px; display: flex; align-items: center; gap: 20px;">
+            <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(23, 184, 166, 0.15); color: var(--accent-teal); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem; border: 1px solid rgba(23, 184, 166, 0.3);" id="parent-child-attendance-rate">95%</div>
+            <div>
+              <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 2px;">Attendance Average</h3>
+              <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">Real-time term presence tracker rate</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Render Report Card and Fees components directly -->
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px;">
+          <!-- Left side: Student Report card view -->
+          <div class="glass-card" style="padding: 20px; overflow-x: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h4 style="font-size: 0.88rem; font-weight: 700;">Progress Report Transcript</h4>
+              <button class="btn btn-primary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="downloadReportCardPDF()">Download PDF</button>
+            </div>
+            <!-- Empty report card shell to inject child report card -->
+            <div id="parent-child-report-card-container"></div>
+          </div>
+
+          <!-- Right side: Child bills & timetable grid -->
+          <div style="display: flex; flex-direction: column; gap: 24px;">
+            <div class="glass-card" style="padding: 24px;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                <div>
+                  <h3 style="font-size: 1.4rem; margin-bottom: 2px;" id="parent-child-outstanding-title">₦0</h3>
+                  <span style="color: var(--text-secondary); font-size: 0.7rem; font-weight: 600; text-transform: uppercase;">Outstanding Child Fees</span>
+                </div>
+                <button class="btn btn-teal" id="parent-btn-trigger-payment" onclick="openPaymentModal()" style="font-size: 0.75rem; padding: 6px 12px;">Pay School Fees</button>
+              </div>
+              <div style="display: flex; flex-direction: column;" id="parent-child-invoice-list"></div>
+            </div>
+
+            <div class="glass-card" style="padding: 24px;">
+              <h4 style="margin-bottom: 12px; font-size: 0.85rem;">Active Timetable Slots</h4>
+              <div style="overflow-x: auto;">
+                <table class="super-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.75rem;">
+                  <thead>
+                    <tr style="border-bottom: 1px solid var(--border-color);">
+                      <th style="padding: 6px;">Day</th>
+                      <th style="padding: 6px;">08:00 AM</th>
+                      <th style="padding: 6px;">10:00 AM</th>
+                      <th style="padding: 6px;">12:00 PM</th>
+                      <th style="padding: 6px;">02:00 PM</th>
+                    </tr>
+                  </thead>
+                  <tbody id="parent-child-timetable-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2.16: PROPRIETOR BUSINESS ANALYTICS -->
+      <section id="sect-analytics" class="dashboard-panel panel-section">
+        <div class="panel-title-block" style="margin-bottom: 24px;">
+          <h2 class="panel-title" style="font-size: 1.5rem; font-family: var(--font-family-title); color: var(--text-main);">Proprietor Management Insights</h2>
+          <span class="panel-subtitle">Analyze institutional revenue cycles, class grades distributions, and student attendance analytics.</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; margin-bottom: 24px;">
+          <!-- Financial Chart Card -->
+          <div class="glass-card" style="padding: 24px; min-height: 320px;">
+            <h3 style="font-size: 0.95rem; margin-bottom: 16px; font-family: var(--font-family-title); color: var(--text-main);">Billing & Revenue Performance Trends</h3>
+            <div style="height: 240px; position: relative;">
+              <canvas id="chart-financial-revenue"></canvas>
+            </div>
+          </div>
+
+          <!-- Grades Distribution Chart Card -->
+          <div class="glass-card" style="padding: 24px; min-height: 320px;">
+            <h3 style="font-size: 0.95rem; margin-bottom: 16px; font-family: var(--font-family-title); color: var(--text-main);">Average Subject Performance Comparison</h3>
+            <div style="height: 240px; position: relative;">
+              <canvas id="chart-academic-averages"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card" style="padding: 24px; min-height: 260px;">
+          <h3 style="font-size: 0.95rem; margin-bottom: 16px; font-family: var(--font-family-title); color: var(--text-main);">Campus Attendance Analytics</h3>
+          <div style="height: 180px; position: relative;">
+            <canvas id="chart-attendance-trends"></canvas>
+          </div>
+        </div>
+      </section>
+
+  <!-- INTERACTIVE SWITCHER BANNER -->
+  <div class="role-switch-banner">
+    <div class="container switcher-container">
+      <span class="switcher-title">Interactive OS Switcher:</span>
+      <button class="role-btn active" id="btn-role-admin" onclick="switchRole('admin')">Admin View (Principal/Teacher)</button>
+      <button class="role-btn" id="btn-role-student" onclick="switchRole('student')">Student View (Tobi Adebayo)</button>
+      <button class="role-btn" id="btn-role-parent" onclick="switchRole('parent')">Parent View (parent@eduflow.com)</button>
+    </div>
+  </div>
+
+      <!-- ==================== INTEGRATED SAAS SUPER-ADMIN PANELS ==================== -->
+
+      <!-- ==================== INTEGRATED SAAS SUPER-ADMIN CONTROL HUBS ==================== -->
+
+      <!-- HUB 1: PLATFORM OVERVIEW & TELEMETRY -->
+      <section id="sect-super-overview" class="dashboard-panel panel-section">
+        <!-- Hero Header Banner -->
+        <div class="glass-card" style="padding: 24px; margin-bottom: 32px; background: linear-gradient(135deg, rgba(91,79,224,0.12), rgba(23,184,166,0.06)); border: 1px solid rgba(91,79,224,0.25); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+          <div style="flex: 1; min-width: 280px; padding-right: 16px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+              <span class="badge badge-success" style="font-size: 0.7rem; font-weight: 800;">🟢 SYSTEM HEALTHY (4ms)</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-family-mono);">NIGERIAN MULTI-TENANT ENGINE</span>
+            </div>
+            <h2 style="font-size: 1.5rem; font-family: var(--font-family-title); color: var(--text-main); margin: 0;">Eduflow SaaS Operations Command Center</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">Real-time oversight across Nursery, Primary, Junior Secondary (JSS), and Senior Secondary (SSS) campuses.</p>
+          </div>
+          <div style="flex-shrink: 0; display: flex; gap: 10px; align-items: center;">
+            <button class="btn btn-teal" onclick="showSection('super-directory')" style="font-size: 0.8rem; font-weight: 700; white-space: nowrap;">🏢 Manage Campuses</button>
+            <button class="btn btn-primary" onclick="exportSystemDatabase()" style="font-size: 0.8rem; white-space: nowrap;">💾 Backup DB</button>
+          </div>
+        </div>
+
+        <!-- SUPER-ADMIN STATS GRID (Clean 3-column layout) -->
+        <div class="stats-grid super-stats-grid" style="margin-bottom: 32px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+          <div class="stat-card glass-card" style="padding: 20px;">
+            <span style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-family-mono); font-weight: 600;">Total Institutions</span>
+            <div style="font-size: 1.8rem; font-weight: 700; margin-top: 6px; color: var(--text-main);" id="super-stat-total-schools">0</div>
+          </div>
+          <div class="stat-card glass-card" style="padding: 20px;">
+            <span style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-family-mono); font-weight: 600;">KYC Pending Approval</span>
+            <div style="font-size: 1.8rem; font-weight: 700; margin-top: 6px; color: var(--text-main);" id="super-stat-pending-kyc">0</div>
+          </div>
+          <div class="stat-card glass-card" style="padding: 20px;">
+            <span style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-family-mono); font-weight: 600;">Active Subscriptions</span>
+            <div style="font-size: 1.8rem; font-weight: 700; margin-top: 6px; color: var(--accent-teal);" id="super-stat-active-subs">0</div>
+          </div>
+          <div class="stat-card glass-card" style="padding: 20px;">
+            <span style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-family-mono); font-weight: 600;">Monthly Recurring Rev (MRR)</span>
+            <div style="font-size: 1.8rem; font-weight: 700; margin-top: 6px; color: var(--text-main);" id="super-stat-mrr-revenue">₦0</div>
+          </div>
+          <div class="stat-card glass-card" style="padding: 20px;">
+            <span style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-family-mono); font-weight: 600;">Annualized Run Rate (ARR)</span>
+            <div style="font-size: 1.8rem; font-weight: 700; margin-top: 6px; color: var(--primary);" id="super-stat-arr-revenue">₦0</div>
+          </div>
+          <div class="stat-card glass-card" style="padding: 20px;">
+            <span style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-family-mono); font-weight: 600;">Platform Retention</span>
+            <div style="font-size: 1.8rem; font-weight: 700; margin-top: 6px; color: var(--accent-teal);">99.2%</div>
+          </div>
+        </div>
+
+        <!-- ANALYTICS & INFRASTRUCTURE ROW -->
+        <div style="display: grid; grid-template-columns: 1.3fr 1fr; gap: 24px; margin-bottom: 32px;">
+          <!-- Left: MRR Growth Trend Line Chart -->
+          <div class="glass-card" style="padding: 24px;">
+            <h3 style="font-size: 0.95rem; margin-bottom: 16px; font-family: var(--font-family-title); color: var(--text-main); display: flex; align-items: center; justify-content: space-between;">
+              <span>Platform Subscription Revenue (MRR Growth)</span>
+              <span class="badge badge-success" style="font-size: 0.65rem;">LIVE TRAJECTORY</span>
+            </h3>
+            <div style="height: 220px; position: relative;">
+              <canvas id="chart-super-mrr-growth"></canvas>
+            </div>
+          </div>
+
+          <!-- Right: System Health Monitor Grid -->
+          <div class="glass-card" style="padding: 24px;">
+            <h3 style="font-size: 0.95rem; margin-bottom: 16px; font-family: var(--font-family-title); color: var(--text-main);">🖥️ System Health & Infrastructure</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;" id="super-health-monitor-grid">
+              <div style="padding: 14px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid var(--border-color);">
+                <span style="font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-family-mono);">DATABASE NODE</span>
+                <p style="font-weight: 700; color: var(--accent-teal); font-size: 0.9rem; margin-top: 4px;">SQLite 3 (Online)</p>
+              </div>
+              <div style="padding: 14px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid var(--border-color);">
+                <span style="font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-family-mono);">AVG LATENCY</span>
+                <p style="font-weight: 700; color: var(--text-main); font-size: 0.9rem; margin-top: 4px;">4ms / query</p>
+              </div>
+              <div style="padding: 14px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid var(--border-color);">
+                <span style="font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-family-mono);">TENANT DB STORAGE</span>
+                <p style="font-weight: 700; color: var(--text-main); font-size: 0.9rem; margin-top: 4px;">1.42 MB</p>
+              </div>
+              <div style="padding: 14px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid var(--border-color);">
+                <span style="font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-family-mono);">ACTIVE SESSIONS</span>
+                <p style="font-weight: 700; color: var(--primary); font-size: 0.9rem; margin-top: 4px;">12 Sessions</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BRAND-NEW: AI RETENTION DIAGNOSTIC & GEOPOLITICAL MARKET ROW -->
+        <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px; margin-bottom: 32px;">
+          <!-- Left: AI Retention Diagnostic Engine -->
+          <div class="glass-card" style="padding: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <div>
+                <h3 style="font-size: 0.95rem; font-family: var(--font-family-title); color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 8px;">
+                  🤖 AI-Powered School Retention & Health Scanner
+                </h3>
+                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; margin-bottom: 0;">Real-time engagement analysis & automated risk detection across all campuses.</p>
+              </div>
+              <span class="badge badge-success" style="font-size: 0.65rem; font-weight: 800;">NEURAL SCANNER</span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div style="padding: 12px 16px; background: rgba(23,184,166,0.06); border: 1px solid rgba(23,184,166,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">Eduflow Academy (Lagos Campus)</span>
+                    <span class="badge" style="background: rgba(23,184,166,0.15); color: var(--accent-teal); font-size: 0.68rem; font-weight: 800;">🟢 98% EXCELLENT HEALTH</span>
+                  </div>
+                  <p style="font-size: 0.72rem; color: var(--text-secondary); margin: 2px 0 0 0;">Fees Collection: 92% • Broadsheets Generated: 100% • Daily Attendance: 96%</p>
+                </div>
+                <span style="font-size: 0.7rem; font-weight: 700; color: var(--accent-teal);">Optimal</span>
+              </div>
+
+              <div style="padding: 12px 16px; background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">Apex International School (Port Harcourt)</span>
+                    <span class="badge" style="background: rgba(245,158,11,0.15); color: #f59e0b; font-size: 0.68rem; font-weight: 800;">🟡 76% MEDIUM RISK</span>
+                  </div>
+                  <p style="font-size: 0.72rem; color: var(--text-secondary); margin: 2px 0 0 0;">Fees Collection: 64% • Broadsheets Generated: 80% • Principal login: 3 days ago</p>
+                </div>
+                <button class="btn btn-secondary" onclick="alert('⚡ AI Check-in Notification sent to Principal of Apex International School.')" style="font-size: 0.68rem; padding: 4px 10px;">⚡ Remind Principal</button>
+              </div>
+
+              <div style="padding: 12px 16px; background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">Grace Foundation Secondary (Enugu)</span>
+                    <span class="badge" style="background: rgba(239,68,68,0.15); color: #ef4444; font-size: 0.68rem; font-weight: 800;">🔴 44% HIGH AT-RISK</span>
+                  </div>
+                  <p style="font-size: 0.72rem; color: var(--text-secondary); margin: 2px 0 0 0;">No broadsheets generated for First Term • WhatsApp reports delayed by 14 days</p>
+                </div>
+                <button class="btn btn-primary" onclick="alert('📲 AI Customer Success Assistant dispatched WhatsApp reachout to Grace Foundation Principal.')" style="font-size: 0.68rem; padding: 4px 10px; background: #ef4444; border-color: #ef4444;">⚡ AI Reachout</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Geopolitical Distribution Widget -->
+          <div class="glass-card" style="padding: 24px;">
+            <h3 style="font-size: 0.95rem; margin-bottom: 16px; font-family: var(--font-family-title); color: var(--text-main);">🗺️ Geopolitical Market Expansion</h3>
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 4px;">
+                  <span style="color: var(--text-main);">South-West (Lagos, Oyo, Ogun)</span>
+                  <span style="color: var(--primary);">54% (7 Schools)</span>
+                </div>
+                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
+                  <div style="width: 54%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent-teal));"></div>
+                </div>
+              </div>
+
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 4px;">
+                  <span style="color: var(--text-main);">FCT Abuja & North-Central</span>
+                  <span style="color: var(--accent-teal);">23% (3 Schools)</span>
+                </div>
+                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
+                  <div style="width: 23%; height: 100%; background: var(--accent-teal);"></div>
+                </div>
+              </div>
+
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 4px;">
+                  <span style="color: var(--text-main);">South-East & South-South</span>
+                  <span style="color: #f59e0b;">15% (2 Schools)</span>
+                </div>
+                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
+                  <div style="width: 15%; height: 100%; background: #f59e0b;"></div>
+                </div>
+              </div>
+
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 4px;">
+                  <span style="color: var(--text-main);">North-West & North-East</span>
+                  <span style="color: #94a3b8;">8% (1 School)</span>
+                </div>
+                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
+                  <div style="width: 8%; height: 100%; background: #94a3b8;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAYSTACK SAAS COMMISSION SPLIT LEDGER CARD -->
+        <div class="glass-card" style="padding: 24px; margin-bottom: 32px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <h3 style="font-size: 1rem; font-family: var(--font-family-title); color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 8px;">
+                💸 Paystack SaaS Commission Split & Settlement Ledger
+              </h3>
+              <p style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px; margin-bottom: 0;">Automated 1.5% transaction commission collected on all online tuition payments processed across Nigeria.</p>
+            </div>
+            <button class="btn btn-teal" onclick="alert('⚡ Paystack Settlement Triggered: ₦222,750 transferred to Eduflow Corporate Account.')" style="font-size: 0.8rem; font-weight: 700;">⚡ Trigger Bank Payout (₦222,750)</button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 20px;">
+            <div style="padding: 16px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid var(--border-color);">
+              <span style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-family-mono);">TOTAL TUITION PROCESSED</span>
+              <p style="font-size: 1.4rem; font-weight: 700; color: var(--text-main); margin-top: 4px; margin-bottom: 0;">₦14,850,000</p>
+            </div>
+            <div style="padding: 16px; background: rgba(23,184,166,0.04); border-radius: 8px; border: 1px solid rgba(23,184,166,0.2);">
+              <span style="font-size: 0.68rem; color: var(--accent-teal); font-family: var(--font-family-mono);">EDUFLOW 1.5% COMMISSION</span>
+              <p style="font-size: 1.4rem; font-weight: 700; color: var(--accent-teal); margin-top: 4px; margin-bottom: 0;">₦222,750</p>
+            </div>
+            <div style="padding: 16px; background: rgba(91,79,224,0.04); border-radius: 8px; border: 1px solid rgba(91,79,224,0.2);">
+              <span style="font-size: 0.68rem; color: var(--primary); font-family: var(--font-family-mono);">NET SCHOOL SETTLEMENTS</span>
+              <p style="font-size: 1.4rem; font-weight: 700; color: var(--primary); margin-top: 4px; margin-bottom: 0;">₦14,627,250</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- TENANT ACTIVITY STREAM -->
+        <div class="glass-card" style="padding: 24px;">
+          <h3 style="font-size: 0.95rem; margin-bottom: 16px; font-family: var(--font-family-title); color: var(--text-main);">📡 Real-Time Tenant Activity Stream</h3>
+          <div style="display: flex; flex-direction: column; gap: 12px;" id="super-activity-stream">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </section>
+
+      <!-- HUB 2: TENANT CAMPUSES DIRECTORY -->
+      <section id="sect-super-directory" class="dashboard-panel panel-section">
+        <div class="panel-title-block">
+          <h2 class="panel-title">Registered Tenant Campuses & Operations</h2>
+          <span class="panel-subtitle">Search, inspect, impersonate, and manage subscription tiers across all tenant schools.</span>
+        </div>
+
+        <div class="glass-card" style="padding: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+            <h3 style="font-size: 1.1rem; font-family: var(--font-family-title); color: var(--text-main); margin: 0;">Multi-Tenant Campuses Directory</h3>
+            <span style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-family-mono);">REZTA-STYLE TENANT OPERATOR</span>
+          </div>
+          <div style="overflow-x: auto;">
+            <table class="super-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border-color); font-family: var(--font-family-mono); font-size: 0.75rem; color: var(--text-secondary);">
+                  <th style="padding: 12px;">ID</th>
+                  <th style="padding: 12px;">School Name</th>
+                  <th style="padding: 12px;">Admin Email</th>
+                  <th style="padding: 12px;">Plan Tier</th>
+                  <th style="padding: 12px;">KYC Status</th>
+                  <th style="padding: 12px;">Sub Status</th>
+                  <th style="padding: 12px; text-align: right;">Operations & Impersonate</th>
+                </tr>
+              </thead>
+              <tbody id="super-schools-directory-tbody">
+                <!-- Javascript populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- HUB 3: SECURITY, FEATURE FLAGS & BACKUPS -->
+      <section id="sect-super-security" class="dashboard-panel panel-section">
+        <div class="panel-title-block">
+          <h2 class="panel-title">Security & System Maintenance Console</h2>
+          <span class="panel-subtitle">Manage global feature flags, monitor API audit telemetry, send global announcements, and perform SQLite database backups.</span>
+        </div>
+
+        <!-- DATABASE BACKUP & SYNC OPERATIONS -->
+        <div class="glass-card" style="padding: 24px; margin-top: 32px;">
+          <h3 style="font-size: 1.1rem; margin-bottom: 8px; font-family: var(--font-family-title); color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: var(--primary);"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+            Database Backup & Sync Console
+          </h3>
+          <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5;">
+            Import or export the primary database JSON structure to backup/restore all schools, student grading portfolios, timetables, and system configurations.
+          </p>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <!-- Export Card -->
+            <div style="border: 1px solid var(--border-color); border-radius: var(--border-radius-md); padding: 20px; background: rgba(0, 0, 0, 0.01);">
+              <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">1. Export Current Database</h4>
+              <p style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.4;">
+                Download a complete JSON snapshot containing all system tables (Schools, Students, Attendance, Payments, Timetables, etc.).
+              </p>
+              <button class="btn btn-primary" onclick="exportSystemDatabase()" style="height: 38px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                Download db.json Snapshot
+              </button>
+            </div>
+
+            <!-- Import Card -->
+            <div style="border: 1px solid var(--border-color); border-radius: var(--border-radius-md); padding: 20px; background: rgba(0, 0, 0, 0.01);">
+              <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">2. Upload Database JSON Update</h4>
+              <p style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.4;">
+                Upload a JSON file to update records. If you select a file and click "Sync Changes", it will merge or overwrite the server database.
+              </p>
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <input type="file" id="super-db-import-input" accept=".json" style="display: none;" onchange="handleDbImportFileSelected(this)">
+                <button class="btn btn-secondary" onclick="document.getElementById('super-db-import-input').click()" style="height: 38px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"/></svg>
+                  Select JSON File
+                </button>
+                <span id="super-db-import-filename" style="font-size: 0.7rem; color: var(--text-secondary); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">No file selected</span>
+                <button id="super-db-sync-btn" class="btn btn-primary" onclick="syncImportedDatabase()" style="height: 38px; font-size: 0.75rem; font-weight: 700; display: none; align-items: center; gap: 6px;">
+                  ✓ Sync Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MASTER ACCOUNTS MANAGER & PASSWORD RESET CONSOLE -->
+        <div class="glass-card" style="padding: 24px; margin-top: 32px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <h3 style="font-size: 1rem; font-family: var(--font-family-title); color: var(--text-main); margin: 0;">👥 Master System Accounts & Password Reset Manager</h3>
+              <p style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px; margin-bottom: 0;">Super-Admin authority console to inspect accounts and reset lost passwords across all tenant campuses.</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-primary" onclick="openAddTeacherModal()" style="font-size: 0.78rem; font-weight: 700; background: #5B4FE0;">+ Provision Staff / Teacher</button>
+              <button class="btn btn-teal" onclick="openSuperOnboardModal()" style="font-size: 0.78rem; font-weight: 700;">+ 30s Onboard New School</button>
+            </div>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.8rem; min-width: 650px;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--primary); font-family: var(--font-family-mono); color: var(--text-secondary);">
+                  <th style="padding: 12px 10px; width: 14%;">User ID</th>
+                  <th style="padding: 12px 10px; width: 22%;">Name / Identity</th>
+                  <th style="padding: 12px 10px; width: 18%;">Role Type</th>
+                  <th style="padding: 12px 10px; width: 20%;">Associated School</th>
+                  <th style="padding: 12px 10px; width: 16%;">Email / Login</th>
+                  <th style="padding: 12px 10px; width: 10%; text-align: right;">Master Actions</th>
+                </tr>
+              </thead>
+              <tbody id="master-accounts-tbody">
+                <!-- Javascript Populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PLATFORM CONFIGURATION & PRICING EDITOR -->
+        <div class="glass-card" style="padding: 24px; margin-top: 32px;">
+          <h3 style="font-size: 1rem; font-family: var(--font-family-title); color: var(--text-main); margin-bottom: 8px;">⚙️ Platform Settings & Pricing Config Editor</h3>
+          <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 20px;">Configure global platform defaults, Paystack credentials, support contacts, and subscription pricing.</p>
+
+          <form onsubmit="savePlatformGlobalConfig(event)">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Platform Brand Name</label>
+                <input type="text" class="form-input" id="cfg-platform-name" value="Eduflow School OS" style="width: 100%; font-size: 0.8rem;" required>
+              </div>
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Support Email Line</label>
+                <input type="email" class="form-input" id="cfg-support-email" value="support@eduflow.ng" style="width: 100%; font-size: 0.8rem;" required>
+              </div>
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Support Phone / WhatsApp</label>
+                <input type="text" class="form-input" id="cfg-support-phone" value="+234 800 338 3569" style="width: 100%; font-size: 0.8rem;" required>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Paystack Live Public Key</label>
+                <input type="text" class="form-input" id="cfg-paystack-key" value="pk_live_eduflow_demo_984123" style="width: 100%; font-size: 0.8rem; font-family: var(--font-family-mono);" required>
+              </div>
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Standard Plan Monthly Rate (₦)</label>
+                <input type="number" class="form-input" id="cfg-rate-standard" value="7500" style="width: 100%; font-size: 0.8rem;" required>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end;">
+              <button type="submit" class="btn btn-primary" style="font-size: 0.8rem; font-weight: 700;">Save Platform Config</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- SECTION 2.9: KYC COMPLIANCE VAULT -->
+      <section id="sect-super-kyc" class="dashboard-panel panel-section">
+        <div class="panel-title-block">
+          <h2 class="panel-title">KYC Compliance Vault</h2>
+          <span class="panel-subtitle">Inspect official school registration certificates, review accreditation credentials, and sign off on compliance checklists.</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.2fr 1.8fr; gap: 32px; align-items: start;">
+          <!-- Pending Schools List -->
+          <div class="glass-card" style="padding: 24px;">
+            <h3 style="font-size: 1rem; color: var(--text-main); margin-bottom: 16px; font-family: var(--font-family-title);">KYC Queue</h3>
+            <div style="display: flex; flex-direction: column; gap: 12px;" id="super-kyc-queue-list">
+              <!-- Javascript populated -->
+            </div>
+          </div>
+
+          <!-- Documents Review & Sign-off Panel -->
+          <div class="glass-card" style="padding: 24px;" id="super-kyc-review-panel">
+            <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+              Select a school from the queue on the left to begin the compliance review process.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2.10: SCHOOL SETUP & THEME -->
+      <section id="sect-super-setup" class="dashboard-panel panel-section">
+        <div class="panel-title-block">
+          <h2 class="panel-title">School Setup & Brand Colors</h2>
+          <span class="panel-subtitle">Update active term settings, modify tuition schedules, and adjust tenant primary and accent colors.</span>
+        </div>
+
+        <div class="glass-card" style="padding: 24px; margin-bottom: 32px;">
+          <h3 style="font-size: 1rem; color: var(--text-main); margin-bottom: 20px; font-family: var(--font-family-title);">School Profile & Rates Config</h3>
+          <form id="super-profile-form" onsubmit="saveSuperSchoolProfileSettings(event)" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="input-group">
+              <label style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px; display: block;">Institutional Name</label>
+              <input type="text" class="form-input" id="super-setup-school-name" required style="width: 100%;">
+            </div>
+            <div class="input-group">
+              <label style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px; display: block;">Administrator Email</label>
+              <input type="email" class="form-input" id="super-setup-school-email" required style="width: 100%;">
+            </div>
+            <div class="input-group" style="grid-column: span 2;">
+              <label style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px; display: block;">Active Academic Term Title</label>
+              <input type="text" class="form-input" id="super-setup-school-term" required style="width: 100%;">
+            </div>
+            <div class="input-group">
+              <label style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px; display: block;">Standard Tuition Levy (₦)</label>
+              <input type="number" class="form-input" id="super-setup-fees-tuition" required style="width: 100%;">
+            </div>
+            <div class="input-group">
+              <label style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px; display: block;">Standard Library Levy (₦)</label>
+              <input type="number" class="form-input" id="super-setup-fees-library" required style="width: 100%;">
+            </div>
+            <div class="input-group">
+              <label style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px; display: block;">Standard Development Levy (₦)</label>
+              <input type="number" class="form-input" id="super-setup-fees-development" required style="width: 100%;">
+            </div>
+            <div class="input-group">
+              <label style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px; display: block;">Report Card Style Template</label>
+              <select class="form-select" id="super-setup-card-format" style="width: 100%;">
+                <option value="Premium Crest">👑 Premium Crest (Watermarked Logo, Gold Double Borders)</option>
+                <option value="Classic Board">📝 Classic Board (Double Grid, Standard Borders, Signatures)</option>
+                <option value="Minimalist Sheet">⚡ Minimalist Sheet (Borderless, Compact Progress Tracks)</option>
+              </select>
+            </div>
+            <div style="grid-column: span 2; display: flex; justify-content: flex-end; margin-top: 12px;">
+              <button type="submit" class="btn btn-primary" style="font-weight: 700; background: var(--super-accent); border-color: var(--super-accent);">Save School Configurations</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="glass-card" style="padding: 24px;">
+          <h3 style="font-size: 1rem; color: var(--text-main); margin-bottom: 20px; font-family: var(--font-family-title);">Brand Theme Color Overrides</h3>
+          <form id="super-brand-form" onsubmit="saveSuperSchoolBrandColors(event)" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: end;">
+            <div class="input-group" style="text-align: center;">
+              <label style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px; display: block;">Primary Core Color</label>
+              <input type="color" id="super-setup-color-primary" style="width: 60px; height: 40px; padding: 0; background: none; border: none; cursor: pointer; margin: 0 auto;">
+            </div>
+            <div class="input-group" style="text-align: center;">
+              <label style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px; display: block;">Accent Core Color</label>
+              <input type="color" id="super-setup-color-accent" style="width: 60px; height: 40px; padding: 0; background: none; border: none; cursor: pointer; margin: 0 auto;">
+            </div>
+            <div class="input-group" style="text-align: center;">
+              <label style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px; display: block;">Secondary Teal Color</label>
+              <input type="color" id="super-setup-color-teal" style="width: 60px; height: 40px; padding: 0; background: none; border: none; cursor: pointer; margin: 0 auto;">
+            </div>
+            <div style="grid-column: span 3; display: flex; justify-content: flex-end; margin-top: 12px;">
+              <button type="submit" class="btn btn-primary" style="font-weight: 700; background: var(--super-accent); border-color: var(--super-accent);">Update Theme Colors</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- SECTION 2.11: ROSTERS & SUBJECTS -->
+      <section id="sect-super-rosters" class="dashboard-panel panel-section">
+        <div class="panel-title-block">
+          <h2 class="panel-title">Rosters & Subjects</h2>
+          <span class="panel-subtitle">Enroll students, register standard subjects, and customize school curriculums.</span>
+        </div>
+
+        <div class="glass-card" style="padding: 24px; margin-bottom: 32px;">
+          <h3 style="font-size: 1rem; color: var(--text-main); margin-bottom: 16px; font-family: var(--font-family-title);">Curriculum Subjects Management</h3>
+          <form id="super-add-subject-form" onsubmit="addSubjectToSuperTenant(event)" style="display: flex; gap: 12px; margin-bottom: 20px;">
+            <input type="text" class="form-input" id="super-new-subject-name" placeholder="e.g. Further Mathematics" style="flex: 1;" required>
+            <button type="submit" class="btn btn-primary" style="font-weight: 700; font-size: 0.8rem; padding: 0 20px; background: var(--super-accent); border-color: var(--super-accent);">Add Subject</button>
+          </form>
+          <div style="border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); overflow: hidden;">
+            <table class="super-table" style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                  <th style="padding: 10px 16px; text-align: left;">Subject Title</th>
+                  <th style="padding: 10px 16px; text-align: right;">Operation</th>
+                </tr>
+              </thead>
+              <tbody id="super-subjects-tbody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="glass-card" style="padding: 24px;">
+          <h3 style="font-size: 1rem; color: var(--text-main); margin-bottom: 16px; font-family: var(--font-family-title);">Student Enrolment Portal</h3>
+          <form id="super-add-student-form" onsubmit="addStudentToSuperTenant(event)" style="display: grid; grid-template-columns: 1.5fr 1fr 1.2fr 1fr; gap: 12px; margin-bottom: 20px; align-items: end;">
+            <div class="input-group">
+              <label for="super-new-student-name" style="font-size: 0.7rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Student Name</label>
+              <input type="text" class="form-input" id="super-new-student-name" placeholder="e.g. Kelechi Nwosu" style="width: 100%;" required>
+            </div>
+            <div class="input-group">
+              <label for="super-new-student-class" style="font-size: 0.7rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Classroom</label>
+              <input type="text" class="form-input" id="super-new-student-class" placeholder="e.g. 10A" style="width: 100%;" required>
+            </div>
+            <div class="input-group">
+              <label for="super-new-student-roll" style="font-size: 0.7rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Roll Number</label>
+              <input type="text" class="form-input" id="super-new-student-roll" placeholder="e.g. 2026/G10/012" style="width: 100%;">
+            </div>
+            <button type="submit" class="btn btn-primary" style="font-weight: 700; font-size: 0.8rem; width: 100%; height: 38px; background: var(--super-accent); border-color: var(--super-accent);">Enrol Student</button>
+          </form>
+          <div style="border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); overflow: hidden; max-height: 320px; overflow-y: auto;">
+            <table class="super-table" style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                  <th style="padding: 10px 16px; text-align: left;">Roll ID</th>
+                  <th style="padding: 10px 16px; text-align: left;">Name</th>
+                  <th style="padding: 10px 16px; text-align: left;">Class</th>
+                  <th style="padding: 10px 16px; text-align: right;">Operation</th>
+                </tr>
+              </thead>
+              <tbody id="super-students-tbody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2.12: TIMETABLES -->
+      <section id="sect-super-schedules" class="dashboard-panel panel-section">
+        <div class="panel-title-block">
+          <h2 class="panel-title">Academic Timetables</h2>
+          <span class="panel-subtitle">Assign timetable periods, configure subject teachers, and compile school timetables.</span>
+        </div>
+
+        <div class="glass-card" style="padding: 24px; margin-bottom: 32px;">
+          <h3 style="font-size: 1rem; color: var(--text-main); margin-bottom: 16px; font-family: var(--font-family-title);">Timetable Period Assigner</h3>
+          <form id="super-add-schedule-form" onsubmit="addScheduleToSuperTenant(event)" style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px; align-items: end;">
+            <div class="input-group">
+              <label style="font-size: 0.7rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Classroom</label>
+              <select class="form-select" id="super-schedule-class-select" style="width: 100%; height: 38px;">
+                <option value="10A">Grade 10A</option>
+                <option value="11B">Grade 11B</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label style="font-size: 0.7rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Day</label>
+              <select class="form-select" id="super-schedule-day-select" style="width: 100%; height: 38px;">
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label style="font-size: 0.7rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Period slot</label>
+              <select class="form-select" id="super-schedule-period-select" style="width: 100%; height: 38px;">
+                <option value="p1">Period 1 (08:00-09:30)</option>
+                <option value="p2">Period 2 (09:30-11:00)</option>
+                <option value="p3">Period 3 (11:30-01:00)</option>
+                <option value="p4">Period 4 (01:00-02:30)</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label style="font-size: 0.7rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Subject</label>
+              <select class="form-select" id="super-schedule-subject-select" style="width: 100%; height: 38px;">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <div class="input-group">
+              <label style="font-size: 0.7rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Teacher</label>
+              <input type="text" class="form-input" id="super-schedule-teacher-name" placeholder="e.g. Dr. Okon" required style="width: 100%; height: 38px;">
+            </div>
+            <button type="submit" class="btn btn-primary" style="font-weight: 700; font-size: 0.8rem; width: 100%; height: 38px; background: var(--super-accent); border-color: var(--super-accent);">Assign Slot</button>
+          </form>
+          <div style="border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); overflow: hidden;">
+            <table class="super-table" style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                  <th style="padding: 10px 16px; text-align: left;">Class</th>
+                  <th style="padding: 10px 16px; text-align: left;">Day</th>
+                  <th style="padding: 10px 16px; text-align: left;">Slot</th>
+                  <th style="padding: 10px 16px; text-align: left;">Subject</th>
+                  <th style="padding: 10px 16px; text-align: left;">Teacher</th>
+                  <th style="padding: 10px 16px; text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="super-schedules-tbody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2.13: BILLING RECEIPTS -->
+      <section id="sect-super-billing" class="dashboard-panel panel-section">
+        <div class="panel-title-block">
+          <h2 class="panel-title">Billing & Payments</h2>
+          <span class="panel-subtitle">Track cleared payments, issue invoices, and record manual payment settlements.</span>
+        </div>
+
+        <div class="glass-card" style="padding: 24px; margin-bottom: 32px;">
+          <h3 style="font-size: 1rem; color: var(--text-main); margin-bottom: 16px; font-family: var(--font-family-title);">Record Manual School Fees Payment</h3>
+          <form id="super-add-payment-form" onsubmit="recordSuperManualPayment(event)" style="display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px; align-items: end;">
+            <div class="input-group">
+              <label style="font-size: 0.7rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Student Beneficiary</label>
+              <select class="form-select" id="super-payment-student-select" style="width: 100%; height: 38px;">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <div class="input-group">
+              <label style="font-size: 0.7rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Invoice Levy</label>
+              <select class="form-select" id="super-payment-item-select" style="width: 100%; height: 38px;">
+                <option value="Tuition Fees">Tuition Fees</option>
+                <option value="Library Levy">Library Levy</option>
+                <option value="Development Levy">Development Levy</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label style="font-size: 0.7rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Amount Cleared (₦)</label>
+              <input type="number" class="form-input" id="super-payment-amount" placeholder="e.g. 150000" required style="width: 100%; height: 38px;">
+            </div>
+            <button type="submit" class="btn btn-primary" style="font-weight: 700; font-size: 0.8rem; width: 100%; height: 38px; background: var(--super-accent); border-color: var(--super-accent);">Record Payment</button>
+          </form>
+        </div>
+
+        <div class="glass-card" style="padding: 24px;">
+          <h3 style="font-size: 1rem; color: var(--text-main); margin-bottom: 16px; font-family: var(--font-family-title);">Payment Transactions History</h3>
+          <div style="overflow-x: auto;">
+            <table class="super-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                  <th style="padding: 10px 16px;">Reference</th>
+                  <th style="padding: 10px 16px;">Student</th>
+                  <th style="padding: 10px 16px;">Levy Item</th>
+                  <th style="padding: 10px 16px;">Amount (₦)</th>
+                  <th style="padding: 10px 16px;">Date</th>
+                  <th style="padding: 10px 16px; text-align: right;">Status</th>
+                </tr>
+              </thead>
+              <tbody id="super-payments-tbody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2.14: ALERT GATEWAY -->
+      <section id="sect-super-outbox" class="dashboard-panel panel-section">
+        <div class="panel-title-block">
+          <h2 class="panel-title">Dispatched Parent Alerts</h2>
+          <span class="panel-subtitle">Audit SMS alert triggers, email result notifications, and gateway transmission records.</span>
+        </div>
+
+        <div class="glass-card" style="padding: 24px;">
+          <h3 style="font-size: 1rem; color: var(--text-main); margin-bottom: 16px; font-family: var(--font-family-title);">Dispatched Parent Alerts Outbox</h3>
+          <div style="overflow-x: auto;">
+            <table class="super-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                  <th style="padding: 10px 16px;">Recipient</th>
+                  <th style="padding: 10px 16px;">Channel</th>
+                  <th style="padding: 10px 16px;">Gateway Contact</th>
+                  <th style="padding: 10px 16px;">Alert Category</th>
+                  <th style="padding: 10px 16px;">Message</th>
+                  <th style="padding: 10px 16px; text-align: right;">Status</th>
+                </tr>
+              </thead>
+              <tbody id="super-outbox-tbody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2.15: DATABASE BACKUPS -->
+      <section id="sect-super-system" class="dashboard-panel panel-section">
+        <div class="panel-title-block">
+          <h2 class="panel-title">System Database Backups</h2>
+          <span class="panel-subtitle">Download backup JSON models, restore historic portfolios, or reset tenant datasets.</span>
+        </div>
+
+        <div class="glass-card" style="padding: 24px;">
+          <h3 style="font-size: 1rem; color: var(--text-main); margin-bottom: 20px; font-family: var(--font-family-title);">Tenant Data Controls</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <div style="border-right: 1px solid var(--border-color); padding-right: 24px;">
+              <h4 style="font-size: 0.85rem; color: var(--text-main); margin-bottom: 12px; font-weight: 700;">Database Backups</h4>
+              <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 16px;">Export the database portfolio for the selected school as a `.json` backup file or restore it from an existing copy.</p>
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="btn btn-secondary" onclick="exportSuperTenantDatabaseJSON()" style="width: 100%; border-color: rgba(18, 19, 42, 0.08); font-size: 0.75rem;">📥 Export School Backup</button>
+                <div style="position: relative;">
+                  <input type="file" id="super-tenant-import-file" style="display: none;" onchange="importSuperTenantDatabaseJSON(this)">
+                  <button class="btn btn-secondary" onclick="document.getElementById('super-tenant-import-file').click()" style="width: 100%; border-color: rgba(18, 19, 42, 0.08); font-size: 0.75rem;">📤 Import School Backup</button>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h4 style="font-size: 0.85rem; color: #ef4444; margin-bottom: 12px; font-weight: 700;">Danger Zone Operations</h4>
+              <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 16px;">Deregister student rosters, erase timetables, and clear payments logs completely for the selected school.</p>
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="btn btn-secondary" onclick="wipeSuperTenantDatabaseData()" style="width: 100%; border-color: rgba(239,68,68,0.2); color: #ef4444; font-size: 0.75rem;">✗ Wipe School Database</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- PAYSTACK-STYLE CHECKOUT DIALOG MODAL -->
+  <div class="modal-overlay" id="checkout-modal-overlay">
+    <div class="payment-modal">
+      
+      <!-- Normal Form Input State -->
+      <div id="payment-input-state">
+        <div class="modal-header">
+          <div class="logo-container" style="font-size: 1.1rem;">
+            <div class="logo-icon" style="background: transparent; border: none; width: 28px; height: 28px; padding: 0; display: flex; align-items: center; justify-content: center;">
+              <svg width="100%" height="100%" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="eduflow-grad-pay" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#17B8A6" />
+                    <stop offset="100%" stop-color="#5B4FE0" />
+                  </linearGradient>
+                </defs>
+                <path d="M 78 35 A 32 32 0 1 0 78 65" stroke="url(#eduflow-grad-pay)" stroke-width="12" stroke-linecap="round" fill="none" />
+                <path d="M 22 50 H 74" stroke="url(#eduflow-grad-pay)" stroke-width="12" stroke-linecap="round" />
+                <circle cx="78" cy="35" r="8" fill="#17B8A6" />
+              </svg>
+            </div>
+            <span>Eduflow Pay</span>
+          </div>
+          <div class="paystack-logo">
+            <span class="paystack-dot"></span>
+            <span>securing checkout</span>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 20px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: var(--border-radius-md); border: 1px solid var(--bg-dark-border);">
+          <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">PAYMENT FOR</span>
+          <span style="font-size: 0.9rem; font-weight: 600;" id="modal-payment-desc">Outstanding School Fees</span>
+          <span style="font-size: 1.2rem; font-weight: 700; color: var(--accent-teal); display: block; margin-top: 4px;" id="modal-payment-amount">₦175,000.00</span>
+        </div>
+
+        <!-- Simulated Card Graphic -->
+        <div class="credit-card-ui">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div class="card-ui-chip"></div>
+            <div style="font-style: italic; font-weight: 800; color: rgba(255,255,255,0.8); font-size: 0.95rem;">VISA</div>
+          </div>
+          <div class="card-ui-number" id="card-graphic-number">•••• •••• •••• ••••</div>
+          <div class="card-ui-flex">
+            <div>
+              <div style="font-size: 0.55rem; color: rgba(255,255,255,0.6);">Cardholder</div>
+              <div class="card-ui-name" id="card-graphic-name">Tobi Adebayo</div>
+            </div>
+            <div>
+              <div style="font-size: 0.55rem; color: rgba(255,255,255,0.6); text-align: right;">Expiry</div>
+              <div style="font-weight: 600;" id="card-graphic-expiry">MM/YY</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="payment-form">
+          <div class="input-group">
+            <label for="card-num-input">Card Number</label>
+            <input type="text" class="form-input" id="card-num-input" placeholder="4012 8832 9912 0041" maxlength="19" oninput="updateCardNumberGraphic(this)">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="input-group">
+              <label for="card-expiry-input">Expiry Date</label>
+              <input type="text" class="form-input" id="card-expiry-input" placeholder="MM/YY" maxlength="5" oninput="updateCardExpiryGraphic(this)">
+            </div>
+            <div class="input-group">
+              <label for="card-cvv-input">CVV</label>
+              <input type="password" class="form-input" id="card-cvv-input" placeholder="•••" maxlength="3">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+            <button class="btn btn-secondary" onclick="closePaymentModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="processMockPayment()">Pay Now</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="payment-loading-state" class="payment-state">
+        <div class="spinner"></div>
+        <h3>Authorizing Transaction</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px;">Please wait while we connect to your bank gateway...</p>
+      </div>
+
+      <!-- Success State -->
+      <div id="payment-success-state" class="payment-state">
+        <div class="success-icon-wrapper">✓</div>
+        <h3>Payment Successful</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px; margin-bottom: 24px;" id="success-state-msg">Your tuition fee invoice has been verified.</p>
+        <button class="btn btn-primary" onclick="completePaymentCheckoutSuccess()">Done</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- STUDENT REGISTRATION MODAL -->
+  <div class="modal-overlay" id="student-modal-overlay">
+    <div class="payment-modal">
+      <div class="modal-header">
+        <div class="logo-container" style="font-size: 1.1rem;">
+          <div class="logo-icon" style="background: transparent; border: none; width: 28px; height: 28px; padding: 0; display: flex; align-items: center; justify-content: center;">
+            <svg width="100%" height="100%" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="eduflow-grad-student" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#17B8A6" />
+                  <stop offset="100%" stop-color="#5B4FE0" />
+                </linearGradient>
+              </defs>
+              <path d="M 78 35 A 32 32 0 1 0 78 65" stroke="url(#eduflow-grad-student)" stroke-width="12" stroke-linecap="round" fill="none" />
+              <path d="M 22 50 H 74" stroke="url(#eduflow-grad-student)" stroke-width="12" stroke-linecap="round" />
+              <circle cx="78" cy="35" r="8" fill="#17B8A6" />
+            </svg>
+          </div>
+          <span>Register New Student</span>
+        </div>
+        <button class="icon-btn" onclick="closeStudentRegistrationModal()" style="font-size: 1.2rem; font-weight: 700;">×</button>
+      </div>
+
+      <div class="payment-form">
+        <div class="input-group">
+          <label for="reg-student-name">Full Name</label>
+          <input type="text" class="form-input" id="reg-student-name" placeholder="e.g. Samuel Okafor" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="input-group">
+            <label for="reg-student-class">Class Room Arm</label>
+            <select class="form-select" id="reg-student-class" style="width: 100%;" onchange="updateAutoGeneratedRollNumber()">
+              <optgroup label="Senior Secondary (SSS)">
+                <option value="SSS 1 Science" selected>SSS 1 Science</option>
+                <option value="SSS 1 Commercial">SSS 1 Commercial</option>
+                <option value="SSS 1 Arts">SSS 1 Arts</option>
+                <option value="SSS 2 Science">SSS 2 Science</option>
+                <option value="SSS 2 Commercial">SSS 2 Commercial</option>
+                <option value="SSS 2 Arts">SSS 2 Arts</option>
+                <option value="SSS 3">SSS 3</option>
+              </optgroup>
+              <optgroup label="Junior Secondary (JSS)">
+                <option value="JSS 1">JSS 1</option>
+                <option value="JSS 2">JSS 2</option>
+                <option value="JSS 3">JSS 3</option>
+              </optgroup>
+              <optgroup label="Primary School">
+                <option value="Primary 1">Primary 1</option>
+                <option value="Primary 2">Primary 2</option>
+                <option value="Primary 3">Primary 3</option>
+                <option value="Primary 4">Primary 4</option>
+                <option value="Primary 5">Primary 5</option>
+                <option value="Primary 6">Primary 6</option>
+              </optgroup>
+              <optgroup label="Nursery & Early Childhood">
+                <option value="Nursery 1">Nursery 1</option>
+                <option value="Nursery 2">Nursery 2</option>
+                <option value="Creche">Creche</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="input-group">
+            <label for="reg-student-roll">Auto Roll / Matric No.</label>
+            <input type="text" class="form-input" id="reg-student-roll" placeholder="Auto-generated" readonly style="background: rgba(255,255,255,0.03); color: var(--accent-teal); font-weight: 700; font-family: var(--font-family-mono); cursor: not-allowed;">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+          <button class="btn btn-secondary" onclick="closeStudentRegistrationModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="registerNewStudent()">Save Student</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOATING PHONE SIMULATOR FOR MOCK ALERTS -->
+  <button class="phone-toggle-btn" onclick="togglePhoneSimulator()" title="Simulate Parent SMS Phone">
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="margin-right: 2px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+    <span>Parent Simulator</span>
+    <span class="phone-badge" id="phone-badge-count" style="display: none;">0</span>
+  </button>
+
+  <div class="phone-device-container" id="phone-simulator-container">
+    <div class="phone-header-notch"></div>
+    <div class="phone-device-screen">
+      <!-- Phone Top Bar -->
+      <div class="phone-top-bar">
+        <span>10:42</span>
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <!-- WiFi Icon -->
+          <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61l1.42-1.42C5.4 15.05 5 13.58 5 12c0-3.87 3.13-7 7-7s7 3.13 7 7c0 1.58-.4 3.05-1.39 4.19l1.42 1.42C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg>
+          <!-- Battery Icon -->
+          <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M17 5H3a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2zm-1 12H4V9h12v8z"/></svg>
+        </div>
+      </div>
+      <!-- Phone App Header -->
+      <div class="phone-app-header">
+        <span style="font-size: 0.65rem; font-weight: 700; color: #a1a1aa; font-family: var(--font-family-mono);">MOCK PARENT SMS INBOX</span>
+        <button onclick="clearPhoneSMS()" style="background: none; border: none; color: var(--accent); font-size: 0.65rem; font-family: var(--font-family-mono); cursor: pointer; font-weight: 700;">CLEAR</button>
+      </div>
+      <!-- Notifications Feed -->
+      <div class="phone-notification-feed" id="phone-notification-feed">
+        <div class="phone-empty-state" id="phone-empty-state" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%; padding: 20px;">
+          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom: 8px; opacity: 0.5; color: #71717a;"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 10.742h.01m3.99 0h.01M9 21h6a2 2 0 002-2V7a2 2 0 00-2-2H9a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <p style="font-size: 0.75rem; color: #71717a; margin: 0; line-height: 1.4;">No notifications yet. Mark attendance or pay fees to trigger mock parent SMS alerts.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECURE SUPERADMIN PASSCODE GATE -->
+  <div class="super-login-overlay hidden" id="super-login-overlay">
+    <div class="super-login-card">
+      <div class="logo-container" style="font-size: 1.4rem; justify-content: center; margin-bottom: 24px; color: var(--text-main);">
+        <div class="logo-icon" style="background: transparent; border: none; width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center;">
+          <svg width="100%" height="100%" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 78 35 A 32 32 0 1 0 78 65" stroke="url(#super-logo-grad)" stroke-width="12" stroke-linecap="round" fill="none" />
+            <path d="M 22 50 H 74" stroke="url(#super-logo-grad)" stroke-width="12" stroke-linecap="round" />
+            <circle cx="78" cy="35" r="8" fill="#17B8A6" />
+            <defs>
+              <linearGradient id="super-logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#17B8A6" />
+                <stop offset="100%" stop-color="#5B4FE0" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span style="font-weight: 800; letter-spacing: -0.5px;">Eduflow <span style="color: var(--super-teal);">SaaS</span></span>
+      </div>
+      
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 30px;">Enter credentials to unlock the SaaS engine core control console.</p>
+      
+      <form id="super-login-form" onsubmit="handleSuperLogin(event)">
+        <div class="input-group" style="margin-bottom: 16px; text-align: left;">
+          <label style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px; display: block;">Super-Admin Username</label>
+          <input type="text" class="form-input" id="super-username" placeholder="e.g. superadmin" style="width: 100%;" required>
+        </div>
+        <div class="input-group" style="margin-bottom: 24px; text-align: left;">
+          <label style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px; display: block;">Super-Admin Password</label>
+          <input type="password" class="form-input" id="super-password" placeholder="••••••••" style="width: 100%;" required>
+        </div>
+        <button type="submit" class="btn btn-teal" style="width: 100%; padding: 12px; background: var(--super-accent); color: white !important; font-weight: 700; border-color: var(--super-accent);">Authenticate Session</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- SUPER-ADMIN KYC & RECEIPT VERIFICATION DRAWER MODAL -->
+  <div class="modal-overlay" id="super-kyc-receipt-modal">
+    <div class="modal-card glass-card" style="max-width: 600px; padding: 32px; border: 1px solid var(--border-color);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font-size: 1.1rem; font-family: var(--font-family-title); color: var(--text-main); margin: 0;" id="kyc-modal-title">Tenant Audit Documents</h3>
+        <button class="modal-close-btn" onclick="closeSuperKycReceiptModal()" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem;">✕</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        <!-- Tenant Details Header -->
+        <div style="display: flex; align-items: center; gap: 14px; padding: 14px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid var(--border-color);">
+          <div id="kyc-modal-logo" style="width: 48px; height: 48px; border-radius: 8px; background: var(--bg-dark-border); overflow: hidden; display: flex; align-items: center; justify-content: center;">
+            🏢
+          </div>
+          <div>
+            <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin: 0;" id="kyc-modal-school-name">School Name</h4>
+            <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0;" id="kyc-modal-school-sub">Standard Plan • Pending Verification</p>
+          </div>
+        </div>
+
+        <!-- Document Preview Container -->
+        <div>
+          <span style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-family-mono); display: block; margin-bottom: 8px;">Proof of Payment & CAC Certificate</span>
+          <div id="kyc-modal-receipt-container" style="width: 100%; height: 260px; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px dashed var(--border-color); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+            <p style="font-size: 0.8rem; color: var(--text-muted);">No payment proof image uploaded for this campus.</p>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+          <button class="btn btn-secondary" onclick="closeSuperKycReceiptModal()" style="font-size: 0.8rem;">Close</button>
+          <button class="btn btn-primary" id="kyc-modal-approve-btn" style="font-size: 0.8rem; font-weight: 700;">Approve Verification</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUPER-ADMIN 30-SECOND SCHOOL ONBOARDING WIZARD MODAL -->
+  <div class="modal-overlay" id="super-onboard-school-modal">
+    <div class="modal-card glass-card" style="max-width: 540px; padding: 32px; border: 1px solid var(--border-color);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 1.1rem; font-family: var(--font-family-title); color: var(--text-main); margin: 0;">⚡ Provision New School Campus</h3>
+        <button class="modal-close-btn" onclick="closeSuperOnboardModal()" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem;">✕</button>
+      </div>
+      <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 20px;">Super-Admin Provisioning: Onboard a new Nigerian school tenant in 30 seconds.</p>
+
+      <form onsubmit="handleSuperOnboardSchoolSubmit(event)">
+        <div style="margin-bottom: 12px;">
+          <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">School Name</label>
+          <input type="text" class="form-input" id="ob-school-name" placeholder="e.g. Apex International School, Port Harcourt" style="width: 100%; font-size: 0.85rem;" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <div>
+            <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Admin Email</label>
+            <input type="email" class="form-input" id="ob-admin-email" placeholder="principal@apexschool.ng" style="width: 100%; font-size: 0.85rem;" required>
+          </div>
+          <div>
+            <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Admin Password</label>
+            <input type="password" class="form-input" id="ob-admin-pass" placeholder="••••••••" style="width: 100%; font-size: 0.85rem;" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+          <div>
+            <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Educational Level</label>
+            <select class="form-select" id="ob-school-type" style="width: 100%; font-size: 0.8rem;">
+              <option value="All-Through">All-Through (Nursery + Primary + Secondary)</option>
+              <option value="Secondary">Secondary Only (JSS 1 - SSS 3)</option>
+              <option value="Primary">Primary Only (Basic 1 - 6)</option>
+              <option value="Nursery">Nursery / Creche Only</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Initial Plan Tier</label>
+            <select class="form-select" id="ob-plan-tier" style="width: 100%; font-size: 0.8rem;">
+              <option value="Standard">Standard Plan (₦7,500/mo)</option>
+              <option value="Pro">Pro Tier (₦15,000/mo)</option>
+              <option value="Free">Free Tier</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+          <button type="button" class="btn btn-secondary" onclick="closeSuperOnboardModal()" style="font-size: 0.8rem;">Cancel</button>
+          <button type="submit" class="btn btn-teal" style="font-size: 0.8rem; font-weight: 700;">Provision School</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- OFFICIAL PRINTABLE REPORT CARD MODAL WITH CREST & PRINCIPAL SEAL -->
+  <div class="modal-overlay" id="official-report-card-modal" style="align-items: flex-start; padding: 24px 16px; overflow-y: auto;">
+    <div class="modal-card glass-card" style="max-width: 840px; width: 94%; padding: 28px 32px; border: 2px solid var(--primary); background: #ffffff; color: #0f172a; max-height: calc(100vh - 48px); overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35); position: relative; margin-top: 10px;">
+      
+      <!-- Close Button -->
+      <button onclick="closeOfficialReportCardModal()" style="position: absolute; top: 16px; right: 16px; background: #f1f5f9; border: 1px solid #cbd5e1; width: 32px; height: 32px; border-radius: 50%; font-size: 1.1rem; font-weight: 700; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10;" title="Close Report Card">&times;</button>
+
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 2px solid #5B4FE0; padding-bottom: 16px; padding-right: 40px;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div style="width: 56px; height: 56px; border-radius: 12px; background: linear-gradient(135deg, #17B8A6, #5B4FE0); display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 1.5rem; flex-shrink: 0;">
+            🏫
+          </div>
+          <div>
+            <h2 style="font-size: 1.35rem; font-family: var(--font-family-title); color: #0f172a; margin: 0; font-weight: 800;" id="rc-school-name">EDULITE ACADEMY, LAGOS</h2>
+            <p style="font-size: 0.78rem; color: #475569; margin-top: 2px; margin-bottom: 0;" id="rc-school-sub">Official Terminal Continuous Assessment & Examination Report</p>
+            <p style="font-size: 0.72rem; color: #5B4FE0; font-family: var(--font-family-mono); margin: 0; font-weight: 700;">ACADEMIC SESSION: 2025/2026 • FIRST TERM</p>
+          </div>
+        </div>
+        <div style="text-align: right; flex-shrink: 0;">
+          <span class="badge" style="background: #10b981; color: white; font-weight: 800; font-size: 0.72rem; padding: 5px 10px; border-radius: 20px;">OFFICIAL CREST CERTIFIED</span>
+          <p style="font-size: 0.7rem; color: #64748b; font-family: var(--font-family-mono); margin-top: 6px;" id="rc-date">Date: 22/07/2026</p>
+        </div>
+      </div>
+
+      <!-- Student Bio Summary Grid -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px; font-size: 0.8rem;">
+        <div><strong>Student Name:</strong> <span id="rc-student-name">Adebayo Tobi</span></div>
+        <div><strong>Admission No:</strong> <span id="rc-student-roll">2026/G10A/001</span></div>
+        <div><strong>Class Arm:</strong> <span id="rc-student-class">Grade 10A (SSS 1)</span></div>
+        <div><strong>Term Average:</strong> <span id="rc-student-avg" style="color: #5B4FE0; font-weight: 800;">78.5%</span></div>
+        <div><strong>Class Position:</strong> <span id="rc-student-pos" style="color: #10b981; font-weight: 800;">🥇 1st of 32</span></div>
+        <div><strong>Attendance:</strong> <span id="rc-student-att">98.5%</span></div>
+      </div>
+
+      <!-- Academic Subject Scores Matrix -->
+      <div style="margin-bottom: 20px; overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.78rem;">
+          <thead>
+            <tr style="background: #5B4FE0; color: white; font-family: var(--font-family-mono);">
+              <th style="padding: 8px 10px;">Subject Title</th>
+              <th style="padding: 8px 10px;">1st CA (15%)</th>
+              <th style="padding: 8px 10px;">2nd CA (15%)</th>
+              <th style="padding: 8px 10px;">Exam (70%)</th>
+              <th style="padding: 8px 10px;">Total (/100)</th>
+              <th style="padding: 8px 10px;">Grade</th>
+              <th style="padding: 8px 10px;">Teacher Remarks</th>
+            </tr>
+          </thead>
+          <tbody id="rc-scores-tbody">
+            <!-- JavaScript Populated -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Psychomotor & Affective Domain 1-5 Scale -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+        <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; background: #f8fafc;">
+          <h4 style="font-size: 0.78rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; text-transform: uppercase; font-family: var(--font-family-mono);">🧠 Affective Domain (Rating 1 - 5)</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.75rem; color: #334155;">
+            <div>Punctuality: <strong>5 / 5</strong></div>
+            <div>Neatness: <strong>5 / 5</strong></div>
+            <div>Politeness: <strong>5 / 5</strong></div>
+            <div>Honesty: <strong>5 / 5</strong></div>
+          </div>
+        </div>
+
+        <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; background: #f8fafc;">
+          <h4 style="font-size: 0.78rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; text-transform: uppercase; font-family: var(--font-family-mono);">🎨 Psychomotor Skills (Rating 1 - 5)</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.75rem; color: #334155;">
+            <div>Handwriting: <strong>4 / 5</strong></div>
+            <div>Sports & Games: <strong>5 / 5</strong></div>
+            <div>Crafts & Tools: <strong>4 / 5</strong></div>
+            <div>Verbal Fluency: <strong>5 / 5</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Principal Signature & Official Stamp Seal -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; padding-top: 14px; border-top: 1px dashed #cbd5e1;">
+        <div style="max-width: 480px;">
+          <p style="font-size: 0.78rem; font-weight: 700; color: #0f172a; margin-bottom: 2px;">Principal's Official Recommendation:</p>
+          <p style="font-size: 0.75rem; color: #475569; font-style: italic; margin: 0;" id="rc-principal-remark">"An exceptional academic performance. Demonstrates outstanding leadership and STEM aptitude."</p>
+        </div>
+        <div style="text-align: center;">
+          <div style="border: 2px dashed #10b981; padding: 8px 16px; border-radius: 8px; color: #10b981; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">
+            ✓ SIGNED & CERTIFIED<br>
+            <span style="font-size: 0.65rem; color: #475569;">OFFICIAL DIGITAL SEAL</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+        <button class="btn btn-secondary" onclick="closeOfficialReportCardModal()" style="font-size: 0.8rem;">Close</button>
+        <button class="btn btn-primary" onclick="window.print()" style="font-size: 0.8rem; font-weight: 700; background: #5B4FE0;">🖨️ Print / Download PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="dashboard.js?v=2.0"></script>
+</body>
+</html>
