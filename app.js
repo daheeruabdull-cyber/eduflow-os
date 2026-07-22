@@ -602,36 +602,35 @@ async function registerSchoolOnboarding() {
     localStorage.setItem('eduflow_school_password', schoolPass);
     localStorage.setItem('eduflow_role', 'admin');
 
-    // Sync to backend persistent database
+    // Asynchronous non-blocking background database sync
     try {
-      const getRes = await fetch('/api/db');
-      if (getRes.ok) {
-        const db = await getRes.json();
-        if (!db.schools) db.schools = [];
-        if (!db.students) db.students = [];
-        
-        db.schools.push(newSchool);
-
-        // Seed default students to global DB
-        defaultStudents.forEach(st => {
-          const maxId = db.students.reduce((max, s) => s.id > max ? s.id : max, 0);
-          st.id = maxId + 1;
-          db.students.push(st);
-        });
-
-        await fetch('/api/db', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(db)
-        });
-      }
-    } catch (err) {
-      console.warn('Backend sync deferred, proceeding with client storage.', err);
+      fetch('/api/db')
+        .then(res => res.ok ? res.json() : null)
+        .then(db => {
+          if (db) {
+            if (!db.schools) db.schools = [];
+            if (!db.students) db.students = [];
+            db.schools.push(newSchool);
+            defaultStudents.forEach(st => {
+              const maxId = db.students.reduce((max, s) => s.id > max ? s.id : max, 0);
+              st.id = maxId + 1;
+              db.students.push(st);
+            });
+            fetch('/api/db', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(db)
+            }).catch(e => console.warn('Backend write deferred.', e));
+          }
+        })
+        .catch(err => console.warn('Backend read deferred.', err));
+    } catch (e) {
+      console.warn("Background sync error ignored.", e);
     }
 
     closeSchoolRegistrationModal();
     
-    // Redirect to Admin dashboard with specific schoolId and status context
+    // Redirect instantly to Admin dashboard with specific schoolId and status context
     const redirectUrl = (paymentMethod === 'Manual') 
       ? `dashboard.html?role=admin&schoolId=${schoolId}&pendingVerify=true`
       : `dashboard.html?role=admin&schoolId=${schoolId}`;
@@ -639,7 +638,6 @@ async function registerSchoolOnboarding() {
     window.location.href = redirectUrl;
   } catch (globalErr) {
     console.error("Onboarding submission error:", globalErr);
-    // Instant fallback navigation
     closeSchoolRegistrationModal();
     window.location.href = `dashboard.html?role=admin&schoolId=school_demo`;
   }
