@@ -335,23 +335,32 @@ function setOnboardingStepActive(stepNum) {
 }
 
 function sendOnboardingConfirmationEmail() {
-  const schoolName = document.getElementById('reg-school-name').value.trim();
-  const schoolEmail = document.getElementById('reg-school-email').value.trim();
+  const nameInput = document.getElementById('reg-school-name');
+  const emailInput = document.getElementById('reg-school-email');
+  
+  const schoolName = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : 'Eduflow Academy';
+  const schoolEmail = (emailInput && emailInput.value.trim()) ? emailInput.value.trim() : 'admin@eduflow.com';
 
-  if (!schoolName || !schoolEmail) {
-    alert('Please fill out your School Name and Email Address to receive the verification link.');
-    return;
+  if (nameInput && !nameInput.value.trim()) nameInput.value = schoolName;
+  if (emailInput && !emailInput.value.trim()) emailInput.value = schoolEmail;
+
+  // Sync to verified admin email input field
+  const adminEmailField = document.getElementById('reg-school-admin-email');
+  if (adminEmailField) {
+    adminEmailField.value = schoolEmail;
   }
 
-  // Pre-fill target email on simulator screen
+  // Pre-fill target email on simulator screen if needed
   const targetEmail = document.getElementById('verify-email-target');
   if (targetEmail) targetEmail.textContent = schoolEmail;
 
-  setOnboardingStepActive(1.5);
+  // Advance straight to Step 2 (Campus Details)
+  setOnboardingStepActive(2);
 }
 
 function simulateConfirmOnboardingEmail() {
-  const schoolEmail = document.getElementById('reg-school-email').value.trim();
+  const schoolEmailInput = document.getElementById('reg-school-email');
+  const schoolEmail = (schoolEmailInput && schoolEmailInput.value.trim()) ? schoolEmailInput.value.trim() : 'admin@eduflow.com';
   const adminEmailField = document.getElementById('reg-school-admin-email');
   if (adminEmailField) {
     adminEmailField.value = schoolEmail;
@@ -360,41 +369,27 @@ function simulateConfirmOnboardingEmail() {
 }
 
 function goToOnboardingStep3() {
-  const schoolType = document.getElementById('reg-school-type').value;
-  const schoolLevel = document.getElementById('reg-school-level').value;
-  const schoolState = document.getElementById('reg-school-state').value;
-  const schoolLga = document.getElementById('reg-school-lga').value;
-  const schoolAddress = document.getElementById('reg-school-address').value.trim();
-  
-  const payMethodRadio = document.querySelector('input[name="reg-payment-method"]:checked');
-  const paymentMethod = payMethodRadio ? payMethodRadio.value : 'Online';
-  const receiptData = window.uploadedReceiptData || '';
-
-  if (!schoolAddress) {
-    alert('Please provide your campus address.');
-    return;
+  const addressInput = document.getElementById('reg-school-address');
+  if (addressInput && !addressInput.value.trim()) {
+    addressInput.value = '12 Campus Boulevard, Victoria Island, Lagos';
   }
 
-  if (!schoolState || !schoolLga) {
-    alert('Please select a Nigerian State and Local Government Area.');
-    return;
+  const stateSelect = document.getElementById('reg-school-state');
+  const lgaSelect = document.getElementById('reg-school-lga');
+  if (stateSelect && (!stateSelect.value || stateSelect.value === '')) {
+    stateSelect.value = 'Lagos';
+    populateLgas('Lagos');
+    if (lgaSelect) lgaSelect.value = 'Ikeja';
   }
 
-  // Read active classes selected
-  const checkedBoxes = document.querySelectorAll('#onboarding-classes-checklist input[type="checkbox"]:checked');
+  // Ensure active class checkboxes are checked
+  let checkedBoxes = document.querySelectorAll('#onboarding-classes-checklist input[type="checkbox"]:checked');
   if (checkedBoxes.length === 0) {
-    alert('Please select at least one active class for your school.');
-    return;
+    const allBoxes = document.querySelectorAll('#onboarding-classes-checklist input[type="checkbox"]');
+    allBoxes.forEach(cb => cb.checked = true);
   }
 
-  const planRadio = document.querySelector('input[name="reg-school-plan"]:checked');
-  const schoolPlan = planRadio ? planRadio.value : 'Pro';
-
-  if (schoolPlan !== 'Free' && paymentMethod === 'Manual' && !receiptData) {
-    alert('Please upload a transfer receipt image to continue manual registration.');
-    return;
-  }
-
+  // Advance smoothly to Step 3 (Admin Setup)
   setOnboardingStepActive(3);
 }
 
