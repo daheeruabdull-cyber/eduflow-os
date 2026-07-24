@@ -141,6 +141,67 @@
     function backToOnboardingStep2() {
       setOnboardingStepActive(2);
     }
+    function registerSchoolOnboarding() {
+      try {
+        var schoolNameInput = document.getElementById('reg-school-name');
+        var schoolEmailInput = document.getElementById('reg-school-email');
+        var adminEmailInput = document.getElementById('reg-school-admin-email');
+        var schoolTypeInput = document.getElementById('reg-school-type');
+        var schoolPhoneInput = document.getElementById('reg-school-phone');
+        var schoolAddressInput = document.getElementById('reg-school-address');
+        var registrarNameInput = document.getElementById('reg-admin-name');
+        var schoolPassInput = document.getElementById('reg-school-pass');
+        var schoolLevelInput = document.getElementById('reg-school-level');
+        var schoolStateInput = document.getElementById('reg-school-state');
+        var schoolLgaInput = document.getElementById('reg-school-lga');
+
+        var schoolName = (schoolNameInput && schoolNameInput.value.trim()) ? schoolNameInput.value.trim() : 'GRACELAND INTERNATIONAL COLLEGE';
+        var schoolEmail = (schoolEmailInput && schoolEmailInput.value.trim()) ? schoolEmailInput.value.trim() : (adminEmailInput && adminEmailInput.value.trim() ? adminEmailInput.value.trim() : 'admin@graceland.edu.ng');
+        var schoolType = schoolTypeInput ? schoolTypeInput.value : 'Physical Learning';
+        var schoolPhone = (schoolPhoneInput && schoolPhoneInput.value.trim()) ? schoolPhoneInput.value.trim() : '08012345678';
+        var schoolAddress = (schoolAddressInput && schoolAddressInput.value.trim()) ? schoolAddressInput.value.trim() : '12 Campus Boulevard, Victoria Island, Lagos';
+        var registrarName = (registrarNameInput && registrarNameInput.value.trim()) ? registrarNameInput.value.trim() : 'School Administrator';
+        var schoolPass = (schoolPassInput && schoolPassInput.value) ? schoolPassInput.value : 'admin123';
+        var schoolLevel = schoolLevelInput ? schoolLevelInput.value : 'Secondary';
+        var schoolState = (schoolStateInput && schoolStateInput.value) ? schoolStateInput.value : 'Lagos';
+        var schoolLga = (schoolLgaInput && schoolLgaInput.value) ? schoolLgaInput.value : 'Ikeja';
+
+        var schoolId = 'school_' + Math.floor(1000 + Math.random() * 9000);
+
+        localStorage.setItem('eduflow_school_id', schoolId);
+        localStorage.setItem('eduflow_school_name', schoolName);
+        localStorage.setItem('eduflow_school_email', schoolEmail);
+        localStorage.setItem('eduflow_school_password', schoolPass);
+        localStorage.setItem('eduflow_school_type', schoolType);
+        localStorage.setItem('eduflow_school_term', 'First Term 2026');
+        localStorage.setItem('eduflow_role', 'admin');
+
+        var registeredSchools = [];
+        try {
+          registeredSchools = JSON.parse(localStorage.getItem('eduflow_registered_schools') || '[]');
+        } catch(e) {}
+
+        registeredSchools.push({
+          id: schoolId,
+          name: schoolName,
+          email: schoolEmail,
+          password: schoolPass,
+          role: 'admin',
+          type: schoolType,
+          level: schoolLevel,
+          state: schoolState,
+          lga: schoolLga
+        });
+        localStorage.setItem('eduflow_registered_schools', JSON.stringify(registeredSchools));
+
+        closeSchoolRegistrationModal();
+        window.location.href = 'dashboard.html?role=admin&schoolId=' + schoolId;
+      } catch (err) {
+        console.error("Onboarding submission error:", err);
+        closeSchoolRegistrationModal();
+        window.location.href = 'dashboard.html?role=admin';
+      }
+    }
     function openPortalLoginModal() {
       var overlay = document.getElementById('login-modal-overlay');
       if (overlay) {
