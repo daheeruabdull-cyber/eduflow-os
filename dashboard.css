@@ -606,9 +606,10 @@ button, input, select, textarea {
 
 /* App Header */
 .app-header {
-  height: 80px;
+  height: 70px;
   border-bottom: 1px solid var(--border-color);
-  background: white;
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
   position: sticky;
   top: 0;
   z-index: 70;
@@ -616,14 +617,14 @@ button, input, select, textarea {
 }
 
 .app-header-inner {
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
   padding: 0 32px;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  box-sizing: border-box;
 }
 
 .header-search {
@@ -677,7 +678,9 @@ button, input, select, textarea {
 }
 
 .dashboard-panel {
-  padding: 40px;
+  padding: 32px;
+  width: 100%;
+  box-sizing: border-box;
   flex: 1;
 }
 
