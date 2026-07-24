@@ -96,14 +96,6 @@ function saveOnboardingState() {
 function navigateToStep(targetStep) {
   if (targetStep < 1 || targetStep > 4) return;
 
-  // Strict Navigation Guard: Cannot jump to Step 2, 3, or 4 if Step 1 is empty
-  if (targetStep > 1 && !isStep1Valid()) {
-    alert("⚠️ Please fill in all required Step 1 fields (School Name, Admin Name, Email, and Password) before proceeding.");
-    targetStep = 1;
-    onboardingState.currentStep = 1;
-    saveOnboardingState();
-  }
-
   onboardingState.currentStep = targetStep;
   saveOnboardingState();
 
@@ -449,11 +441,7 @@ function renderFinalSummaryMetrics() {
 }
 
 async function completeOnboardingAndLaunch() {
-  if (!isStep1Valid()) {
-    alert("⚠️ Onboarding incomplete. Please fill out your School Name, Admin Name, Email, and Password in Step 1 first.");
-    navigateToStep(1);
-    return;
-  }
+  const schoolName = onboardingState.schoolName || (document.getElementById('ob-school-name') ? document.getElementById('ob-school-name').value : '') || 'GRACELAND INTERNATIONAL COLLEGE';
 
   // Sync state to backend API
   try {
@@ -467,13 +455,11 @@ async function completeOnboardingAndLaunch() {
   }
 
   // Populate local storage DB for dashboard runtime
-  localStorage.setItem('eduflow_school_name', onboardingState.schoolName || 'GRACELAND INTERNATIONAL COLLEGE');
+  localStorage.setItem('eduflow_school_name', schoolName);
   localStorage.setItem('eduflow_role', 'admin');
+  localStorage.removeItem('eduflow_onboarding_state');
 
-  // Launch simulated broadcast alert
-  alert("🚀 SCHOOL OS ACTIVATED SUCCESSFULLY!\n\n✓ Automated WhatsApp magic links dispatched to " + onboardingState.validatedRows.length + " parents & teachers.\n✓ Academic Session set to First Term 2026.\n✓ Redirecting to Principal Dashboard...");
-
-  // Redirect to Dashboard
+  // Instant redirect to Dashboard
   window.location.href = 'dashboard.html?role=admin';
 }
 

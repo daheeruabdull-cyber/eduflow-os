@@ -201,11 +201,8 @@ function renderOnboardingClasses(stage) {
 
 // 1. MODAL TRIGGERS
 function openSchoolRegistrationModal() {
-  const overlay = document.getElementById('school-modal-overlay');
-  if (overlay) overlay.classList.add('active');
-  
-  // Reset wizard back to step 1
-  setOnboardingStepActive(1);
+  window.location.href = 'onboarding.html';
+}
 
   // Clear all text & email inputs
   const inputs = ['reg-school-name', 'reg-school-email', 'reg-school-phone', 'reg-school-address', 'reg-admin-name', 'reg-school-pass', 'reg-school-admin-email'];
@@ -717,7 +714,6 @@ async function handlePortalLoginUnified(event) {
 
   closePortalLoginModal();
 
-  // Instant sub-50ms redirect to dashboard with complete parameters
   let redirectUrl = `dashboard.html?role=${targetRole}&schoolId=${activeSchoolId}`;
   if (targetRole === 'student') {
     const studentId = localStorage.getItem('eduflow_student_id') || '1';
@@ -726,7 +722,7 @@ async function handlePortalLoginUnified(event) {
     redirectUrl = `dashboard.html?role=superadmin`;
   }
   
-  window.location.assign(redirectUrl);
+  window.location.href = redirectUrl;
 }
 
 // 3.1 LEGACY FALLBACK REDIRECT
