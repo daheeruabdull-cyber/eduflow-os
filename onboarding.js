@@ -44,6 +44,20 @@ let onboardingState = {
   ]
 };
 
+function isStep1Valid() {
+  const schoolNameElem = document.getElementById('ob-school-name');
+  const adminNameElem = document.getElementById('ob-admin-name');
+  const adminEmailElem = document.getElementById('ob-admin-email');
+  const adminPassElem = document.getElementById('ob-admin-pass');
+  
+  const schoolName = (schoolNameElem && schoolNameElem.value ? schoolNameElem.value : onboardingState.schoolName || '').trim();
+  const adminName = (adminNameElem && adminNameElem.value ? adminNameElem.value : onboardingState.adminName || '').trim();
+  const adminEmail = (adminEmailElem && adminEmailElem.value ? adminEmailElem.value : onboardingState.adminEmail || '').trim();
+  const adminPass = (adminPassElem && adminPassElem.value ? adminPassElem.value : onboardingState.adminPass || '').trim();
+
+  return (schoolName.length > 0 && adminName.length > 0 && adminEmail.length > 0 && adminPass.length > 0);
+}
+
 // Auto-Load persistent onboarding state if available
 function loadSavedOnboardingState() {
   const saved = localStorage.getItem('eduflow_onboarding_state');
@@ -54,6 +68,11 @@ function loadSavedOnboardingState() {
     } catch(e) {
       console.warn("Failed to parse saved onboarding state.", e);
     }
+  }
+
+  // Guard: Reset to Step 1 if Step 1 details are incomplete
+  if (!onboardingState.schoolName || !onboardingState.adminEmail || !onboardingState.adminPass) {
+    onboardingState.currentStep = 1;
   }
 }
 
@@ -66,6 +85,15 @@ function saveOnboardingState() {
 // ==========================================
 function navigateToStep(targetStep) {
   if (targetStep < 1 || targetStep > 4) return;
+
+  // Strict Navigation Guard: Cannot jump to Step 2, 3, or 4 if Step 1 is empty
+  if (targetStep > 1 && !isStep1Valid()) {
+    alert("⚠️ Please fill in all required Step 1 fields (School Name, Admin Name, Email, and Password) before proceeding.");
+    targetStep = 1;
+    onboardingState.currentStep = 1;
+    saveOnboardingState();
+  }
+
   onboardingState.currentStep = targetStep;
   saveOnboardingState();
 
@@ -411,6 +439,12 @@ function renderFinalSummaryMetrics() {
 }
 
 async function completeOnboardingAndLaunch() {
+  if (!isStep1Valid()) {
+    alert("⚠️ Onboarding incomplete. Please fill out your School Name, Admin Name, Email, and Password in Step 1 first.");
+    navigateToStep(1);
+    return;
+  }
+
   // Sync state to backend API
   try {
     await fetch('/api/v1/onboard/complete', {
