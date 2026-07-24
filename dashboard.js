@@ -2463,7 +2463,9 @@ async function loadSuperDatabase() {
   renderSuperOverview();
   populateSuperSchoolSelector();
   loadSuperTenantContext();
-  showSection('super-overview');
+  if (!state.currentSection || !state.currentSection.startsWith('super-')) {
+    showSection('super-overview');
+  }
 }
 
 function renderSuperOverview() {
