@@ -214,7 +214,13 @@ function navigateToPage(targetPage, queryParams) {
 
 // 1. MODAL TRIGGERS
 function openSchoolRegistrationModal() {
-  navigateToPage('onboarding.html');
+  const overlay = document.getElementById('school-modal-overlay');
+  if (overlay) {
+    overlay.classList.add('active');
+    overlay.style.opacity = '1';
+    overlay.style.pointerEvents = 'auto';
+    setOnboardingStepActive(1);
+  }
 }
 
   // Clear all text & email inputs

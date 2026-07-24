@@ -10,7 +10,15 @@
   <script>
     // Inline Core Navigation & Portal Handlers (Zero-Latency Guarantee)
     function openSchoolRegistrationModal() {
-      window.location.href = 'onboarding.html';
+      var overlay = document.getElementById('school-modal-overlay');
+      if (overlay) {
+        overlay.classList.add('active');
+        overlay.style.opacity = '1';
+        overlay.style.pointerEvents = 'auto';
+        if (typeof setOnboardingStepActive === 'function') {
+          setOnboardingStepActive(1);
+        }
+      }
     }
     function openPortalLoginModal() {
       var overlay = document.getElementById('login-modal-overlay');
