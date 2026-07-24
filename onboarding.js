@@ -50,10 +50,10 @@ function isStep1Valid() {
   const adminEmailElem = document.getElementById('ob-admin-email');
   const adminPassElem = document.getElementById('ob-admin-pass');
   
-  const schoolName = (schoolNameElem && schoolNameElem.value ? schoolNameElem.value : onboardingState.schoolName || '').trim();
-  const adminName = (adminNameElem && adminNameElem.value ? adminNameElem.value : onboardingState.adminName || '').trim();
-  const adminEmail = (adminEmailElem && adminEmailElem.value ? adminEmailElem.value : onboardingState.adminEmail || '').trim();
-  const adminPass = (adminPassElem && adminPassElem.value ? adminPassElem.value : onboardingState.adminPass || '').trim();
+  const schoolName = ((schoolNameElem && schoolNameElem.value.trim()) || onboardingState.schoolName || '').trim();
+  const adminName = ((adminNameElem && adminNameElem.value.trim()) || onboardingState.adminName || '').trim();
+  const adminEmail = ((adminEmailElem && adminEmailElem.value.trim()) || onboardingState.adminEmail || '').trim();
+  const adminPass = ((adminPassElem && adminPassElem.value.trim()) || onboardingState.adminPass || '').trim();
 
   return (schoolName.length > 0 && adminName.length > 0 && adminEmail.length > 0 && adminPass.length > 0);
 }
@@ -69,6 +69,16 @@ function loadSavedOnboardingState() {
       console.warn("Failed to parse saved onboarding state.", e);
     }
   }
+
+  // Restore DOM input values if available
+  const nameEl = document.getElementById('ob-school-name');
+  if (nameEl && onboardingState.schoolName) nameEl.value = onboardingState.schoolName;
+  const adminEl = document.getElementById('ob-admin-name');
+  if (adminEl && onboardingState.adminName) adminEl.value = onboardingState.adminName;
+  const emailEl = document.getElementById('ob-admin-email');
+  if (emailEl && onboardingState.adminEmail) emailEl.value = onboardingState.adminEmail;
+  const passEl = document.getElementById('ob-admin-pass');
+  if (passEl && onboardingState.adminPass) passEl.value = onboardingState.adminPass;
 
   // Guard: Reset to Step 1 if Step 1 details are incomplete
   if (!onboardingState.schoolName || !onboardingState.adminEmail || !onboardingState.adminPass) {
