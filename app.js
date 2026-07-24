@@ -686,22 +686,43 @@ async function handlePortalLoginUnified(event) {
   const idInput = document.getElementById('login-identifier');
   const passInput = document.getElementById('login-password');
   
-  const identifier = (idInput && idInput.value.trim()) ? idInput.value.trim() : (localStorage.getItem('eduflow_school_email') || 'demo@eduflow.com');
-  const password = passInput ? passInput.value : '';
-
+  const identifier = idInput && idInput.value ? idInput.value.trim() : '';
+  const password = passInput && passInput.value ? passInput.value : '';
   const cleanId = identifier.toLowerCase();
-  
-  // Fast-path role detection
-  let targetRole = 'admin';
-  if (cleanId === 'superadmin') {
-    targetRole = 'superadmin';
-  } else if (cleanId.includes('teacher')) {
-    targetRole = 'teacher';
-  } else if (cleanId.includes('parent')) {
-    targetRole = 'parent';
-  } else if (cleanId.includes('student') || cleanId.includes('2026/')) {
-    targetRole = 'student';
+
+  if (!identifier || !password) {
+    alert("⚠️ Please enter your Username/Email and Password to sign in.");
+    return false;
   }
+
+  // Check registered school in localStorage
+  const savedEmail = (localStorage.getItem('eduflow_school_email') || '').toLowerCase();
+  const savedPass = localStorage.getItem('eduflow_school_password') || '';
+  let savedSchools = [];
+  try {
+    savedSchools = JSON.parse(localStorage.getItem('eduflow_registered_schools') || '[]');
+  } catch(e) {}
+
+  const isRegisteredSchool = (cleanId === savedEmail && (!savedPass || password === savedPass)) ||
+    savedSchools.some(s => (s.email || '').toLowerCase() === cleanId && (!s.password || s.password === password));
+
+  // Check demo accounts & roles
+  const isDemoAdmin = (cleanId === 'admin' || cleanId === 'admin@eduflow.com' || cleanId.includes('admin'));
+  const isDemoTeacher = (cleanId === 'teacher' || cleanId === 'teacher@eduflow.com' || cleanId.includes('teacher'));
+  const isDemoParent = (cleanId === 'parent' || cleanId === 'parent@eduflow.com' || cleanId.includes('parent'));
+  const isDemoStudent = (cleanId === 'student' || cleanId === 'student@eduflow.com' || cleanId.includes('student') || cleanId.includes('2026/'));
+  const isDemoSuper = (cleanId === 'superadmin' || cleanId.includes('super'));
+
+  if (!isRegisteredSchool && !isDemoAdmin && !isDemoTeacher && !isDemoParent && !isDemoStudent && !isDemoSuper) {
+    alert("❌ Unregistered Account / Invalid Credentials.\n\nNo school or portal account found for '" + identifier + "'. Please check your credentials or click 'Start Trial' to register your school first.");
+    return false;
+  }
+
+  let targetRole = 'admin';
+  if (isDemoSuper) targetRole = 'superadmin';
+  else if (isDemoTeacher) targetRole = 'teacher';
+  else if (isDemoParent) targetRole = 'parent';
+  else if (isDemoStudent) targetRole = 'student';
 
   const activeSchoolId = localStorage.getItem('eduflow_school_id') || 'school_demo';
 
@@ -709,26 +730,6 @@ async function handlePortalLoginUnified(event) {
   localStorage.setItem('eduflow_role', targetRole);
   if (targetRole === 'parent' && cleanId.includes('@')) {
     localStorage.setItem('eduflow_parent_email', identifier);
-  }
-
-  // Non-blocking asynchronous backend auth sync
-  try {
-    fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ identifier, password })
-    }).then(res => {
-      if (res.ok) {
-        return res.json().then(result => {
-          if (result.token) localStorage.setItem('eduflow_jwt_token', result.token);
-          if (result.role) localStorage.setItem('eduflow_role', result.role);
-          if (result.email) localStorage.setItem('eduflow_parent_email', result.email);
-          if (result.studentId) localStorage.setItem('eduflow_student_id', result.studentId);
-        });
-      }
-    }).catch(err => console.warn("Backend auth sync deferred.", err));
-  } catch (err) {
-    console.warn("Auth sync error ignored.", err);
   }
 
   closePortalLoginModal();
@@ -742,6 +743,7 @@ async function handlePortalLoginUnified(event) {
   }
   
   navigateToPage('dashboard.html', query);
+  return false;
 }
 
 // 3.1 LEGACY FALLBACK REDIRECT
