@@ -386,16 +386,15 @@ async function loadDBFromLocalStorage() {
           state.rawDB = data;
           mergeRegisteredSchools();
           const filteredStudents = (data.students || []).filter(s => (s.schoolId || 'school_demo') === state.schoolId);
-          if (filteredStudents.length > 0) state.db.students = filteredStudents;
-          else if (data.students && data.students.length > 0) state.db.students = data.students;
+          state.db.students = state.schoolId === 'school_demo' && filteredStudents.length === 0 ? data.students || [] : filteredStudents;
           
           const filteredPayments = (data.payments || []).filter(p => (p.schoolId || 'school_demo') === state.schoolId);
-          if (filteredPayments.length > 0) state.db.payments = filteredPayments;
+          state.db.payments = state.schoolId === 'school_demo' && filteredPayments.length === 0 ? data.payments || [] : filteredPayments;
           
           state.db.attendance = data.attendance || state.db.attendance;
           state.db.timetable = data.timetable || state.db.timetable;
           state.db.notifications = (data.notifications || []).filter(n => (n.schoolId || 'school_demo') === state.schoolId);
-          state.db.teachers = data.teachers || state.db.teachers || [];
+          state.db.teachers = (data.teachers || []).filter(t => (t.schoolId || 'school_demo') === state.schoolId);
           
           const schoolProfile = (data.schools || []).find(s => s.id === state.schoolId);
           if (schoolProfile) {
@@ -461,6 +460,12 @@ async function saveDBToLocalStorage() {
 
   state.rawDB.notifications = state.rawDB.notifications.filter(n => (n.schoolId || 'school_demo') !== state.schoolId);
   state.rawDB.notifications.push(...state.db.notifications);
+  
+  if (!state.rawDB.teachers) state.rawDB.teachers = [];
+  state.db.teachers = state.db.teachers || [];
+  state.db.teachers.forEach(t => { t.schoolId = state.schoolId; });
+  state.rawDB.teachers = state.rawDB.teachers.filter(t => (t.schoolId || 'school_demo') !== state.schoolId);
+  state.rawDB.teachers.push(...state.db.teachers);
 
   // Directly copy global objects
   state.rawDB.attendance = Object.assign({}, state.rawDB.attendance, state.db.attendance);
@@ -488,6 +493,16 @@ function showSection(sectionId, event) {
   if (event && typeof event.preventDefault === 'function') {
     event.preventDefault();
   }
+  
+  if (sectionId === 'notifications' && state.role === 'admin') {
+    const currentSchoolId = localStorage.getItem('eduflow_school_id');
+    const schoolData = state.rawDB && state.rawDB.schools ? state.rawDB.schools.find(s => s.id === currentSchoolId) : null;
+    if (schoolData && schoolData.kycStatus === 'Pending') {
+      alert("🛡️ ACCESS RESTRICTED: Mass SMS and Broadcast capabilities are disabled until SuperAdmin approves your KYC and Identity Documents.");
+      return;
+    }
+  }
+
   state.currentSection = sectionId;
   
   // Close mobile sidebar on section pick
@@ -650,6 +665,19 @@ function renderDashboardStats() {
     if (studentWidgets) studentWidgets.style.display = 'none';
     if (studentTraj) studentTraj.style.display = 'none';
     if (studentBanner) studentBanner.style.display = 'none';
+    
+    const kycBanner = document.getElementById('pending-kyc-restricted-banner');
+    if (state.role === 'admin') {
+      const currentSchoolId = localStorage.getItem('eduflow_school_id');
+      const schoolData = state.rawDB && state.rawDB.schools ? state.rawDB.schools.find(s => s.id === currentSchoolId) : null;
+      if (schoolData && schoolData.kycStatus === 'Pending') {
+        if (kycBanner) kycBanner.style.display = 'flex';
+      } else {
+        if (kycBanner) kycBanner.style.display = 'none';
+      }
+    } else {
+      if (kycBanner) kycBanner.style.display = 'none';
+    }
     
     // Attendance rate
     const attElem = document.getElementById('stat-attendance-rate');
@@ -4561,6 +4589,12 @@ function toggleDashboardTheme() {
 }
 
 function openOfficialReportCardModal(studentId = 1) {
+  const currentSchoolId = localStorage.getItem('eduflow_school_id');
+  const schoolData = state.rawDB && state.rawDB.schools ? state.rawDB.schools.find(s => s.id === currentSchoolId) : null;
+  if (state.role === 'admin' && schoolData && schoolData.kycStatus === 'Pending') {
+    alert("🛡️ ACCESS RESTRICTED: Official Report Card generation is disabled until SuperAdmin approves your KYC and Identity Documents.");
+    return;
+  }
   const student = state.db.students.find(s => s.id === parseInt(studentId)) || state.db.students[0];
   const modal = document.getElementById('official-report-card-modal');
   if (!student || !modal) return;

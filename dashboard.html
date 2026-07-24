@@ -218,6 +218,20 @@
           <span class="panel-subtitle" id="welcome-sub">Here is what is happening with Eduflow today.</span>
         </div>
 
+        <!-- PENDING KYC BANNER (Shown for admin role if KYC is pending) -->
+        <div id="pending-kyc-restricted-banner" class="glass-card" style="display: none; padding: 16px 24px; margin-bottom: 24px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="background: rgba(245, 158, 11, 0.15); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #f59e0b;">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+            <div>
+              <p style="font-weight: 700; font-size: 0.9rem; color: #d97706; margin-bottom: 2px;">🛡️ Account Under KYC & Regulatory Clearance Review</p>
+              <p style="font-size: 0.78rem; color: var(--text-secondary);">Your administrative capabilities are restricted until SuperAdmin approves your CAC Identification Document.</p>
+            </div>
+          </div>
+          <button class="btn btn-secondary" style="font-weight: 700; font-size: 0.8rem;" onclick="alert('Your CAC documentation is currently under review by our compliance team. Full access will be granted upon approval.')">Check Status</button>
+        </div>
+
         <!-- QUICK ACTION BAR FOR ADMIN -->
         <div id="admin-quick-action-bar" style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
           <button class="btn btn-teal" style="font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 6px;" onclick="openOnboardingStudentModal()">

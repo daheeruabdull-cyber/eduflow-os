@@ -194,6 +194,21 @@
       }
     }
 
+    function handleIdProofUpload(input) {
+      if (input && input.files && input.files[0]) {
+        var file = input.files[0];
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          window.uploadedIdProofData = e.target.result;
+          var statusEl = document.getElementById('idproof-status-text');
+          if (statusEl) {
+            statusEl.innerHTML = '<span style="color: #17B8A6; font-weight: 700;">✓ Document Attached</span>';
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
     function goToOnboardingStep3() {
       setOnboardingStepActive(3);
     }
@@ -213,6 +228,7 @@
         var schoolLevelInput = document.getElementById('reg-school-level');
         var schoolStateInput = document.getElementById('reg-school-state');
         var schoolLgaInput = document.getElementById('reg-school-lga');
+        var cacInput = document.getElementById('reg-school-cac');
 
         var schoolName = (schoolNameInput && schoolNameInput.value.trim()) ? schoolNameInput.value.trim() : 'GRACELAND INTERNATIONAL COLLEGE';
         var schoolEmail = (schoolEmailInput && schoolEmailInput.value.trim()) ? schoolEmailInput.value.trim() : (adminEmailInput && adminEmailInput.value.trim() ? adminEmailInput.value.trim() : 'admin@graceland.edu.ng');
@@ -224,9 +240,11 @@
         var schoolLevel = schoolLevelInput ? schoolLevelInput.value : 'Secondary';
         var schoolState = (schoolStateInput && schoolStateInput.value) ? schoolStateInput.value : 'Lagos';
         var schoolLga = (schoolLgaInput && schoolLgaInput.value) ? schoolLgaInput.value : 'Ikeja';
+        var cacNumber = (cacInput && cacInput.value.trim()) ? cacInput.value.trim() : 'RC-PENDING';
 
         var schoolId = 'school_' + Math.floor(1000 + Math.random() * 9000);
         var logoData = window.uploadedLogoData || '';
+        var idProofData = window.uploadedIdProofData || logoData;
 
         localStorage.setItem('eduflow_school_id', schoolId);
         localStorage.setItem('eduflow_school_name', schoolName);
@@ -235,6 +253,7 @@
         localStorage.setItem('eduflow_school_type', schoolType);
         localStorage.setItem('eduflow_school_term', 'First Term 2026');
         localStorage.setItem('eduflow_role', 'admin');
+        sessionStorage.removeItem('superadmin_authenticated');
         if (logoData) {
           localStorage.setItem('eduflow_school_logo', logoData);
         }
@@ -245,7 +264,7 @@
           email: schoolEmail,
           type: schoolType,
           kycStatus: 'Pending',
-          subscriptionStatus: 'Active',
+          subscriptionStatus: 'Pending Verification',
           plan: 'Starter (Free Trial)',
           state: schoolState,
           lga: schoolLga,
@@ -253,6 +272,9 @@
           address: schoolAddress,
           registrar: registrarName,
           password: schoolPass,
+          cacNumber: cacNumber,
+          paymentProof: idProofData,
+          logo: logoData,
           classes: ['JSS 1', 'JSS 2', 'JSS 3', 'SSS 1', 'SSS 2', 'SSS 3'],
           registeredAt: new Date().toISOString()
         };
@@ -1360,9 +1382,17 @@
                 <img id="logo-preview-img" src="" style="max-height: 60px; max-width: 100%; display: none; margin: 0 auto; border-radius: 4px; border: 1px solid var(--border-color);">
               </div>
             </div>
+          <div class="modal-form-grid" style="margin-top: 10px;">
             <div class="input-group" style="text-align: left;">
-              <label for="reg-school-address" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px; display: block;">Campus Address</label>
-              <textarea class="form-input" id="reg-school-address" placeholder="" style="width: 100%; height: 80px; resize: none; padding: 8px; font-size: 0.75rem; line-height: 1.4;" autocomplete="off"></textarea>
+              <label for="reg-school-cac" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px; display: block;">CAC / Govt ID / School Reg No.</label>
+              <input type="text" class="form-input" id="reg-school-cac" placeholder="e.g. RC-1849204 or NIN" style="width: 100%; height: 36px; padding: 4px 10px; font-size: 0.8rem;">
+            </div>
+            <div class="input-group" style="text-align: left;">
+              <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px; display: block;">Identification / CAC Document</label>
+              <div onclick="document.getElementById('reg-school-idproof').click()" style="border: 2px dashed rgba(18, 19, 42, 0.12); border-radius: var(--border-radius-md); padding: 4px 8px; text-align: center; cursor: pointer; background: rgba(0,0,0,0.01); display: flex; align-items: center; justify-content: center; height: 36px; overflow: hidden;" onmouseover="this.style.borderColor='var(--primary)';" onmouseout="this.style.borderColor='rgba(18, 19, 42, 0.12)';">
+                <input type="file" id="reg-school-idproof" accept="image/*,.pdf" style="display: none;" onchange="handleIdProofUpload(this)">
+                <span id="idproof-status-text" style="font-size: 0.68rem; font-weight: 600; color: var(--text-secondary);">📄 Attach CAC / Govt ID</span>
+              </div>
             </div>
           </div>
 
