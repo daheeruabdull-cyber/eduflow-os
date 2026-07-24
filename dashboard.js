@@ -346,6 +346,21 @@ async function loadDBFromLocalStorage() {
     state.db.timetable = DEFAULT_TIMETABLE;
   }
 
+  // Function to merge locally registered schools into state.rawDB.schools for SuperAdmin
+  const mergeRegisteredSchools = () => {
+    if (!state.rawDB) return;
+    if (!state.rawDB.schools) state.rawDB.schools = [];
+    let localRegSchools = [];
+    try {
+      localRegSchools = JSON.parse(localStorage.getItem('eduflow_registered_schools') || '[]');
+    } catch(e) {}
+    localRegSchools.forEach(regSchool => {
+      if (!state.rawDB.schools.some(s => s.id === regSchool.id || s.email === regSchool.email)) {
+        state.rawDB.schools.push(regSchool);
+      }
+    });
+  };
+
   // Fallback rawDB initialization to prevent superadmin null reference crashes
   if (!state.rawDB) {
     state.rawDB = {
@@ -360,6 +375,8 @@ async function loadDBFromLocalStorage() {
     };
   }
 
+  mergeRegisteredSchools();
+
   // 2. Non-blocking Server Sync in Background
   try {
     fetch('/api/db')
@@ -367,6 +384,7 @@ async function loadDBFromLocalStorage() {
       .then(data => {
         if (data) {
           state.rawDB = data;
+          mergeRegisteredSchools();
           const filteredStudents = (data.students || []).filter(s => (s.schoolId || 'school_demo') === state.schoolId);
           if (filteredStudents.length > 0) state.db.students = filteredStudents;
           else if (data.students && data.students.length > 0) state.db.students = data.students;
