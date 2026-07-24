@@ -1713,17 +1713,6 @@ button, input, select, textarea {
     box-sizing: border-box !important;
   }
 
-  .header-brand-logo {
-    display: flex !important;
-    align-items: center;
-    gap: 6px;
-    margin-right: auto !important;
-  }
-
-  .header-brand-logo span {
-    font-size: 0.95rem !important;
-  }
-
   .header-search {
     order: 10 !important;
     width: 100% !important;
