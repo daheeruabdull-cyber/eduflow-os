@@ -219,58 +219,42 @@ function openSchoolRegistrationModal() {
     overlay.classList.add('active');
     overlay.style.opacity = '1';
     overlay.style.pointerEvents = 'auto';
+    overlay.style.display = 'flex';
     setOnboardingStepActive(1);
     if (typeof initStatesDropdown === 'function') initStatesDropdown();
     if (typeof renderOnboardingClasses === 'function') renderOnboardingClasses('Secondary');
-  }
-}
 
-  // Clear all text & email inputs
-  const inputs = ['reg-school-name', 'reg-school-email', 'reg-school-phone', 'reg-school-address', 'reg-admin-name', 'reg-school-pass', 'reg-school-admin-email'];
-  const resetInputs = () => {
+    // Clear all text & email inputs
+    const inputs = ['reg-school-name', 'reg-school-email', 'reg-school-phone', 'reg-school-address', 'reg-admin-name', 'reg-school-pass', 'reg-school-admin-email'];
     inputs.forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
-  };
-  resetInputs();
-  setTimeout(resetInputs, 80); // Defeat browser autofill caching
 
-  const stateSelect = document.getElementById('reg-school-state');
-  if (stateSelect) stateSelect.value = '';
-  const lgaSelect = document.getElementById('reg-school-lga');
-  if (lgaSelect) {
-    lgaSelect.value = '';
-    lgaSelect.disabled = true;
-    lgaSelect.innerHTML = '<option value="">-- Select State First --</option>';
-  }
+    const stateSelect = document.getElementById('reg-school-state');
+    if (stateSelect) stateSelect.value = '';
+    const lgaSelect = document.getElementById('reg-school-lga');
+    if (lgaSelect) {
+      lgaSelect.value = '';
+      lgaSelect.disabled = true;
+      lgaSelect.innerHTML = '<option value="">-- Select State First --</option>';
+    }
 
-  const levelSelect = document.getElementById('reg-school-level');
-  if (levelSelect) {
-    levelSelect.value = 'Secondary';
-    renderOnboardingClasses('Secondary');
-  }
+    const levelSelect = document.getElementById('reg-school-level');
+    if (levelSelect) {
+      levelSelect.value = 'Secondary';
+    }
 
-  // Clear uploaded logos/receipts
-  window.uploadedLogoData = '';
-  window.uploadedReceiptData = '';
-  const logoPreview = document.getElementById('logo-preview-img');
-  const logoPlaceholder = document.getElementById('logo-upload-placeholder');
-  if (logoPreview && logoPlaceholder) {
-    logoPreview.style.display = 'none';
-    logoPlaceholder.style.display = 'flex';
+    // Clear uploaded logos/receipts
+    window.uploadedLogoData = '';
+    window.uploadedReceiptData = '';
+    const logoPreview = document.getElementById('logo-preview-img');
+    const logoPlaceholder = document.getElementById('logo-upload-placeholder');
+    if (logoPreview && logoPlaceholder) {
+      logoPreview.style.display = 'none';
+      logoPlaceholder.style.display = 'flex';
+    }
   }
-  const receiptPreview = document.getElementById('receipt-preview-img');
-  const receiptPlaceholder = document.getElementById('receipt-upload-placeholder');
-  if (receiptPreview && receiptPlaceholder) {
-    receiptPreview.style.display = 'none';
-    receiptPlaceholder.style.display = 'flex';
-  }
-
-  // Reset pricing selector state
-  const proRadio = document.querySelector('input[name="reg-school-plan"][value="Pro"]');
-  if (proRadio) proRadio.checked = true;
-  toggleOnboardingPlan('Pro');
 }
 
 function closeSchoolRegistrationModal() {
@@ -906,4 +890,5 @@ function quickFillLogin(identifier) {
   if (passInput) passInput.value = 'password123';
   const form = document.getElementById('portal-login-form');
   if (form) form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+}
 }
