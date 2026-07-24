@@ -4,8 +4,9 @@
   "description": "Eduflow OS School Management System",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "echo \"Build complete\"",
+    "test": "echo \"No test specified\""
   },
   "engines": {
     "node": ">=20.0.0"

@@ -16,6 +16,9 @@ try {
       const sqlLower = (sql || '').toLowerCase();
       return {
         get: function(...args) {
+          if (sqlLower.includes('count(*)')) {
+            return { count: store.schools.length };
+          }
           if (sqlLower.includes('from schools')) {
             const arg = String(args[0] || '').toLowerCase();
             return store.schools.find(s => s.id === args[0] || (s.email || '').toLowerCase() === arg);
@@ -27,9 +30,6 @@ try {
           if (sqlLower.includes('from students')) {
             const arg = String(args[0] || '').toLowerCase();
             return store.students.find(st => (st.roll || '').toLowerCase() === arg || st.id === Number(args[0]));
-          }
-          if (sqlLower.includes('count(*) as count from schools')) {
-            return { count: store.schools.length };
           }
           return null;
         },
@@ -194,7 +194,7 @@ function seedDatabase() {
   // Check if schools table is empty
   const countStmt = db.prepare("SELECT COUNT(*) as count FROM schools");
   const result = countStmt.get();
-  if (result.count > 0) return; // Already seeded
+  if (result && result.count > 0) return; // Already seeded
 
   console.log("Seeding SQLite database with default multi-tenant records...");
 
