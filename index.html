@@ -15,8 +15,8 @@
         overlay.classList.add('active');
         overlay.style.opacity = '1';
         overlay.style.pointerEvents = 'auto';
+        overlay.style.display = 'flex';
         setOnboardingStepActive(1);
-        if (typeof initStatesDropdown === 'function') initStatesDropdown();
         if (typeof renderOnboardingClasses === 'function') renderOnboardingClasses('Secondary');
       }
     }
@@ -26,6 +26,7 @@
         overlay.classList.remove('active');
         overlay.style.opacity = '0';
         overlay.style.pointerEvents = 'none';
+        overlay.style.display = 'none';
       }
     }
     function setOnboardingStepActive(stepNum) {
