@@ -15,10 +15,66 @@
         overlay.classList.add('active');
         overlay.style.opacity = '1';
         overlay.style.pointerEvents = 'auto';
-        if (typeof setOnboardingStepActive === 'function') {
-          setOnboardingStepActive(1);
-        }
+        setOnboardingStepActive(1);
       }
+    }
+    function closeSchoolRegistrationModal() {
+      var overlay = document.getElementById('school-modal-overlay');
+      if (overlay) {
+        overlay.classList.remove('active');
+        overlay.style.opacity = '0';
+        overlay.style.pointerEvents = 'none';
+      }
+    }
+    function setOnboardingStepActive(stepNum) {
+      var steps = ['onboarding-batch-1', 'onboarding-batch-1-pending', 'onboarding-batch-2', 'onboarding-batch-3'];
+      steps.forEach(function(stepId) {
+        var el = document.getElementById(stepId);
+        if (el) el.style.display = 'none';
+      });
+      var progressBar = document.getElementById('step-line-progress');
+      var ind1 = document.getElementById('ind-step-1');
+      var ind2 = document.getElementById('ind-step-2');
+      var ind3 = document.getElementById('ind-step-3');
+
+      if (stepNum === 1) {
+        var b1 = document.getElementById('onboarding-batch-1');
+        if (b1) b1.style.display = 'block';
+        if (progressBar) progressBar.style.width = '0%';
+        if (ind1) { ind1.style.background = 'var(--primary)'; ind1.style.color = 'white'; }
+      } else if (stepNum === 1.5) {
+        var b1p = document.getElementById('onboarding-batch-1-pending');
+        if (b1p) b1p.style.display = 'block';
+        if (progressBar) progressBar.style.width = '25%';
+      } else if (stepNum === 2) {
+        var b2 = document.getElementById('onboarding-batch-2');
+        if (b2) b2.style.display = 'block';
+        if (progressBar) progressBar.style.width = '50%';
+        if (ind2) { ind2.style.background = 'var(--primary)'; ind2.style.color = 'white'; }
+      } else if (stepNum === 3) {
+        var b3 = document.getElementById('onboarding-batch-3');
+        if (b3) b3.style.display = 'block';
+        if (progressBar) progressBar.style.width = '100%';
+        if (ind3) { ind3.style.background = 'var(--primary)'; ind3.style.color = 'white'; }
+      }
+    }
+    function sendOnboardingConfirmationEmail() {
+      var nameInput = document.getElementById('reg-school-name');
+      var emailInput = document.getElementById('reg-school-email');
+      var schoolName = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : 'GRACELAND INTERNATIONAL COLLEGE';
+      var schoolEmail = (emailInput && emailInput.value.trim()) ? emailInput.value.trim() : 'admin@graceland.edu.ng';
+      if (nameInput && !nameInput.value.trim()) nameInput.value = schoolName;
+      if (emailInput && !emailInput.value.trim()) emailInput.value = schoolEmail;
+      setOnboardingStepActive(2);
+    }
+    function simulateConfirmOnboardingEmail() {
+      setOnboardingStepActive(2);
+    }
+    function goToOnboardingStep3() {
+      setOnboardingStepActive(3);
+    }
+    function backToOnboardingStep2() {
+      setOnboardingStepActive(2);
     }
     function openPortalLoginModal() {
       var overlay = document.getElementById('login-modal-overlay');
