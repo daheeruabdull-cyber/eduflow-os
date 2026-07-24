@@ -38,6 +38,22 @@
     </div>
   </div>
 
+  <script>
+    (function() {
+      function hidePreloader() {
+        var p = document.getElementById('site-preloader');
+        if (p) {
+          p.style.opacity = '0';
+          p.style.pointerEvents = 'none';
+          setTimeout(function() { if (p && p.parentNode) p.parentNode.removeChild(p); }, 300);
+        }
+      }
+      document.addEventListener('DOMContentLoaded', function() { setTimeout(hidePreloader, 400); });
+      window.addEventListener('load', function() { setTimeout(hidePreloader, 200); });
+      setTimeout(hidePreloader, 800);
+    })();
+  </script>
+
   <!-- 1. LANDING PAGE VIEW -->
   <div id="landing-page" class="landing-page">
     <div class="hero-glow-1"></div>

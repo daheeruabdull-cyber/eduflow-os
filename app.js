@@ -812,19 +812,20 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // Fullscreen Entrance Preloader Fade-out Controller
-window.addEventListener('load', () => {
+function dismissSitePreloader() {
   const preloader = document.getElementById('site-preloader');
   if (preloader) {
-    // Hold preloader overlay for 1.8 seconds, then fade out smoothly
+    preloader.style.opacity = '0';
+    preloader.style.pointerEvents = 'none';
     setTimeout(() => {
-      preloader.style.opacity = '0';
-      preloader.style.visibility = 'hidden';
-      setTimeout(() => {
-        preloader.remove(); // Clean up overlay DOM node
-      }, 600);
-    }, 1800);
+      try { preloader.remove(); } catch(e) {}
+    }, 300);
   }
-});
+}
+
+document.addEventListener('DOMContentLoaded', dismissSitePreloader);
+window.addEventListener('load', dismissSitePreloader);
+setTimeout(dismissSitePreloader, 600);
 
 // Accordion FAQ Panel Toggle Handler
 function toggleFaq(button) {
