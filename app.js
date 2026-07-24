@@ -726,7 +726,7 @@ async function handlePortalLoginUnified(event) {
     redirectUrl = `dashboard.html?role=superadmin`;
   }
   
-  window.location.href = redirectUrl;
+  window.location.assign(redirectUrl);
 }
 
 // 3.1 LEGACY FALLBACK REDIRECT
