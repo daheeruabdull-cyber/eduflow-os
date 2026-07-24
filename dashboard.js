@@ -316,52 +316,10 @@ let state = {
 };
 
 async function loadDBFromLocalStorage() {
-  try {
-    const response = await fetch('/api/db');
-    if (response.ok) {
-      const data = await response.json();
-      state.rawDB = data;
-      
-      const urlParams = new URLSearchParams(window.location.search);
-      state.schoolId = urlParams.get('schoolId') || 'school_demo';
-      
-      // Filter student, payment, and alert logs specific to this school
-      state.db.students = (data.students || []).filter(s => (s.schoolId || 'school_demo') === state.schoolId);
-      state.db.payments = (data.payments || []).filter(p => (p.schoolId || 'school_demo') === state.schoolId);
-      state.db.attendance = data.attendance || {};
-      state.db.timetable = data.timetable || {};
-      state.db.notifications = (data.notifications || []).filter(n => (n.schoolId || 'school_demo') === state.schoolId);
-      state.db.teachers = data.teachers || [];
-      
-      // Auto-migrate legacy '10A' and '11B' class names in memory
-      state.db.students.forEach(s => {
-        if (s.class === '10A') s.class = 'SSS 1 Science';
-        if (s.class === '11B') s.class = 'SSS 2 Science';
-      });
-      if (state.db.teachers) {
-        state.db.teachers.forEach(t => {
-          if (t.assignedClass === '10A') t.assignedClass = 'SSS 1 Science';
-          if (t.assignedClass === '11B') t.assignedClass = 'SSS 2 Science';
-        });
-      }
+  const urlParams = new URLSearchParams(window.location.search);
+  state.schoolId = urlParams.get('schoolId') || localStorage.getItem('eduflow_school_id') || 'school_demo';
 
-      // Apply active school name configuration from directory profile
-      const schoolProfile = (data.schools || []).find(s => s.id === state.schoolId);
-      if (schoolProfile) {
-        localStorage.setItem('eduflow_school_name', schoolProfile.name);
-        localStorage.setItem('eduflow_school_email', schoolProfile.email);
-        localStorage.setItem('eduflow_school_type', schoolProfile.type);
-        localStorage.setItem('eduflow_school_logo', schoolProfile.logo || '');
-        state.reportCardFormat = schoolProfile.reportCardFormat || 'Premium Crest';
-        state.subscriptionStatus = schoolProfile.subscriptionStatus || 'Active';
-        state.paymentProof = schoolProfile.paymentProof || '';
-      }
-      return;
-    }
-  } catch (err) {
-    console.warn("Backend API offline. Falling back to LocalStorage.", err);
-  }
-
+  // 1. Synchronous Instant Load from LocalStorage
   const localStudents = localStorage.getItem('eduflow_students');
   const localAttendance = localStorage.getItem('eduflow_attendance');
   const localPayments = localStorage.getItem('eduflow_payments');
@@ -369,23 +327,23 @@ async function loadDBFromLocalStorage() {
   const localNotifications = localStorage.getItem('eduflow_notifications');
 
   if (localStudents && localAttendance && localPayments) {
-    state.db.students = JSON.parse(localStudents);
-    state.db.attendance = JSON.parse(localAttendance);
-    state.db.payments = JSON.parse(localPayments);
-    state.db.timetable = localTimetable ? JSON.parse(localTimetable) : DEFAULT_TIMETABLE;
-    state.db.notifications = localNotifications ? JSON.parse(localNotifications) : DEFAULT_NOTIFICATIONS;
-    
-    // Auto-migrate legacy '10A' and '11B' class names in cached localStorage
-    state.db.students.forEach(s => {
-      if (s.class === '10A') s.class = 'SSS 1 Science';
-      if (s.class === '11B') s.class = 'SSS 2 Science';
-    });
+    try {
+      state.db.students = JSON.parse(localStudents);
+      state.db.attendance = JSON.parse(localAttendance);
+      state.db.payments = JSON.parse(localPayments);
+      state.db.timetable = localTimetable ? JSON.parse(localTimetable) : DEFAULT_TIMETABLE;
+      state.db.notifications = localNotifications ? JSON.parse(localNotifications) : DEFAULT_NOTIFICATIONS;
+    } catch(e) {
+      state.db.students = DEFAULT_STUDENTS;
+      state.db.attendance = DEFAULT_ATTENDANCE;
+      state.db.payments = DEFAULT_PAYMENTS;
+      state.db.timetable = DEFAULT_TIMETABLE;
+    }
   } else {
     state.db.students = DEFAULT_STUDENTS;
     state.db.attendance = DEFAULT_ATTENDANCE;
     state.db.payments = DEFAULT_PAYMENTS;
     state.db.timetable = DEFAULT_TIMETABLE;
-    await saveDBToLocalStorage();
   }
 
   // Fallback rawDB initialization to prevent superadmin null reference crashes
@@ -400,6 +358,45 @@ async function loadDBFromLocalStorage() {
       timetable: state.db.timetable || {},
       notifications: state.db.notifications || []
     };
+  }
+
+  // 2. Non-blocking Server Sync in Background
+  try {
+    fetch('/api/db')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data) {
+          state.rawDB = data;
+          const filteredStudents = (data.students || []).filter(s => (s.schoolId || 'school_demo') === state.schoolId);
+          if (filteredStudents.length > 0) state.db.students = filteredStudents;
+          else if (data.students && data.students.length > 0) state.db.students = data.students;
+          
+          const filteredPayments = (data.payments || []).filter(p => (p.schoolId || 'school_demo') === state.schoolId);
+          if (filteredPayments.length > 0) state.db.payments = filteredPayments;
+          
+          state.db.attendance = data.attendance || state.db.attendance;
+          state.db.timetable = data.timetable || state.db.timetable;
+          state.db.notifications = (data.notifications || []).filter(n => (n.schoolId || 'school_demo') === state.schoolId);
+          state.db.teachers = data.teachers || state.db.teachers || [];
+          
+          const schoolProfile = (data.schools || []).find(s => s.id === state.schoolId);
+          if (schoolProfile) {
+            localStorage.setItem('eduflow_school_name', schoolProfile.name);
+            localStorage.setItem('eduflow_school_email', schoolProfile.email);
+            localStorage.setItem('eduflow_school_type', schoolProfile.type);
+            localStorage.setItem('eduflow_school_logo', schoolProfile.logo || '');
+            state.reportCardFormat = schoolProfile.reportCardFormat || 'Premium Crest';
+            state.subscriptionStatus = schoolProfile.subscriptionStatus || 'Active';
+            state.paymentProof = schoolProfile.paymentProof || '';
+          }
+
+          // Re-render stats cleanly with server data
+          renderDashboardStats();
+        }
+      })
+      .catch(e => console.warn("Background API sync deferred.", e));
+  } catch(err) {
+    console.warn("Server sync error ignored.", err);
   }
 }
 

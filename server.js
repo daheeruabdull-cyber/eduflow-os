@@ -12,15 +12,17 @@ const JWT_SECRET = 'eduflow_saas_secret_key_12345';
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname)));
 
-// CORS Middleware
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(204);
-  }
-  next();
+// Explicit Static Page Route Handlers
+app.get(['/', '/index.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get(['/dashboard', '/dashboard.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
+
+app.get(['/onboarding', '/onboarding.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'onboarding.html'));
 });
 
 // Helper Middleware to verify JWT tokens
