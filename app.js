@@ -199,9 +199,22 @@ function renderOnboardingClasses(stage) {
   });
 }
 
+// 0. GLOBAL NAVIGATION HELPER
+function navigateToPage(targetPage, queryParams) {
+  let url = targetPage;
+  if (queryParams) {
+    url += (url.includes('?') ? '&' : '?') + queryParams;
+  }
+  try {
+    window.location.assign(url);
+  } catch(e) {
+    window.location.href = url;
+  }
+}
+
 // 1. MODAL TRIGGERS
 function openSchoolRegistrationModal() {
-  window.location.href = 'onboarding.html';
+  navigateToPage('onboarding.html');
 }
 
   // Clear all text & email inputs
@@ -714,32 +727,22 @@ async function handlePortalLoginUnified(event) {
 
   closePortalLoginModal();
 
-  let redirectUrl = `dashboard.html?role=${targetRole}&schoolId=${activeSchoolId}`;
+  let query = `role=${targetRole}&schoolId=${activeSchoolId}`;
   if (targetRole === 'student') {
     const studentId = localStorage.getItem('eduflow_student_id') || '1';
-    redirectUrl = `dashboard.html?role=student&studentId=${studentId}&schoolId=${activeSchoolId}`;
+    query = `role=student&studentId=${studentId}&schoolId=${activeSchoolId}`;
   } else if (targetRole === 'superadmin') {
-    redirectUrl = `dashboard.html?role=superadmin`;
+    query = `role=superadmin`;
   }
   
-  window.location.href = redirectUrl;
+  navigateToPage('dashboard.html', query);
 }
 
 // 3.1 LEGACY FALLBACK REDIRECT
 function loginRedirect(role) {
   const activeSchoolId = localStorage.getItem('eduflow_school_id') || 'school_demo';
-  if (role === 'superadmin') {
-    window.location.href = 'dashboard.html?role=superadmin';
-  } else if (role === 'teacher') {
-    window.location.href = `dashboard.html?role=teacher&schoolId=${activeSchoolId}`;
-  } else if (role === 'parent') {
-    window.location.href = 'dashboard.html?role=parent';
-  } else if (role === 'student') {
-    const studentId = localStorage.getItem('eduflow_student_id') || '1';
-    window.location.href = `dashboard.html?role=student&studentId=${studentId}&schoolId=${activeSchoolId}`;
-  } else {
-    window.location.href = `dashboard.html?role=admin&schoolId=${activeSchoolId}`;
-  }
+  const query = role === 'superadmin' ? 'role=superadmin' : `role=${role || 'admin'}&schoolId=${activeSchoolId}`;
+  navigateToPage('dashboard.html', query);
 }
 
 // 4. HOW IT WORKS WORKFLOW TAB SELECTOR
