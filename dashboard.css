@@ -1698,7 +1698,27 @@ button, input, select, textarea {
   }
 
   .dashboard-panel {
-    padding: 16px 12px !important;
+    padding: 24px 20px !important;
+  }
+}
+
+/* iPad & Tablet Responsiveness (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .dashboard-panel {
+    padding: 24px 20px !important;
+  }
+
+  .stats-grid,
+  .super-stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+  }
+
+  div[style*="grid-template-columns"],
+  form[style*="grid-template-columns"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
   }
 }
 
@@ -1891,6 +1911,18 @@ button, input, select, textarea {
     padding: 10px 12px !important;
     gap: 10px !important;
     font-size: 0.78rem !important;
+  }
+
+  /* 9. Universal Form & Inline Grid Overrides on Mobile */
+  div[style*="grid-template-columns"]:not(.stats-grid):not(.super-stats-grid):not(#admin-quick-action-bar),
+  form[style*="grid-template-columns"],
+  .admin-dashboard-row,
+  .results-grid,
+  .attendance-grid,
+  .teacher-grid,
+  .parent-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
   }
 }
 
