@@ -769,8 +769,12 @@ button, input, select, textarea {
 }
 
 .table-wrapper {
+  width: 100%;
   overflow-x: auto;
-  background: white;
+  -webkit-overflow-scrolling: touch;
+  background: var(--bg-card);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
 }
 
 .custom-table {
@@ -780,26 +784,28 @@ button, input, select, textarea {
 }
 
 .custom-table th {
-  padding: 16px 20px;
-  background: #f8fafc;
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.04);
   border-bottom: 1px solid var(--border-color);
   color: var(--text-secondary);
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 .custom-table td {
-  padding: 16px 20px;
+  padding: 14px 18px;
   border-bottom: 1px solid var(--border-color);
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   vertical-align: middle;
   color: var(--text-main);
+  white-space: nowrap;
 }
 
 .custom-table tr:hover {
-  background: #f8fafc;
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .student-row {
@@ -810,28 +816,29 @@ button, input, select, textarea {
 
 .attendance-options {
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .attendance-opt-btn {
-  padding: 6px 14px;
+  padding: 5px 12px;
   border-radius: 20px;
   border: 1px solid var(--border-color);
-  background: white;
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text-secondary);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 700;
   cursor: pointer;
   transition: var(--transition-smooth);
 }
 
-.attendance-opt-btn.present.selected { background: var(--success-light); color: var(--success); border-color: var(--success); }
-.attendance-opt-btn.late.selected { background: var(--warning-light); color: var(--warning); border-color: var(--warning); }
-.attendance-opt-btn.absent.selected { background: var(--danger-light); color: var(--danger); border-color: var(--danger); }
+.attendance-opt-btn.present.selected { background: rgba(23, 184, 166, 0.2); color: #17B8A6; border-color: #17B8A6; }
+.attendance-opt-btn.late.selected { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border-color: #f59e0b; }
+.attendance-opt-btn.absent.selected { background: rgba(239, 68, 68, 0.2); color: #ef4444; border-color: #ef4444; }
 
 .attendance-opt-btn:hover:not(.selected) {
-  background: var(--bg-base);
-  border-color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--primary);
 }
 
 /* 2. RESULTS SHEET & GRADING */
@@ -1684,21 +1691,81 @@ button, input, select, textarea {
   }
 
   .app-header {
-    padding: 10px 14px !important;
     height: auto !important;
     min-height: 56px;
-    gap: 8px !important;
-    justify-content: space-between;
+    padding: 8px 12px !important;
     position: sticky;
     top: 0;
-    z-index: 900;
+    z-index: 800;
     backdrop-filter: blur(16px);
-    background: rgba(18, 19, 42, 0.85);
+    background: rgba(18, 19, 42, 0.95);
     border-bottom: 1px solid var(--border-color);
   }
 
+  .app-header-inner {
+    padding: 0 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .header-brand-logo {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+    margin-right: auto !important;
+  }
+
+  .header-brand-logo span {
+    font-size: 0.95rem !important;
+  }
+
+  .header-search {
+    order: 10 !important;
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    margin: 4px 0 0 0 !important;
+  }
+
+  .header-search input {
+    height: 34px !important;
+    font-size: 0.78rem !important;
+  }
+
+  #school-session-switcher {
+    display: none !important;
+  }
+
+  #super-header-selector {
+    width: 100% !important;
+    order: 11 !important;
+    margin: 4px 0 0 0 !important;
+  }
+
+  .header-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin-left: auto !important;
+  }
+
+  .header-actions button {
+    padding: 4px 8px !important;
+    font-size: 0.72rem !important;
+    height: 32px !important;
+    white-space: nowrap !important;
+  }
+
+  #clean-mode-toggle-btn {
+    display: none !important;
+  }
+
   .dashboard-panel {
-    padding: 24px 20px !important;
+    padding: 20px 16px !important;
   }
 }
 
@@ -1723,39 +1790,8 @@ button, input, select, textarea {
 }
 
 @media (max-width: 768px) {
-  /* 1. Header Alignments */
-  .app-header {
-    flex-wrap: wrap !important;
-  }
-
-  .header-left {
-    gap: 8px !important;
-  }
-
-  #school-session-switcher {
-    flex-wrap: wrap !important;
-    gap: 4px !important;
-  }
-
-  #school-session-switcher > div {
-    font-size: 0.68rem !important;
-    padding: 3px 8px !important;
-  }
-
-  .header-search {
-    order: 3;
-    width: 100% !important;
-    margin-top: 4px;
-  }
-
-  .header-search input {
-    height: 36px !important;
-    font-size: 0.8rem !important;
-    border-radius: 8px !important;
-  }
-
-  .header-right {
-    gap: 6px !important;
+  .dashboard-panel {
+    padding: 16px 12px !important;
   }
 
   .header-right button {
