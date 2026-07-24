@@ -10,6 +10,15 @@ const PORT = process.env.PORT || 8000;
 const JWT_SECRET = 'eduflow_saas_secret_key_12345';
 
 app.use(express.json({ limit: '50mb' }));
+
+// Force no-cache headers for static files to guarantee instant updates on Render
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  next();
+});
+
 app.use(express.static(path.join(__dirname)));
 
 // Explicit Static Page Route Handlers
