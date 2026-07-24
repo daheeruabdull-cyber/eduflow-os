@@ -16,6 +16,8 @@
         overlay.style.opacity = '1';
         overlay.style.pointerEvents = 'auto';
         setOnboardingStepActive(1);
+        if (typeof initStatesDropdown === 'function') initStatesDropdown();
+        if (typeof renderOnboardingClasses === 'function') renderOnboardingClasses('Secondary');
       }
     }
     function closeSchoolRegistrationModal() {

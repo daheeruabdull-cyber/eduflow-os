@@ -220,6 +220,8 @@ function openSchoolRegistrationModal() {
     overlay.style.opacity = '1';
     overlay.style.pointerEvents = 'auto';
     setOnboardingStepActive(1);
+    if (typeof initStatesDropdown === 'function') initStatesDropdown();
+    if (typeof renderOnboardingClasses === 'function') renderOnboardingClasses('Secondary');
   }
 }
 
@@ -621,6 +623,25 @@ async function registerSchoolOnboarding() {
     localStorage.setItem('eduflow_school_logo', logoData);
     localStorage.setItem('eduflow_school_password', schoolPass);
     localStorage.setItem('eduflow_role', 'admin');
+
+    // Save into registered schools registry for portal login verification
+    let registeredSchools = [];
+    try {
+      registeredSchools = JSON.parse(localStorage.getItem('eduflow_registered_schools') || '[]');
+    } catch(e) {}
+    
+    registeredSchools.push({
+      id: schoolId,
+      name: schoolName,
+      email: schoolEmail,
+      password: schoolPass,
+      role: 'admin',
+      type: schoolType,
+      level: schoolLevel,
+      state: schoolState,
+      lga: schoolLga
+    });
+    localStorage.setItem('eduflow_registered_schools', JSON.stringify(registeredSchools));
 
     // Asynchronous non-blocking background database sync
     try {
