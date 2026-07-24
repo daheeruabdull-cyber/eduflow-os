@@ -7,6 +7,60 @@
   <link rel="icon" type="image/svg+xml" href="logo.svg">
   <link rel="shortcut icon" href="logo.svg">
   <link rel="stylesheet" href="styles.css">
+  <script>
+    // Inline Core Navigation & Portal Handlers (Zero-Latency Guarantee)
+    function openSchoolRegistrationModal() {
+      window.location.href = 'onboarding.html';
+    }
+    function openPortalLoginModal() {
+      var overlay = document.getElementById('login-modal-overlay');
+      if (overlay) {
+        overlay.classList.add('active');
+        overlay.style.opacity = '1';
+        overlay.style.pointerEvents = 'auto';
+      } else {
+        window.location.href = 'dashboard.html?role=admin';
+      }
+    }
+    function closePortalLoginModal() {
+      var overlay = document.getElementById('login-modal-overlay');
+      if (overlay) {
+        overlay.classList.remove('active');
+        overlay.style.opacity = '0';
+        overlay.style.pointerEvents = 'none';
+      }
+    }
+    function handlePortalLoginUnified(event) {
+      if (event && typeof event.preventDefault === 'function') {
+        event.preventDefault();
+      }
+      var idInput = document.getElementById('login-identifier');
+      var identifier = (idInput && idInput.value ? idInput.value.trim() : '').toLowerCase();
+      var role = 'admin';
+      if (identifier === 'superadmin' || identifier.indexOf('super') !== -1) {
+        role = 'superadmin';
+      } else if (identifier.indexOf('teacher') !== -1) {
+        role = 'teacher';
+      } else if (identifier.indexOf('parent') !== -1) {
+        role = 'parent';
+      } else if (identifier.indexOf('student') !== -1 || identifier.indexOf('2026/') !== -1) {
+        role = 'student';
+      }
+      localStorage.setItem('eduflow_role', role);
+      localStorage.setItem('eduflow_school_name', 'GRACELAND INTERNATIONAL COLLEGE');
+      var target = (role === 'superadmin') ? 'dashboard.html?role=superadmin' : 'dashboard.html?role=' + role + '&schoolId=school_demo';
+      window.location.href = target;
+      return false;
+    }
+    function loginRedirect(role) {
+      localStorage.setItem('eduflow_role', role || 'admin');
+      window.location.href = 'dashboard.html?role=' + (role || 'admin') + '&schoolId=school_demo';
+    }
+    function toggleMobileLandingMenu() {
+      var drawer = document.getElementById('mobile-landing-drawer');
+      if (drawer) drawer.classList.toggle('active');
+    }
+  </script>
 </head>
 <body>
 
