@@ -3732,30 +3732,32 @@ function renderAnalyticsCharts() {
   });
 
   const ctxFinancial = document.getElementById('chart-financial-revenue');
-  if (ctxFinancial) {
-    if (chartFinancial) chartFinancial.destroy();
-    chartFinancial = new Chart(ctxFinancial, {
-      type: 'doughnut',
-      data: {
-        labels: ['Revenue Collected', 'Expected Outstanding'],
-        datasets: [{
-          data: [collected, outstanding],
-          backgroundColor: ['#17B8A6', '#ef4444'],
-          borderColor: 'rgba(255,255,255,0.06)',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: { color: '#f3f4f6', font: { family: 'Outfit, sans-serif' } }
+  if (ctxFinancial && typeof Chart !== 'undefined') {
+    try {
+      if (chartFinancial) chartFinancial.destroy();
+      chartFinancial = new Chart(ctxFinancial, {
+        type: 'doughnut',
+        data: {
+          labels: ['Revenue Collected', 'Expected Outstanding'],
+          datasets: [{
+            data: [collected, outstanding],
+            backgroundColor: ['#17B8A6', '#ef4444'],
+            borderColor: 'rgba(255,255,255,0.06)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: '#f3f4f6', font: { family: 'Outfit, sans-serif' } }
+            }
           }
         }
-      }
-    });
+      });
+    } catch(e) { console.warn(e); }
   }
 
   // 2. Academic Averages
@@ -3775,32 +3777,34 @@ function renderAnalyticsCharts() {
   const averages = subjects.map(sub => Math.round(subjectAverages[sub] / subjectCounts[sub]));
 
   const ctxAcademic = document.getElementById('chart-academic-averages');
-  if (ctxAcademic) {
-    if (chartAcademic) chartAcademic.destroy();
-    chartAcademic = new Chart(ctxAcademic, {
-      type: 'bar',
-      data: {
-        labels: subjects,
-        datasets: [{
-          label: 'Class Score Average (%)',
-          data: averages,
-          backgroundColor: 'rgba(91, 79, 224, 0.65)',
-          borderColor: '#5B4FE0',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#9ca3af' } },
-          x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+  if (ctxAcademic && typeof Chart !== 'undefined') {
+    try {
+      if (chartAcademic) chartAcademic.destroy();
+      chartAcademic = new Chart(ctxAcademic, {
+        type: 'bar',
+        data: {
+          labels: subjects,
+          datasets: [{
+            label: 'Class Score Average (%)',
+            data: averages,
+            backgroundColor: 'rgba(91, 79, 224, 0.65)',
+            borderColor: '#5B4FE0',
+            borderWidth: 1
+          }]
         },
-        plugins: {
-          legend: { display: false }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#9ca3af' } },
+            x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+          },
+          plugins: {
+            legend: { display: false }
+          }
         }
-      }
-    });
+      });
+    } catch(e) { console.warn(e); }
   }
 
   // 3. Attendance Trends
@@ -3815,33 +3819,35 @@ function renderAnalyticsCharts() {
   });
 
   const ctxAttendance = document.getElementById('chart-attendance-trends');
-  if (ctxAttendance) {
-    if (chartAttendance) chartAttendance.destroy();
-    chartAttendance = new Chart(ctxAttendance, {
-      type: 'line',
-      data: {
-        labels: dates,
-        datasets: [{
-          label: 'Attendance Rate (%)',
-          data: rates,
-          borderColor: '#17B8A6',
-          backgroundColor: 'rgba(23, 184, 166, 0.1)',
-          fill: true,
-          tension: 0.3
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: { min: 50, max: 100, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#9ca3af' } },
-          x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+  if (ctxAttendance && typeof Chart !== 'undefined') {
+    try {
+      if (chartAttendance) chartAttendance.destroy();
+      chartAttendance = new Chart(ctxAttendance, {
+        type: 'line',
+        data: {
+          labels: dates,
+          datasets: [{
+            label: 'Attendance Rate (%)',
+            data: rates,
+            borderColor: '#17B8A6',
+            backgroundColor: 'rgba(23, 184, 166, 0.1)',
+            fill: true,
+            tension: 0.3
+          }]
         },
-        plugins: {
-          legend: { display: false }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { min: 50, max: 100, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#9ca3af' } },
+            x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+          },
+          plugins: {
+            legend: { display: false }
+          }
         }
-      }
-    });
+      });
+    } catch(e) { console.warn(e); }
   }
 }
 
@@ -3859,30 +3865,34 @@ function renderAdminDashboardEnhancements() {
   const absents = Object.values(dateRecords).filter(v => v === 'absent').length || Math.max(1, totalStudents - presents - lates);
 
   const ctxDonut = document.getElementById('chart-daily-attendance-breakdown');
-  if (ctxDonut) {
-    if (chartDailyAttendance) chartDailyAttendance.destroy();
-    chartDailyAttendance = new Chart(ctxDonut, {
-      type: 'doughnut',
-      data: {
-        labels: ['Present', 'Late', 'Absent'],
-        datasets: [{
-          data: [presents, lates, absents],
-          backgroundColor: ['#17B8A6', '#f59e0b', '#ef4444'],
-          borderColor: 'rgba(255,255,255,0.06)',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: { color: '#f3f4f6', font: { family: 'Outfit, sans-serif' } }
+  if (ctxDonut && typeof Chart !== 'undefined') {
+    try {
+      if (chartDailyAttendance) chartDailyAttendance.destroy();
+      chartDailyAttendance = new Chart(ctxDonut, {
+        type: 'doughnut',
+        data: {
+          labels: ['Present', 'Late', 'Absent'],
+          datasets: [{
+            data: [presents, lates, absents],
+            backgroundColor: ['#17B8A6', '#f59e0b', '#ef4444'],
+            borderColor: 'rgba(255,255,255,0.06)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: '#f3f4f6', font: { family: 'Outfit, sans-serif' } }
+            }
           }
         }
-      }
-    });
+      });
+    } catch (e) {
+      console.warn("Donut chart render warning:", e);
+    }
   }
 
   // 2. Fee Recovery Progress Bar
@@ -3964,33 +3974,35 @@ function renderStudentDashboardEnhancements() {
 
   // 3. Student Trajectory Line Chart
   const ctxTraj = document.getElementById('chart-student-grade-trajectory');
-  if (ctxTraj) {
-    if (chartStudentTrajectory) chartStudentTrajectory.destroy();
-    chartStudentTrajectory = new Chart(ctxTraj, {
-      type: 'line',
-      data: {
-        labels: ['First Term 2025', 'Second Term 2025', 'Third Term 2025', 'First Term 2026 (Current)'],
-        datasets: [{
-          label: 'Cumulative Score Average (%)',
-          data: [78.4, 82.1, 85.0, 89.2],
-          borderColor: '#5B4FE0',
-          backgroundColor: 'rgba(91, 79, 224, 0.1)',
-          fill: true,
-          tension: 0.4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: { min: 60, max: 100, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#9ca3af' } },
-          x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+  if (ctxTraj && typeof Chart !== 'undefined') {
+    try {
+      if (chartStudentTrajectory) chartStudentTrajectory.destroy();
+      chartStudentTrajectory = new Chart(ctxTraj, {
+        type: 'line',
+        data: {
+          labels: ['First Term 2025', 'Second Term 2025', 'Third Term 2025', 'First Term 2026 (Current)'],
+          datasets: [{
+            label: 'Cumulative Score Average (%)',
+            data: [78.4, 82.1, 85.0, 89.2],
+            borderColor: '#5B4FE0',
+            backgroundColor: 'rgba(91, 79, 224, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
         },
-        plugins: {
-          legend: { display: false }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { min: 60, max: 100, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#9ca3af' } },
+            x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+          },
+          plugins: {
+            legend: { display: false }
+          }
         }
-      }
-    });
+      });
+    } catch(e) { console.warn(e); }
   }
 
   // 4. Pending Invoice Banner Trigger
@@ -4016,33 +4028,35 @@ function renderStudentDashboardEnhancements() {
 function renderSuperAdminEnhancements() {
   // 1. MRR Growth Trend Chart
   const ctxMRR = document.getElementById('chart-super-mrr-growth');
-  if (ctxMRR) {
-    if (chartSuperMRR) chartSuperMRR.destroy();
-    chartSuperMRR = new Chart(ctxMRR, {
-      type: 'line',
-      data: {
-        labels: ['Feb 2026', 'Mar 2026', 'Apr 2026', 'May 2026', 'Jun 2026', 'Jul 2026'],
-        datasets: [{
-          label: 'Platform MRR (₦)',
-          data: [15000, 30000, 45000, 60000, 75000, 90000],
-          borderColor: '#17B8A6',
-          backgroundColor: 'rgba(23, 184, 166, 0.1)',
-          fill: true,
-          tension: 0.3
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: { min: 0, max: 120000, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#9ca3af', callback: v => `₦${(v/1000)}k` } },
-          x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+  if (ctxMRR && typeof Chart !== 'undefined') {
+    try {
+      if (chartSuperMRR) chartSuperMRR.destroy();
+      chartSuperMRR = new Chart(ctxMRR, {
+        type: 'line',
+        data: {
+          labels: ['Feb 2026', 'Mar 2026', 'Apr 2026', 'May 2026', 'Jun 2026', 'Jul 2026'],
+          datasets: [{
+            label: 'Platform MRR (₦)',
+            data: [15000, 30000, 45000, 60000, 75000, 90000],
+            borderColor: '#17B8A6',
+            backgroundColor: 'rgba(23, 184, 166, 0.1)',
+            fill: true,
+            tension: 0.3
+          }]
         },
-        plugins: {
-          legend: { display: false }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { min: 0, max: 120000, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#9ca3af', callback: v => `₦${(v/1000)}k` } },
+            x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+          },
+          plugins: {
+            legend: { display: false }
+          }
         }
-      }
-    });
+      });
+    } catch(e) { console.warn(e); }
   }
 
   // 2. Real-Time Tenant Activity Stream
