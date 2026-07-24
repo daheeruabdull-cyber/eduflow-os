@@ -239,23 +239,38 @@
           localStorage.setItem('eduflow_school_logo', logoData);
         }
 
+        var newSchoolObj = {
+          id: schoolId,
+          name: schoolName,
+          email: schoolEmail,
+          type: schoolType,
+          kycStatus: 'Pending',
+          subscriptionStatus: 'Active',
+          plan: 'Starter (Free Trial)',
+          state: schoolState,
+          lga: schoolLga,
+          phone: schoolPhone,
+          address: schoolAddress,
+          registrar: registrarName,
+          password: schoolPass,
+          classes: ['JSS 1', 'JSS 2', 'JSS 3', 'SSS 1', 'SSS 2', 'SSS 3'],
+          registeredAt: new Date().toISOString()
+        };
+
         var registeredSchools = [];
         try {
           registeredSchools = JSON.parse(localStorage.getItem('eduflow_registered_schools') || '[]');
         } catch(e) {}
-
-        registeredSchools.push({
-          id: schoolId,
-          name: schoolName,
-          email: schoolEmail,
-          password: schoolPass,
-          role: 'admin',
-          type: schoolType,
-          level: schoolLevel,
-          state: schoolState,
-          lga: schoolLga
-        });
+        registeredSchools.push(newSchoolObj);
         localStorage.setItem('eduflow_registered_schools', JSON.stringify(registeredSchools));
+
+        var localDb = { schools: [], students: [] };
+        try {
+          localDb = JSON.parse(localStorage.getItem('eduflow_local_db') || '{"schools":[],"students":[]}');
+        } catch(e) {}
+        if (!localDb.schools) localDb.schools = [];
+        localDb.schools.push(newSchoolObj);
+        localStorage.setItem('eduflow_local_db', JSON.stringify(localDb));
 
         closeSchoolRegistrationModal();
         window.location.href = 'dashboard.html?role=admin&schoolId=' + schoolId;
