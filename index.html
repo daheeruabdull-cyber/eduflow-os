@@ -168,6 +168,32 @@
       });
     }
 
+    function handleLogoUpload(input) {
+      if (input && input.files && input.files[0]) {
+        var file = input.files[0];
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var logoData = e.target.result;
+          window.uploadedLogoData = logoData;
+          
+          var preview = document.getElementById('logo-preview-img');
+          var placeholder = document.getElementById('logo-upload-placeholder');
+          if (preview) {
+            preview.src = logoData;
+            preview.style.display = 'block';
+            preview.style.maxHeight = '55px';
+            preview.style.borderRadius = '6px';
+            preview.style.border = '2px solid #17B8A6';
+          }
+          if (placeholder) {
+            placeholder.innerHTML = '<span style="font-size: 0.65rem; font-weight: 700; color: #17B8A6;">✓ Logo Uploaded</span>';
+            placeholder.style.marginTop = '4px';
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
     function goToOnboardingStep3() {
       setOnboardingStepActive(3);
     }
@@ -200,6 +226,7 @@
         var schoolLga = (schoolLgaInput && schoolLgaInput.value) ? schoolLgaInput.value : 'Ikeja';
 
         var schoolId = 'school_' + Math.floor(1000 + Math.random() * 9000);
+        var logoData = window.uploadedLogoData || '';
 
         localStorage.setItem('eduflow_school_id', schoolId);
         localStorage.setItem('eduflow_school_name', schoolName);
@@ -208,6 +235,9 @@
         localStorage.setItem('eduflow_school_type', schoolType);
         localStorage.setItem('eduflow_school_term', 'First Term 2026');
         localStorage.setItem('eduflow_role', 'admin');
+        if (logoData) {
+          localStorage.setItem('eduflow_school_logo', logoData);
+        }
 
         var registeredSchools = [];
         try {
