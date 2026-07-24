@@ -386,10 +386,10 @@ async function loadDBFromLocalStorage() {
           state.rawDB = data;
           mergeRegisteredSchools();
           const filteredStudents = (data.students || []).filter(s => (s.schoolId || 'school_demo') === state.schoolId);
-          state.db.students = state.schoolId === 'school_demo' && filteredStudents.length === 0 ? data.students || [] : filteredStudents;
+          state.db.students = state.schoolId === 'school_demo' && filteredStudents.length === 0 ? (data.students || []) : filteredStudents;
           
           const filteredPayments = (data.payments || []).filter(p => (p.schoolId || 'school_demo') === state.schoolId);
-          state.db.payments = state.schoolId === 'school_demo' && filteredPayments.length === 0 ? data.payments || [] : filteredPayments;
+          state.db.payments = state.schoolId === 'school_demo' && filteredPayments.length === 0 ? (data.payments || []) : filteredPayments;
           
           state.db.attendance = data.attendance || state.db.attendance;
           state.db.timetable = data.timetable || state.db.timetable;
@@ -495,7 +495,7 @@ function showSection(sectionId, event) {
   }
   
   if (sectionId === 'notifications' && state.role === 'admin') {
-    const currentSchoolId = localStorage.getItem('eduflow_school_id');
+    const currentSchoolId = state.schoolId || localStorage.getItem('eduflow_school_id');
     const schoolData = state.rawDB && state.rawDB.schools ? state.rawDB.schools.find(s => s.id === currentSchoolId) : null;
     if (schoolData && schoolData.kycStatus === 'Pending') {
       alert("🛡️ ACCESS RESTRICTED: Mass SMS and Broadcast capabilities are disabled until SuperAdmin approves your KYC and Identity Documents.");
@@ -668,7 +668,7 @@ function renderDashboardStats() {
     
     const kycBanner = document.getElementById('pending-kyc-restricted-banner');
     if (state.role === 'admin') {
-      const currentSchoolId = localStorage.getItem('eduflow_school_id');
+      const currentSchoolId = state.schoolId || localStorage.getItem('eduflow_school_id');
       const schoolData = state.rawDB && state.rawDB.schools ? state.rawDB.schools.find(s => s.id === currentSchoolId) : null;
       if (schoolData && schoolData.kycStatus === 'Pending') {
         if (kycBanner) kycBanner.style.display = 'flex';
@@ -4399,9 +4399,14 @@ function renderMasterAccountsTable() {
   if (!tbody) return;
 
   let accounts = [];
+  const currentSchoolId = state.schoolId || localStorage.getItem('eduflow_school_id') || 'school_demo';
 
   // 1. Schools Admins / Principals
-  (state.rawDB.schools || []).forEach(sc => {
+  const targetSchools = state.role === 'superadmin' 
+    ? (state.rawDB.schools || []) 
+    : (state.rawDB.schools || []).filter(sc => sc.id === currentSchoolId);
+
+  targetSchools.forEach(sc => {
     accounts.push({
       id: `ADM-${sc.id.toUpperCase()}`,
       name: sc.name,
@@ -4413,19 +4418,17 @@ function renderMasterAccountsTable() {
     });
   });
 
-  // 2. Teachers / Form Masters
-  const teacherList = (state.db.teachers && state.db.teachers.length > 0) ? state.db.teachers : (state.rawDB.teachers && state.rawDB.teachers.length > 0 ? state.rawDB.teachers : [
-    { id: 'TCH-001', name: 'Mr. Chukwuma Okon', email: 'teacher@eduflow.com', assignedClass: 'SSS 1 Science', role: 'Form Master', school: 'Eduflow Academy' },
-    { id: 'TCH-002', name: 'Mrs. Funke Adeleke', email: 'funke.teacher@eduflow.com', assignedClass: 'SSS 2 Science', role: 'Subject Teacher', school: 'Eduflow Academy' },
-    { id: 'TCH-003', name: 'Dr. Ibrahim Danjuma', email: 'danjuma.teacher@eduflow.com', assignedClass: 'SSS 1 Science', role: 'Subject Teacher', school: 'Eduflow Academy' }
-  ]);
+  // 2. Teachers / Form Masters (Scoped strictly to this school for admin)
+  const teacherList = state.role === 'superadmin'
+    ? (state.rawDB.teachers || [])
+    : (state.db.teachers || []);
 
   teacherList.forEach(tch => {
     accounts.push({
       id: tch.id,
       name: tch.name,
       role: `<span class="badge" style="background: rgba(91,79,224,0.15); color: #5B4FE0; font-weight: 700;">TEACHER (${tch.assignedClass || 'Unassigned'})</span>`,
-      school: tch.school || 'Eduflow Academy',
+      school: tch.school || localStorage.getItem('eduflow_school_name') || 'Eduflow Campus',
       email: tch.email,
       rawId: tch.id,
       assignedClass: tch.assignedClass || 'SSS 1 Science',
@@ -4433,18 +4436,7 @@ function renderMasterAccountsTable() {
     });
   });
 
-  // 3. Parents
-  accounts.push({
-    id: 'PAR-001',
-    name: 'Chief Tobi Adebayo (Sr.)',
-    role: '<span class="badge" style="background: rgba(23,184,166,0.15); color: #17B8A6; font-weight: 700;">PARENT / GUARDIAN</span>',
-    school: 'Eduflow Academy',
-    email: 'parent@eduflow.com',
-    rawId: 'parent@eduflow.com',
-    type: 'parent'
-  });
-
-  // 4. Students
+  // 3. Students (Scoped to this school)
   (state.db.students || []).forEach(st => {
     accounts.push({
       id: `STU-${st.id}`,
@@ -4490,9 +4482,13 @@ function openAddTeacherModal() {
   if (!state.db.teachers) state.db.teachers = [];
   const nextId = `TCH-${String(state.db.teachers.length + 1).padStart(3, '0')}`;
   
+  const currentSchoolId = state.schoolId || localStorage.getItem('eduflow_school_id') || 'school_demo';
+  const currentSchoolName = localStorage.getItem('eduflow_school_name') || 'Eduflow Campus';
+
   const newTeacher = {
     id: nextId,
-    schoolId: 'school_demo',
+    schoolId: currentSchoolId,
+    school: currentSchoolName,
     name: tName,
     email: tEmail,
     subject: tSubj || 'General Science',
@@ -4589,7 +4585,7 @@ function toggleDashboardTheme() {
 }
 
 function openOfficialReportCardModal(studentId = 1) {
-  const currentSchoolId = localStorage.getItem('eduflow_school_id');
+  const currentSchoolId = state.schoolId || localStorage.getItem('eduflow_school_id');
   const schoolData = state.rawDB && state.rawDB.schools ? state.rawDB.schools.find(s => s.id === currentSchoolId) : null;
   if (state.role === 'admin' && schoolData && schoolData.kycStatus === 'Pending') {
     alert("🛡️ ACCESS RESTRICTED: Official Report Card generation is disabled until SuperAdmin approves your KYC and Identity Documents.");
