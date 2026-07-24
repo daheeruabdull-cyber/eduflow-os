@@ -135,6 +135,39 @@
       });
     }
 
+    var EDUCATIONAL_STAGE_CLASSES = {
+      "Nursery": ["Creche", "Playgroup", "Nursery 1", "Nursery 2"],
+      "Primary": ["Basic 1", "Basic 2", "Basic 3", "Basic 4", "Basic 5", "Basic 6"],
+      "Secondary": ["JSS 1", "JSS 2", "JSS 3", "SSS 1", "SSS 2", "SSS 3"],
+      "K12": ["Creche", "Playgroup", "Nursery 1", "Nursery 2", "Basic 1", "Basic 2", "Basic 3", "Basic 4", "Basic 5", "Basic 6", "JSS 1", "JSS 2", "JSS 3", "SSS 1", "SSS 2", "SSS 3"]
+    };
+
+    function renderOnboardingClasses(stage) {
+      var container = document.getElementById('onboarding-classes-checklist');
+      if (!container) return;
+      container.innerHTML = '';
+      var classesList = EDUCATIONAL_STAGE_CLASSES[stage] || EDUCATIONAL_STAGE_CLASSES["Secondary"];
+      classesList.forEach(function(cls) {
+        var label = document.createElement('label');
+        label.style.display = 'flex';
+        label.style.alignItems = 'center';
+        label.style.gap = '8px';
+        label.style.fontSize = '0.7rem';
+        label.style.color = 'var(--text-main)';
+        label.style.cursor = 'pointer';
+        
+        var checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = cls;
+        checkbox.checked = true;
+        checkbox.style.cursor = 'pointer';
+        
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode(cls));
+        container.appendChild(label);
+      });
+    }
+
     function goToOnboardingStep3() {
       setOnboardingStepActive(3);
     }
@@ -1261,7 +1294,12 @@
           <div class="input-group" style="text-align: left; margin-bottom: 16px;">
             <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 8px; display: block;">Select Classes to Activate</label>
             <div id="onboarding-classes-checklist" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 8px; padding: 10px; border: 1px solid var(--border-color); border-radius: var(--border-radius-md); background: rgba(0,0,0,0.01); max-height: 110px; overflow-y: auto;">
-              <!-- Will load checkboxes dynamically -->
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 0.7rem; color: var(--text-main); cursor: pointer;"><input type="checkbox" value="JSS 1" checked style="cursor: pointer;">JSS 1</label>
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 0.7rem; color: var(--text-main); cursor: pointer;"><input type="checkbox" value="JSS 2" checked style="cursor: pointer;">JSS 2</label>
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 0.7rem; color: var(--text-main); cursor: pointer;"><input type="checkbox" value="JSS 3" checked style="cursor: pointer;">JSS 3</label>
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 0.7rem; color: var(--text-main); cursor: pointer;"><input type="checkbox" value="SSS 1" checked style="cursor: pointer;">SSS 1</label>
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 0.7rem; color: var(--text-main); cursor: pointer;"><input type="checkbox" value="SSS 2" checked style="cursor: pointer;">SSS 2</label>
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 0.7rem; color: var(--text-main); cursor: pointer;"><input type="checkbox" value="SSS 3" checked style="cursor: pointer;">SSS 3</label>
             </div>
           </div>
 
