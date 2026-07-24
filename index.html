@@ -1060,19 +1060,19 @@
         <button class="icon-btn" onclick="closePortalLoginModal()" style="font-size: 1.4rem; font-weight: 700; background: none; border: none; cursor: pointer; color: var(--text-secondary);">&times;</button>
       </div>
 
-      <div id="portal-login-form" style="text-align: left;">
+      <form id="portal-login-form" action="javascript:void(0);" onsubmit="handlePortalLoginUnified(event); return false;" style="text-align: left;">
         <div class="input-group" style="margin-bottom: 16px;">
           <label for="login-identifier" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px; display: block;">Username / Email / Roll Number</label>
-          <input type="text" class="form-input" id="login-identifier" placeholder="" style="width: 100%;" autocomplete="off">
+          <input type="text" class="form-input" id="login-identifier" placeholder="" style="width: 100%;" autocomplete="off" onkeydown="if(event.key==='Enter'){handlePortalLoginUnified(event);}">
         </div>
 
         <div class="input-group" style="margin-bottom: 24px;">
           <label for="login-password" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px; display: block;">Password</label>
-          <input type="password" class="form-input" id="login-password" placeholder="" style="width: 100%;" autocomplete="current-password">
+          <input type="password" class="form-input" id="login-password" placeholder="" style="width: 100%;" autocomplete="current-password" onkeydown="if(event.key==='Enter'){handlePortalLoginUnified(event);}">
         </div>
 
-        <button type="button" class="btn btn-primary" onclick="handlePortalLoginUnified(event)" style="width: 100%; height: 42px; font-weight: 700; font-size: 0.85rem; margin-bottom: 10px;">Access School Portal</button>
-      </div>
+        <button type="submit" class="btn btn-primary" onclick="handlePortalLoginUnified(event)" style="width: 100%; height: 42px; font-weight: 700; font-size: 0.85rem; margin-bottom: 10px;">Access School Portal</button>
+      </form>
     </div>
   </div>
 
