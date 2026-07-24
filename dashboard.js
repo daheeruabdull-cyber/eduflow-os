@@ -2511,8 +2511,8 @@ function renderSuperSchoolsDirectory() {
     
     let actionsHTML = '';
     
-    // Impersonate Button
-    actionsHTML += `<button class="btn btn-teal" onclick="impersonateTenantSchool('${school.id}')" style="font-size: 0.65rem; padding: 4px 10px; margin-right: 6px; font-weight: 700;">🎭 Impersonate</button>`;
+    // Reset Principal Credentials Button
+    actionsHTML += `<button class="btn btn-warning" onclick="openSuperResetPrincipalModal('${school.id}')" style="font-size: 0.65rem; padding: 4px 10px; margin-right: 6px; background: #f59e0b; color: #fff; border: none; font-weight: 700;">🔑 Reset Principal</button>`;
 
     // KYC Audit Button
     actionsHTML += `<button class="btn btn-secondary" onclick="viewTenantKycAndReceipt('${school.id}')" style="font-size: 0.65rem; padding: 4px 10px; margin-right: 6px;">📄 Audit Docs</button>`;
@@ -4139,6 +4139,95 @@ function impersonateTenantSchool(schoolId) {
 
   switchRole('admin');
   alert(`🎭 Impersonation Mode Active: Switched workspace to "${school.name}". You are now viewing the dashboard as this tenant principal.`);
+}
+
+function openSuperResetPrincipalModal(schoolId) {
+  const school = (state.rawDB.schools || []).find(s => s.id === schoolId);
+  if (!school) return;
+
+  const modal = document.getElementById('super-reset-principal-modal');
+  if (!modal) {
+    const newPass = prompt(`🔑 SUPERADMIN SECURITY OVERRIDE\n\nReset Principal Password for "${school.name}" (${school.email}):`, school.password || 'admin123');
+    if (newPass !== null && newPass.trim() !== '') {
+      resetSchoolPrincipalPasswordDirect(schoolId, newPass.trim(), school.email, school.registrar);
+    }
+    return;
+  }
+
+  const elId = document.getElementById('super-reset-school-id');
+  const elName = document.getElementById('super-reset-school-name');
+  const elEmail = document.getElementById('super-reset-principal-email');
+  const elPName = document.getElementById('super-reset-principal-name');
+  const elPass = document.getElementById('super-reset-principal-pass');
+
+  if (elId) elId.value = school.id;
+  if (elName) elName.textContent = school.name;
+  if (elEmail) elEmail.value = school.email || '';
+  if (elPName) elPName.value = school.registrar || 'Principal Administrator';
+  if (elPass) elPass.value = school.password || 'admin123';
+
+  modal.classList.add('active');
+}
+
+function closeSuperResetPrincipalModal() {
+  const modal = document.getElementById('super-reset-principal-modal');
+  if (modal) modal.classList.remove('active');
+}
+
+function handleSuperResetPrincipalSubmit(event) {
+  if (event && typeof event.preventDefault === 'function') event.preventDefault();
+  
+  const schoolId = document.getElementById('super-reset-school-id').value;
+  const pName = document.getElementById('super-reset-principal-name').value.trim();
+  const pEmail = document.getElementById('super-reset-principal-email').value.trim();
+  const pPass = document.getElementById('super-reset-principal-pass').value;
+
+  if (!schoolId || !pEmail || !pPass) {
+    alert("Please provide both email and new password.");
+    return;
+  }
+
+  resetSchoolPrincipalPasswordDirect(schoolId, pPass, pEmail, pName);
+  closeSuperResetPrincipalModal();
+}
+
+function resetSchoolPrincipalPasswordDirect(schoolId, newPassword, newEmail, newName) {
+  const school = (state.rawDB.schools || []).find(s => s.id === schoolId);
+  if (!school) return;
+
+  if (newPassword) school.password = newPassword;
+  if (newEmail) school.email = newEmail;
+  if (newName) school.registrar = newName;
+
+  // Sync into local registered schools registry
+  let localRegSchools = [];
+  try {
+    localRegSchools = JSON.parse(localStorage.getItem('eduflow_registered_schools') || '[]');
+  } catch(e) {}
+
+  let foundLocal = false;
+  localRegSchools.forEach(s => {
+    if (s.id === schoolId || s.email === school.email) {
+      if (newPassword) s.password = newPassword;
+      if (newEmail) s.email = newEmail;
+      if (newName) s.registrar = newName;
+      foundLocal = true;
+    }
+  });
+  if (!foundLocal) {
+    localRegSchools.push(school);
+  }
+  localStorage.setItem('eduflow_registered_schools', JSON.stringify(localRegSchools));
+
+  // Sync active session if this is currently logged-in school
+  if (state.schoolId === schoolId) {
+    if (newPassword) localStorage.setItem('eduflow_school_password', newPassword);
+    if (newEmail) localStorage.setItem('eduflow_school_email', newEmail);
+  }
+
+  syncSuperDB();
+  renderSuperSchoolsDirectory();
+  alert(`✅ SUPERADMIN PRIVILEGE EXECUTED:\n\nUpdated Principal & Login Credentials for "${school.name}".\n\n• Administrator: ${school.registrar || 'Principal'}\n• Login Email: ${school.email}\n• New Password: ${school.password}`);
 }
 
 async function changeTenantPlanTier(schoolId, newPlan) {

@@ -2315,6 +2315,37 @@
     </div>
   </div>
 
+  <!-- SUPER-ADMIN PRINCIPAL & CREDENTIALS RESET MODAL -->
+  <div class="modal-overlay" id="super-reset-principal-modal">
+    <div class="modal-card glass-card" style="max-width: 500px; padding: 28px; border: 1px solid var(--border-color);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 1.1rem; font-family: var(--font-family-title); color: var(--text-main); margin: 0;">🔑 SuperAdmin Privilege: Reset Principal</h3>
+        <button class="modal-close-btn" onclick="closeSuperResetPrincipalModal()" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem;">✕</button>
+      </div>
+      <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 16px;">SuperAdmin Override: Update Principal Administrator details and reset access password for <strong id="super-reset-school-name" style="color: var(--primary);">Campus</strong>.</p>
+
+      <form onsubmit="handleSuperResetPrincipalSubmit(event)">
+        <input type="hidden" id="super-reset-school-id">
+        <div style="margin-bottom: 12px; text-align: left;">
+          <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Principal / Administrator Name</label>
+          <input type="text" class="form-input" id="super-reset-principal-name" placeholder="Principal Full Name" style="width: 100%; font-size: 0.85rem;" required>
+        </div>
+        <div style="margin-bottom: 12px; text-align: left;">
+          <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Principal Login Email</label>
+          <input type="email" class="form-input" id="super-reset-principal-email" placeholder="admin@school.edu.ng" style="width: 100%; font-size: 0.85rem;" required>
+        </div>
+        <div style="margin-bottom: 20px; text-align: left;">
+          <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">New Access Password</label>
+          <input type="text" class="form-input" id="super-reset-principal-pass" placeholder="Enter New Password" style="width: 100%; font-size: 0.85rem;" required>
+        </div>
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button type="button" class="btn btn-secondary" onclick="closeSuperResetPrincipalModal()" style="font-size: 0.8rem;">Cancel</button>
+          <button type="submit" class="btn btn-primary" style="font-size: 0.8rem; font-weight: 700; background: var(--super-accent); border-color: var(--super-accent);">Save Principal Credentials</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- SUPER-ADMIN 30-SECOND SCHOOL ONBOARDING WIZARD MODAL -->
   <div class="modal-overlay" id="super-onboard-school-modal">
     <div class="modal-card glass-card" style="max-width: 540px; padding: 32px; border: 1px solid var(--border-color);">
