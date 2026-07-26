@@ -81,7 +81,7 @@
       closeSchoolRegistrationModal();
       var drawer = document.getElementById('mobile-landing-drawer');
       if (drawer) drawer.classList.remove('active');
-      var overlay = document.getElementById('login-modal-overlay');
+      var overlay = document.getElementById('login-modal-overlay') || document.querySelector('#login-modal-overlay');
       if (overlay) {
         overlay.classList.add('active');
         overlay.style.setProperty('display', 'flex', 'important');
@@ -98,8 +98,6 @@
           var input = document.getElementById('login-identifier');
           if (input) input.focus();
         }, 100);
-      } else {
-        window.location.href = 'dashboard.html?role=admin';
       }
       return false;
     }
@@ -1560,6 +1558,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=1.1.6"></script>
+  <script src="app.js?v=1.1.7"></script>
 </body>
 </html>
