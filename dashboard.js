@@ -621,10 +621,10 @@ function switchRole(role) {
     } else if (role === 'teacher') {
       avatar.textContent = 'T';
       avatar.style.background = 'linear-gradient(135deg, #5B4FE0 0%, #3b82f6 100%)';
-      const teacherEmail = localStorage.getItem('eduflow_teacher_email') || 'teacher@eduflow.com';
+      const teacherEmail = localStorage.getItem('eduflow_teacher_email') || localStorage.getItem('eduflow_user_email') || 'teacher@eduflow.com';
       const teacher = (state.db.teachers || []).find(t => t.email === teacherEmail) || (state.db.teachers || [])[0];
-      name.textContent = teacher ? teacher.name : 'Mr. Chukwuma Okon';
-      roleLabel.textContent = teacher ? `Form Master (${teacher.assignedClass || 'SSS 1 Science'})` : 'Form Master (SSS 1 Science)';
+      name.textContent = teacher ? teacher.name : 'Form Master';
+      roleLabel.textContent = teacher ? `Form Master (${teacher.assignedClass || 'Assigned Class'})` : 'Form Master';
     } else if (role === 'parent') {
       avatar.textContent = 'P';
       avatar.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
@@ -660,8 +660,17 @@ function renderDashboardStats() {
   const studentBanner = document.getElementById('student-pending-invoice-banner');
 
   if (state.role === 'admin' || state.role === 'teacher') {
-    if (welcomeTitle) welcomeTitle.textContent = state.role === 'teacher' ? 'Welcome back, Mr. Okon' : 'Welcome back, Principal';
-    if (welcomeSub) welcomeSub.textContent = state.role === 'teacher' ? 'SSS 1 Science Academic & Score Entry Console' : 'Here is the overall status of Eduflow today.';
+    if (state.role === 'teacher') {
+      const teacherEmail = localStorage.getItem('eduflow_teacher_email') || localStorage.getItem('eduflow_user_email') || 'teacher@eduflow.com';
+      const teacher = (state.db.teachers || []).find(t => t.email === teacherEmail) || (state.db.teachers || [])[0];
+      const teacherName = teacher ? teacher.name : 'Form Master';
+      const assignedClass = teacher && teacher.assignedClass ? teacher.assignedClass : 'Assigned Class';
+      if (welcomeTitle) welcomeTitle.textContent = `Welcome back, ${teacherName}`;
+      if (welcomeSub) welcomeSub.textContent = `${assignedClass} Form Master Console • Marks & Attendance Register`;
+    } else {
+      if (welcomeTitle) welcomeTitle.textContent = 'Welcome back, Principal';
+      if (welcomeSub) welcomeSub.textContent = 'Here is the overall status of Eduflow today.';
+    }
 
     if (quickBar) quickBar.style.display = 'flex';
     if (adminRow) adminRow.style.display = 'grid';
@@ -819,20 +828,24 @@ function filterTeacherClassOptions() {
   const resSelect = document.getElementById('results-class-select');
 
   if (state.role === 'teacher') {
-    const teacherEmail = localStorage.getItem('eduflow_teacher_email') || 'teacher@eduflow.com';
+    const teacherEmail = localStorage.getItem('eduflow_teacher_email') || localStorage.getItem('eduflow_user_email') || 'teacher@eduflow.com';
     const teacher = (state.db.teachers || []).find(t => t.email === teacherEmail) || (state.db.teachers || [])[0];
     const assignedClass = (teacher && teacher.assignedClass) ? teacher.assignedClass : 'SSS 1 Science';
     
-    if (attSelect && attSelect.dataset.scoped !== assignedClass) {
+    if (attSelect) {
       attSelect.innerHTML = `<option value="${assignedClass}" selected>${assignedClass} (My Assigned Class)</option>`;
       attSelect.dataset.scoped = assignedClass;
+      attSelect.disabled = true;
     }
-    if (resSelect && resSelect.dataset.scoped !== assignedClass) {
+    if (resSelect) {
       resSelect.innerHTML = `<option value="${assignedClass}" selected>${assignedClass} (My Assigned Class)</option>`;
       resSelect.dataset.scoped = assignedClass;
+      resSelect.disabled = true;
     }
   } else if (state.role === 'admin' || state.role === 'superadmin') {
     // School Admin sees ALL classes!
+    if (attSelect) attSelect.disabled = false;
+    if (resSelect) resSelect.disabled = false;
     if (attSelect && attSelect.dataset.scoped) {
       delete attSelect.dataset.scoped;
       renderAdminClassOptions(attSelect);
