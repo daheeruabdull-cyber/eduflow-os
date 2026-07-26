@@ -256,7 +256,15 @@ function openSchoolRegistrationModal() {
 
 function closeSchoolRegistrationModal() {
   const overlay = document.getElementById('school-modal-overlay');
-  if (overlay) overlay.classList.remove('active');
+  if (overlay) {
+    overlay.classList.remove('active');
+    overlay.style.removeProperty('display');
+    overlay.style.removeProperty('opacity');
+    overlay.style.removeProperty('pointer-events');
+    overlay.style.display = 'none';
+    overlay.style.opacity = '0';
+    overlay.style.pointerEvents = 'none';
+  }
 }
 
 // Onboarding Multi-step Wizards
@@ -685,9 +693,12 @@ function closePortalLoginModal() {
   const overlay = document.getElementById('login-modal-overlay');
   if (overlay) {
     overlay.classList.remove('active');
-    overlay.style.setProperty('opacity', '0', 'important');
-    overlay.style.setProperty('pointer-events', 'none', 'important');
-    overlay.style.setProperty('display', 'none', 'important');
+    overlay.style.removeProperty('display');
+    overlay.style.removeProperty('opacity');
+    overlay.style.removeProperty('pointer-events');
+    overlay.style.display = 'none';
+    overlay.style.opacity = '0';
+    overlay.style.pointerEvents = 'none';
   }
 }
 
