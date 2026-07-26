@@ -13,7 +13,7 @@
       closePortalLoginModal();
       var drawer = document.getElementById('mobile-landing-drawer');
       if (drawer) drawer.classList.remove('active');
-      var overlay = document.getElementById('school-modal-overlay');
+      var overlay = document.getElementById('school-modal-overlay') || document.querySelector('#school-modal-overlay');
       if (overlay) {
         overlay.style.setProperty('display', 'flex', 'important');
         overlay.style.setProperty('opacity', '1', 'important');
@@ -21,8 +21,6 @@
         overlay.classList.add('active');
         setOnboardingStepActive(1);
         if (typeof renderOnboardingClasses === 'function') renderOnboardingClasses('Secondary');
-      } else {
-        window.location.href = 'dashboard.html?role=admin';
       }
     }
     function closeSchoolRegistrationModal() {
@@ -516,6 +514,7 @@
         <!-- Desktop Navigation Links -->
         <nav class="nav-links desktop-only">
           <a href="#features" class="nav-link">Features</a>
+          <a href="#pricing" class="nav-link">Pricing</a>
         </nav>
 
         <!-- Header Actions: Desktop shows Login + Start Trial; Mobile shows Start Trial + Hamburger -->
@@ -1583,6 +1582,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=1.2.2"></script>
+  <script src="app.js?v=1.2.4"></script>
 </body>
 </html>
