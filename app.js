@@ -685,7 +685,10 @@ function openPortalLoginModal() {
   }
   const idInput = document.getElementById('login-identifier');
   const passInput = document.getElementById('login-password');
-  if (idInput) idInput.value = '';
+  if (idInput) {
+    idInput.value = '';
+    setTimeout(() => idInput.focus(), 50);
+  }
   if (passInput) passInput.value = '';
 }
 
