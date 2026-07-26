@@ -108,6 +108,13 @@
         setTimeout(openPortalLoginModal, 300);
       }
     });
+    function quickLoginAs(role) {
+      var idInput = document.getElementById('login-identifier');
+      var passInput = document.getElementById('login-password');
+      if (idInput) idInput.value = role;
+      if (passInput) passInput.value = '123456';
+      handlePortalLoginUnified();
+    }
     function closePortalLoginModal() {
       var overlay = document.getElementById('login-modal-overlay');
       if (overlay) {
@@ -1553,6 +1560,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=1.1.3"></script>
+  <script src="app.js?v=1.1.5"></script>
 </body>
 </html>
