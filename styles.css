@@ -1359,7 +1359,7 @@ button, input, select, textarea {
   backdrop-filter: blur(8px) !important;
   -webkit-backdrop-filter: blur(8px) !important;
   z-index: 999999 !important;
-  display: flex !important;
+  display: none !important;
   align-items: center !important;
   justify-content: center !important;
   padding: 16px !important;
@@ -1372,6 +1372,7 @@ button, input, select, textarea {
 }
 
 .modal-overlay.active {
+  display: flex !important;
   opacity: 1 !important;
   pointer-events: auto !important;
 }
