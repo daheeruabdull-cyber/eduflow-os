@@ -686,6 +686,12 @@ function openPortalLoginModal(e) {
     overlay.style.setProperty('opacity', '1', 'important');
     overlay.style.setProperty('pointer-events', 'auto', 'important');
     overlay.style.setProperty('z-index', '9999999', 'important');
+    const innerModal = overlay.querySelector('.payment-modal, .responsive-modal');
+    if (innerModal) {
+      innerModal.style.setProperty('display', 'block', 'important');
+      innerModal.style.setProperty('opacity', '1', 'important');
+      innerModal.style.setProperty('visibility', 'visible', 'important');
+    }
   }
   const idInput = document.getElementById('login-identifier');
   const passInput = document.getElementById('login-password');

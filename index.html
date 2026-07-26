@@ -88,6 +88,12 @@
         overlay.style.setProperty('opacity', '1', 'important');
         overlay.style.setProperty('pointer-events', 'auto', 'important');
         overlay.style.setProperty('z-index', '9999999', 'important');
+        var innerModal = overlay.querySelector('.payment-modal, .responsive-modal');
+        if (innerModal) {
+          innerModal.style.setProperty('display', 'block', 'important');
+          innerModal.style.setProperty('opacity', '1', 'important');
+          innerModal.style.setProperty('visibility', 'visible', 'important');
+        }
         setTimeout(function() {
           var input = document.getElementById('login-identifier');
           if (input) input.focus();
@@ -97,6 +103,11 @@
       }
       return false;
     }
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.location.search.indexOf('login=true') !== -1 || window.location.hash === '#login') {
+        setTimeout(openPortalLoginModal, 300);
+      }
+    });
     function closePortalLoginModal() {
       var overlay = document.getElementById('login-modal-overlay');
       if (overlay) {
@@ -1542,6 +1553,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=1.1.2"></script>
+  <script src="app.js?v=1.1.3"></script>
 </body>
 </html>
