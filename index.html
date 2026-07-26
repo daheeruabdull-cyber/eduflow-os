@@ -306,6 +306,7 @@
     function openPortalLoginModal() {
       var overlay = document.getElementById('login-modal-overlay');
       if (overlay) {
+        overlay.style.display = 'flex';
         overlay.classList.add('active');
         overlay.style.opacity = '1';
         overlay.style.pointerEvents = 'auto';
@@ -319,6 +320,7 @@
         overlay.classList.remove('active');
         overlay.style.opacity = '0';
         overlay.style.pointerEvents = 'none';
+        overlay.style.display = 'none';
       }
     }
     function handlePortalLoginUnified(event) {
@@ -468,8 +470,8 @@
 
         <!-- Header Actions: On Mobile, shows ONLY 'Start Trial' + Menu Hamburger -->
         <div class="header-action-group">
-          <a href="#" class="nav-link desktop-only" onclick="openPortalLoginModal()" style="cursor: pointer;">Login</a>
-          <button class="btn btn-primary btn-header-trial" onclick="openSchoolRegistrationModal()">Start Trial</button>
+          <a href="javascript:void(0);" class="nav-link desktop-only" onclick="event.preventDefault(); openPortalLoginModal();" style="cursor: pointer;">Login</a>
+          <button type="button" class="btn btn-primary btn-header-trial" onclick="openSchoolRegistrationModal()">Start Trial</button>
           
           <!-- Mobile Hamburger Menu Button -->
           <button class="mobile-nav-toggle btn btn-secondary" onclick="toggleMobileLandingMenu()" aria-label="Toggle Navigation Menu">
@@ -1531,6 +1533,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=1.0.5"></script>
+  <script src="app.js?v=1.0.8"></script>
 </body>
 </html>

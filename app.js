@@ -205,11 +205,7 @@ function navigateToPage(targetPage, queryParams) {
   if (queryParams) {
     url += (url.includes('?') ? '&' : '?') + queryParams;
   }
-  try {
-    window.location.assign(url);
-  } catch(e) {
-    window.location.href = url;
-  }
+  window.location.href = url;
 }
 
 // 1. MODAL TRIGGERS
@@ -671,7 +667,12 @@ async function registerSchoolOnboarding() {
 // 3. PORTAL SIGN-IN MODAL CONTROLLERS
 function openPortalLoginModal() {
   const overlay = document.getElementById('login-modal-overlay');
-  if (overlay) overlay.classList.add('active');
+  if (overlay) {
+    overlay.style.display = 'flex';
+    overlay.classList.add('active');
+    overlay.style.opacity = '1';
+    overlay.style.pointerEvents = 'auto';
+  }
   const idInput = document.getElementById('login-identifier');
   const passInput = document.getElementById('login-password');
   if (idInput) idInput.value = '';
@@ -680,7 +681,12 @@ function openPortalLoginModal() {
 
 function closePortalLoginModal() {
   const overlay = document.getElementById('login-modal-overlay');
-  if (overlay) overlay.classList.remove('active');
+  if (overlay) {
+    overlay.classList.remove('active');
+    overlay.style.opacity = '0';
+    overlay.style.pointerEvents = 'none';
+    overlay.style.display = 'none';
+  }
 }
 
 async function handlePortalLoginUnified(event) {
