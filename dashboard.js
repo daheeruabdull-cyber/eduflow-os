@@ -607,6 +607,11 @@ function switchRole(role) {
     if (superHeaderSelector) superHeaderSelector.style.display = 'none';
   }
 
+  // Ensure class options are scoped if role is teacher
+  if (typeof filterTeacherClassOptions === 'function') {
+    filterTeacherClassOptions();
+  }
+
   // Update Sidebar identity card
   const avatar = document.getElementById('current-user-avatar');
   const name = document.getElementById('current-user-name');

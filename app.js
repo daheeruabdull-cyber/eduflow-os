@@ -743,9 +743,14 @@ async function handlePortalLoginUnified(event) {
 
   let targetRole = 'admin';
   if (cleanId.includes('super')) targetRole = 'superadmin';
-  else if (cleanId.includes('teacher')) targetRole = 'teacher';
+  else if (cleanId.includes('teacher') || cleanId.startsWith('tch_')) targetRole = 'teacher';
   else if (cleanId.includes('parent')) targetRole = 'parent';
   else if (cleanId.includes('student') || cleanId.includes('2026/')) targetRole = 'student';
+
+  if (targetRole === 'teacher') {
+    localStorage.setItem('eduflow_teacher_email', identifier);
+    localStorage.setItem('eduflow_user_email', identifier);
+  }
 
   let schoolId = localStorage.getItem('eduflow_school_id') || 'school_demo';
   let savedSchools = [];
