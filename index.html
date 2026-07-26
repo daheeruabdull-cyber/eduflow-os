@@ -516,12 +516,11 @@
         <!-- Desktop Navigation Links -->
         <nav class="nav-links desktop-only">
           <a href="#features" class="nav-link">Features</a>
-          <a href="#pricing" class="nav-link">Pricing</a>
         </nav>
 
         <!-- Header Actions: Desktop shows Login + Start Trial; Mobile shows Start Trial + Hamburger -->
         <div class="header-action-group">
-          <button type="button" class="nav-link desktop-only" onclick="openPortalLoginModal(event)" style="background: none; border: none; cursor: pointer;">Login</button>
+          <a href="dashboard.html?role=admin" class="nav-link desktop-only" onclick="return openPortalLoginModal(event);" style="background: none; border: none; cursor: pointer; text-decoration: none;">Login</a>
           <button type="button" class="btn btn-primary btn-header-trial" onclick="openSchoolRegistrationModal()">Start Trial</button>
           
           <!-- Mobile Hamburger Menu Button -->
@@ -577,7 +576,7 @@
           <div class="drawer-nav-section" style="margin-top: 16px;">
             <span class="drawer-section-title">ACCOUNT & PORTALS</span>
             
-            <button type="button" class="mobile-nav-card" onclick="openPortalLoginModal(event);" style="width: 100%; text-align: left; background: transparent; border: none; cursor: pointer;">
+            <a href="dashboard.html?role=admin" class="mobile-nav-card" onclick="return openPortalLoginModal(event);" style="width: 100%; text-align: left; background: transparent; border: none; cursor: pointer; text-decoration: none;">
               <div class="mobile-card-icon" style="background: #fdf2f8; color: #db2777;">
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
               </div>
@@ -586,7 +585,7 @@
                 <div class="mobile-card-desc">Admin, Teacher, Parent & Student</div>
               </div>
               <span class="mobile-badge-pill">Login</span>
-            </button>
+            </a>
 
             <button type="button" class="mobile-nav-card" onclick="openSchoolRegistrationModal();" style="width: 100%; text-align: left; background: transparent; border: none; cursor: pointer;">
               <div class="mobile-card-icon" style="background: #eff6ff; color: #2563eb;">
@@ -597,7 +596,7 @@
                 <div class="mobile-card-desc">Register your school instance</div>
               </div>
               <svg class="mobile-card-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-            </a>
+            </button>
           </div>
 
           <!-- Section 3: Primary CTA Button -->
@@ -618,9 +617,9 @@
           <p class="hero-desc">Eduflow simplifies class registers, updates results, automates invoices, and connects parents. A glassmorphic school administration console built for high-performance teams.</p>
           <div class="hero-actions">
             <button class="btn btn-primary" onclick="openSchoolRegistrationModal()">Start Trial</button>
-            <button type="button" class="btn btn-secondary" onclick="openPortalLoginModal(event)">Portal Access</button>
+            <a href="dashboard.html?role=admin" class="btn btn-secondary" onclick="return openPortalLoginModal(event);" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Portal Access</a>
           </div>
-        </div>
+        </div>   </div>
         
         <div class="hero-preview-block">
           <div class="mock-browser">
@@ -1584,6 +1583,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=1.2.0"></script>
+  <script src="app.js?v=1.2.1"></script>
 </body>
 </html>
