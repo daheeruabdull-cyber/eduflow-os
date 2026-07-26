@@ -355,7 +355,10 @@ async function loadDBFromLocalStorage() {
       localRegSchools = JSON.parse(localStorage.getItem('eduflow_registered_schools') || '[]');
     } catch(e) {}
     localRegSchools.forEach(regSchool => {
-      if (!state.rawDB.schools.some(s => s.id === regSchool.id || s.email === regSchool.email)) {
+      const existingIdx = state.rawDB.schools.findIndex(s => s.id === regSchool.id || (s.email && regSchool.email && s.email === regSchool.email));
+      if (existingIdx !== -1) {
+        state.rawDB.schools[existingIdx] = Object.assign({}, state.rawDB.schools[existingIdx], regSchool);
+      } else {
         state.rawDB.schools.push(regSchool);
       }
     });
@@ -2475,6 +2478,9 @@ function renderSuperOverview() {
 
 async function syncSuperDB() {
   try {
+    if (state.rawDB && Array.isArray(state.rawDB.schools)) {
+      localStorage.setItem('eduflow_registered_schools', JSON.stringify(state.rawDB.schools));
+    }
     const response = await fetch('/api/db', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -2487,9 +2493,14 @@ async function syncSuperDB() {
 
       renderSuperStats();
       renderSuperSchoolsDirectory();
+      if (typeof renderSuperKycVault === 'function') renderSuperKycVault();
+      if (typeof renderSuperKycReviewPanel === 'function') renderSuperKycReviewPanel();
     }
   } catch(err) {
     console.error('Error syncing global rawDB.', err);
+    if (state.rawDB && Array.isArray(state.rawDB.schools)) {
+      localStorage.setItem('eduflow_registered_schools', JSON.stringify(state.rawDB.schools));
+    }
   }
 }
 
@@ -3477,11 +3488,7 @@ async function approveSuperSubscription(schoolId) {
     };
     
     try {
-      await fetch('/api/db', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(state.rawDB)
-      });
+      await syncSuperDB();
       alert(`Subscription & KYC for ${school.name} approved and activated.`);
       renderSuperKycVault();
       renderSuperKycReviewPanel();
