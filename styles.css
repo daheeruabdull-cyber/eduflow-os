@@ -1382,9 +1382,9 @@ button, input, select, textarea {
   border: 1px solid var(--border-color) !important;
   border-radius: 16px !important;
   width: 100% !important;
-  max-width: 440px !important;
+  max-width: 520px !important;
   margin: 0 auto !important;
-  padding: 24px 20px !important;
+  padding: 24px 22px !important;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3) !important;
   box-sizing: border-box !important;
   max-height: 90vh !important;
@@ -1409,8 +1409,8 @@ button, input, select, textarea {
 /* Tablet & iPad Viewport Optimization */
 @media (min-width: 501px) and (max-width: 900px) {
   .payment-modal, .responsive-modal {
-    max-width: 480px !important;
-    padding: 24px 22px !important;
+    max-width: 500px !important;
+    padding: 24px 20px !important;
     max-height: 88vh !important;
   }
 }
