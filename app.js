@@ -393,6 +393,21 @@ function goToOnboardingStep3() {
     if (lgaSelect) lgaSelect.value = 'Ikeja';
   }
 
+  // Auto-populate Step 3 Admin Email from Step 1 School Email if blank
+  const emailStep1 = document.getElementById('reg-school-email');
+  const adminEmail = document.getElementById('reg-school-admin-email');
+  if (emailStep1 && adminEmail && (!adminEmail.value.trim() || adminEmail.value === 'admin@school.com')) {
+    if (emailStep1.value.trim()) {
+      adminEmail.value = emailStep1.value.trim();
+    }
+  }
+
+  const schoolName = document.getElementById('reg-school-name');
+  const adminName = document.getElementById('reg-admin-name');
+  if (schoolName && adminName && !adminName.value.trim()) {
+    adminName.value = (schoolName.value.trim() ? schoolName.value.trim() + ' Registrar' : 'Principal Admin');
+  }
+
   // Ensure active class checkboxes are checked
   let checkedBoxes = document.querySelectorAll('#onboarding-classes-checklist input[type="checkbox"]:checked');
   if (checkedBoxes.length === 0) {
@@ -402,6 +417,10 @@ function goToOnboardingStep3() {
 
   // Advance smoothly to Step 3 (Admin Setup)
   setOnboardingStepActive(3);
+  setTimeout(() => {
+    const nameEl = document.getElementById('reg-admin-name');
+    if (nameEl) nameEl.focus();
+  }, 100);
 }
 
 function backToOnboardingStep2() {
