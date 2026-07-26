@@ -511,6 +511,15 @@ function showSection(sectionId, event) {
     event.preventDefault();
   }
   
+  if (state.role === 'teacher') {
+    const restrictedTeacherSections = ['settings', 'fees', 'analytics', 'super-overview', 'super-directory', 'super-security', 'super-kyc', 'super-setup', 'super-rosters', 'super-schedules', 'super-billing', 'super-outbox'];
+    if (restrictedTeacherSections.includes(sectionId)) {
+      alert("⛔ ACCESS RESTRICTED: School Control, Financial Invoices, and Admin Setup are reserved for the School Principal.");
+      showSection('home');
+      return;
+    }
+  }
+
   if (sectionId === 'notifications' && state.role === 'admin') {
     const currentSchoolId = state.schoolId || localStorage.getItem('eduflow_school_id');
     const schoolData = state.rawDB && state.rawDB.schools ? state.rawDB.schools.find(s => s.id === currentSchoolId) : null;
@@ -691,7 +700,29 @@ function renderDashboardStats() {
       if (welcomeSub) welcomeSub.textContent = 'Here is the overall status of Eduflow today.';
     }
 
-    if (quickBar) quickBar.style.display = 'flex';
+    if (state.role === 'teacher') {
+      if (quickBar) {
+        quickBar.style.display = 'flex';
+        quickBar.innerHTML = `
+          <button class="btn btn-primary" style="font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 6px;" onclick="showSection('results')">📝 Enter Subject Scores</button>
+          <button class="btn btn-teal" style="font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 6px;" onclick="showSection('attendance')">📋 Mark Attendance</button>
+          <button class="btn btn-secondary" style="font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 6px;" onclick="showSection('schedules')">📅 Class Timetable</button>
+          <button class="btn btn-secondary" style="font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 6px;" onclick="showSection('notifications')">📢 Parent Notice</button>
+        `;
+      }
+    } else if (state.role === 'admin') {
+      if (quickBar) {
+        quickBar.style.display = 'flex';
+        quickBar.innerHTML = `
+          <button class="btn btn-teal" style="font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 6px;" onclick="openOnboardingStudentModal()">+ Add Student</button>
+          <button class="btn btn-primary" style="font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 6px;" onclick="showSection('attendance')">📝 Mark Attendance</button>
+          <button class="btn btn-secondary" style="font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 6px;" onclick="showSection('fees')">₦ Record Payment</button>
+          <button class="btn btn-secondary" style="font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; background: rgba(91,79,224,0.1); border-color: rgba(91,79,224,0.3); color: var(--primary);" onclick="showSection('notifications')">📢 Send Broadcast</button>
+          <button class="btn btn-secondary" style="font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; background: rgba(23,184,166,0.1); border-color: rgba(23,184,166,0.3); color: var(--accent-teal);" onclick="openOfficialReportCardModal(1)">📜 Official Report Card</button>
+        `;
+      }
+    }
+
     if (adminRow) adminRow.style.display = 'grid';
     if (studentWidgets) studentWidgets.style.display = 'none';
     if (studentTraj) studentTraj.style.display = 'none';
