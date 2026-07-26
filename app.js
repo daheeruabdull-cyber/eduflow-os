@@ -674,22 +674,27 @@ async function registerSchoolOnboarding() {
 }
 
 // 3. PORTAL SIGN-IN MODAL CONTROLLERS
-function openPortalLoginModal() {
+function openPortalLoginModal(e) {
+  if (e && typeof e.preventDefault === 'function') e.preventDefault();
   closeSchoolRegistrationModal();
+  const drawer = document.getElementById('mobile-landing-drawer');
+  if (drawer) drawer.classList.remove('active');
   const overlay = document.getElementById('login-modal-overlay');
   if (overlay) {
+    overlay.classList.add('active');
     overlay.style.setProperty('display', 'flex', 'important');
     overlay.style.setProperty('opacity', '1', 'important');
     overlay.style.setProperty('pointer-events', 'auto', 'important');
-    overlay.classList.add('active');
+    overlay.style.setProperty('z-index', '9999999', 'important');
   }
   const idInput = document.getElementById('login-identifier');
   const passInput = document.getElementById('login-password');
   if (idInput) {
     idInput.value = '';
-    setTimeout(() => idInput.focus(), 50);
+    setTimeout(() => idInput.focus(), 100);
   }
   if (passInput) passInput.value = '';
+  return false;
 }
 
 function closePortalLoginModal() {
