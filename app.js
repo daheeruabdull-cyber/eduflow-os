@@ -698,27 +698,21 @@ function openPortalLoginModal(e) {
   closeSchoolRegistrationModal();
   const drawer = document.getElementById('mobile-landing-drawer');
   if (drawer) drawer.classList.remove('active');
-  const overlay = document.getElementById('login-modal-overlay');
+  const overlay = document.getElementById('login-modal-overlay') || document.querySelector('#login-modal-overlay');
   if (overlay) {
     overlay.classList.add('active');
-    overlay.style.setProperty('display', 'flex', 'important');
-    overlay.style.setProperty('opacity', '1', 'important');
-    overlay.style.setProperty('pointer-events', 'auto', 'important');
-    overlay.style.setProperty('z-index', '9999999', 'important');
+    overlay.style.cssText = "display: flex !important; opacity: 1 !important; pointer-events: auto !important; z-index: 9999999 !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(15, 23, 42, 0.8) !important;";
     const innerModal = overlay.querySelector('.payment-modal, .responsive-modal');
     if (innerModal) {
-      innerModal.style.setProperty('display', 'block', 'important');
-      innerModal.style.setProperty('opacity', '1', 'important');
-      innerModal.style.setProperty('visibility', 'visible', 'important');
+      innerModal.style.cssText = "display: block !important; opacity: 1 !important; visibility: visible !important; transform: scale(1) !important;";
     }
+    const idInput = document.getElementById('login-identifier');
+    if (idInput) {
+      setTimeout(() => idInput.focus(), 100);
+    }
+  } else {
+    window.location.href = 'dashboard.html?role=admin';
   }
-  const idInput = document.getElementById('login-identifier');
-  const passInput = document.getElementById('login-password');
-  if (idInput) {
-    idInput.value = '';
-    setTimeout(() => idInput.focus(), 100);
-  }
-  if (passInput) passInput.value = '';
   return false;
 }
 
