@@ -15,24 +15,21 @@
       if (drawer) drawer.classList.remove('active');
       var overlay = document.getElementById('school-modal-overlay') || document.querySelector('#school-modal-overlay');
       if (overlay) {
-        overlay.style.setProperty('display', 'flex', 'important');
-        overlay.style.setProperty('opacity', '1', 'important');
-        overlay.style.setProperty('pointer-events', 'auto', 'important');
+        overlay.style.cssText = "display: flex !important; opacity: 1 !important; pointer-events: auto !important; z-index: 9999999 !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(15, 23, 42, 0.8) !important;";
+        var innerModal = overlay.querySelector('.payment-modal, .responsive-modal');
+        if (innerModal) {
+          innerModal.style.cssText = "display: block !important; opacity: 1 !important; visibility: visible !important; transform: scale(1) !important;";
+        }
         overlay.classList.add('active');
         setOnboardingStepActive(1);
         if (typeof renderOnboardingClasses === 'function') renderOnboardingClasses('Secondary');
       }
     }
     function closeSchoolRegistrationModal() {
-      var overlay = document.getElementById('school-modal-overlay');
+      var overlay = document.getElementById('school-modal-overlay') || document.querySelector('#school-modal-overlay');
       if (overlay) {
         overlay.classList.remove('active');
-        overlay.style.removeProperty('display');
-        overlay.style.removeProperty('opacity');
-        overlay.style.removeProperty('pointer-events');
-        overlay.style.display = 'none';
-        overlay.style.opacity = '0';
-        overlay.style.pointerEvents = 'none';
+        overlay.style.cssText = "display: none !important; opacity: 0 !important; pointer-events: none !important;";
       }
     }
     function setOnboardingStepActive(stepNum) {
@@ -91,8 +88,6 @@
           var input = document.getElementById('login-identifier');
           if (input) input.focus();
         }, 100);
-      } else {
-        window.location.href = 'dashboard.html?role=admin';
       }
       return false;
     }
@@ -109,15 +104,10 @@
       handlePortalLoginUnified();
     }
     function closePortalLoginModal() {
-      var overlay = document.getElementById('login-modal-overlay');
+      var overlay = document.getElementById('login-modal-overlay') || document.querySelector('#login-modal-overlay');
       if (overlay) {
         overlay.classList.remove('active');
-        overlay.style.removeProperty('display');
-        overlay.style.removeProperty('opacity');
-        overlay.style.removeProperty('pointer-events');
-        overlay.style.display = 'none';
-        overlay.style.opacity = '0';
-        overlay.style.pointerEvents = 'none';
+        overlay.style.cssText = "display: none !important; opacity: 0 !important; pointer-events: none !important;";
       }
     }
     function simulateConfirmOnboardingEmail() {
@@ -1436,19 +1426,7 @@
             </div>
           </div>
 
-          <div class="modal-form-grid" style="margin-top: 10px;">
-            <div class="input-group" style="text-align: left;">
-              <label for="reg-school-cac" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px; display: block;">CAC / Govt ID / School Reg No.</label>
-              <input type="text" class="form-input" id="reg-school-cac" placeholder="e.g. RC-1849204 or NIN" style="width: 100%; height: 36px; padding: 4px 10px; font-size: 0.8rem;">
-            </div>
-            <div class="input-group" style="text-align: left;">
-              <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px; display: block;">Identification / CAC Document</label>
-              <div onclick="document.getElementById('reg-school-idproof').click()" style="border: 2px dashed rgba(18, 19, 42, 0.12); border-radius: var(--border-radius-md); padding: 4px 8px; text-align: center; cursor: pointer; background: rgba(0,0,0,0.01); display: flex; align-items: center; justify-content: center; height: 36px; overflow: hidden;" onmouseover="this.style.borderColor='var(--primary)';" onmouseout="this.style.borderColor='rgba(18, 19, 42, 0.12)';">
-                <input type="file" id="reg-school-idproof" accept="image/*,.pdf" style="display: none;" onchange="handleIdProofUpload(this)">
-                <span id="idproof-status-text" style="font-size: 0.68rem; font-weight: 600; color: var(--text-secondary);">📄 Attach CAC / Govt ID</span>
-              </div>
-            </div>
-          </div>
+
 
           <h5 style="font-size: 0.72rem; font-weight: 700; color: var(--text-main); margin: 12px 0 8px 0; text-align: left; text-transform: uppercase; letter-spacing: 0.5px;">Select Service Plan</h5>
           
@@ -1579,6 +1557,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=1.2.6"></script>
+  <script src="app.js?v=1.2.8"></script>
 </body>
 </html>
