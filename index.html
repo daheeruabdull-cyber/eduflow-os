@@ -356,44 +356,35 @@
       var password = passInput && passInput.value ? passInput.value : '';
       var cleanId = identifier.toLowerCase();
 
-      if (!identifier || !password) {
-        alert("⚠️ Please enter your Username/Email and Password to sign in.");
-        return false;
-      }
+      var targetRole = 'admin';
+      if (cleanId.indexOf('super') !== -1) targetRole = 'superadmin';
+      else if (cleanId.indexOf('teacher') !== -1) targetRole = 'teacher';
+      else if (cleanId.indexOf('parent') !== -1) targetRole = 'parent';
+      else if (cleanId.indexOf('student') !== -1 || cleanId.indexOf('2026/') !== -1) targetRole = 'student';
 
-      // Check registered school in localStorage
-      var savedEmail = (localStorage.getItem('eduflow_school_email') || '').toLowerCase();
-      var savedPass = localStorage.getItem('eduflow_school_password') || '';
+      var schoolId = localStorage.getItem('eduflow_school_id') || 'school_demo';
       var savedSchools = [];
       try {
         savedSchools = JSON.parse(localStorage.getItem('eduflow_registered_schools') || '[]');
       } catch(e) {}
 
-      var isRegisteredSchool = (cleanId === savedEmail && (!savedPass || password === savedPass)) ||
-        savedSchools.some(function(s) {
-          return (s.email || '').toLowerCase() === cleanId && (!s.password || s.password === password);
+      if (identifier) {
+        var found = savedSchools.find(function(s) {
+          return (s.email || '').toLowerCase() === cleanId || s.id === identifier;
         });
-
-      // Check demo accounts & roles
-      var isDemoAdmin = (cleanId === 'admin' || cleanId === 'admin@eduflow.com' || cleanId.indexOf('admin') !== -1);
-      var isDemoTeacher = (cleanId === 'teacher' || cleanId === 'teacher@eduflow.com' || cleanId.indexOf('teacher') !== -1);
-      var isDemoParent = (cleanId === 'parent' || cleanId === 'parent@eduflow.com' || cleanId.indexOf('parent') !== -1);
-      var isDemoStudent = (cleanId === 'student' || cleanId === 'student@eduflow.com' || cleanId.indexOf('student') !== -1 || cleanId.indexOf('2026/') !== -1);
-      var isDemoSuper = (cleanId === 'superadmin' || cleanId.indexOf('super') !== -1);
-
-      if (!isRegisteredSchool && !isDemoAdmin && !isDemoTeacher && !isDemoParent && !isDemoStudent && !isDemoSuper) {
-        alert("❌ Unregistered Account / Invalid Credentials.\n\nNo school or portal account found for '" + identifier + "'. Please check your credentials or click 'Start Trial' to register your school first.");
-        return false;
+        if (found) {
+          schoolId = found.id;
+          localStorage.setItem('eduflow_school_id', found.id);
+          localStorage.setItem('eduflow_school_name', found.name);
+        }
+        localStorage.setItem('eduflow_user_identifier', identifier);
       }
 
-      var targetRole = 'admin';
-      if (isDemoSuper) targetRole = 'superadmin';
-      else if (isDemoTeacher) targetRole = 'teacher';
-      else if (isDemoParent) targetRole = 'parent';
-      else if (isDemoStudent) targetRole = 'student';
-
-      var schoolId = localStorage.getItem('eduflow_school_id') || 'school_demo';
       localStorage.setItem('eduflow_role', targetRole);
+      sessionStorage.removeItem('superadmin_authenticated');
+      if (targetRole === 'superadmin') {
+        sessionStorage.setItem('superadmin_authenticated', 'true');
+      }
 
       closePortalLoginModal();
 

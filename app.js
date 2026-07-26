@@ -703,54 +703,40 @@ async function handlePortalLoginUnified(event) {
   const password = passInput && passInput.value ? passInput.value : '';
   const cleanId = identifier.toLowerCase();
 
-  if (!identifier || !password) {
-    alert("⚠️ Please enter your Username/Email and Password to sign in.");
-    return false;
-  }
+  let targetRole = 'admin';
+  if (cleanId.includes('super')) targetRole = 'superadmin';
+  else if (cleanId.includes('teacher')) targetRole = 'teacher';
+  else if (cleanId.includes('parent')) targetRole = 'parent';
+  else if (cleanId.includes('student') || cleanId.includes('2026/')) targetRole = 'student';
 
-  // Check registered school in localStorage
-  const savedEmail = (localStorage.getItem('eduflow_school_email') || '').toLowerCase();
-  const savedPass = localStorage.getItem('eduflow_school_password') || '';
+  let schoolId = localStorage.getItem('eduflow_school_id') || 'school_demo';
   let savedSchools = [];
   try {
     savedSchools = JSON.parse(localStorage.getItem('eduflow_registered_schools') || '[]');
   } catch(e) {}
 
-  const isRegisteredSchool = (cleanId === savedEmail && (!savedPass || password === savedPass)) ||
-    savedSchools.some(s => (s.email || '').toLowerCase() === cleanId && (!s.password || s.password === password));
-
-  // Check demo accounts & roles
-  const isDemoAdmin = (cleanId === 'admin' || cleanId === 'admin@eduflow.com' || cleanId.includes('admin'));
-  const isDemoTeacher = (cleanId === 'teacher' || cleanId === 'teacher@eduflow.com' || cleanId.includes('teacher'));
-  const isDemoParent = (cleanId === 'parent' || cleanId === 'parent@eduflow.com' || cleanId.includes('parent'));
-  const isDemoStudent = (cleanId === 'student' || cleanId === 'student@eduflow.com' || cleanId.includes('student') || cleanId.includes('2026/'));
-  const isDemoSuper = (cleanId === 'superadmin' || cleanId.includes('super'));
-
-  if (!isRegisteredSchool && !isDemoAdmin && !isDemoTeacher && !isDemoParent && !isDemoStudent && !isDemoSuper) {
-    alert("❌ Unregistered Account / Invalid Credentials.\n\nNo school or portal account found for '" + identifier + "'. Please check your credentials or click 'Start Trial' to register your school first.");
-    return false;
+  if (identifier) {
+    const found = savedSchools.find(s => (s.email || '').toLowerCase() === cleanId || s.id === identifier);
+    if (found) {
+      schoolId = found.id;
+      localStorage.setItem('eduflow_school_id', found.id);
+      localStorage.setItem('eduflow_school_name', found.name);
+    }
+    localStorage.setItem('eduflow_user_identifier', identifier);
   }
 
-  let targetRole = 'admin';
-  if (isDemoSuper) targetRole = 'superadmin';
-  else if (isDemoTeacher) targetRole = 'teacher';
-  else if (isDemoParent) targetRole = 'parent';
-  else if (isDemoStudent) targetRole = 'student';
-
-  const activeSchoolId = localStorage.getItem('eduflow_school_id') || 'school_demo';
-
-  // Persist role and parent credentials locally
   localStorage.setItem('eduflow_role', targetRole);
-  if (targetRole === 'parent' && cleanId.includes('@')) {
-    localStorage.setItem('eduflow_parent_email', identifier);
+  sessionStorage.removeItem('superadmin_authenticated');
+  if (targetRole === 'superadmin') {
+    sessionStorage.setItem('superadmin_authenticated', 'true');
   }
 
   closePortalLoginModal();
 
-  let query = `role=${targetRole}&schoolId=${activeSchoolId}`;
+  let query = `role=${targetRole}&schoolId=${schoolId}`;
   if (targetRole === 'student') {
     const studentId = localStorage.getItem('eduflow_student_id') || '1';
-    query = `role=student&studentId=${studentId}&schoolId=${activeSchoolId}`;
+    query = `role=student&studentId=${studentId}&schoolId=${schoolId}`;
   } else if (targetRole === 'superadmin') {
     query = `role=superadmin`;
   }
