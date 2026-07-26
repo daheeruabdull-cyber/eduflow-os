@@ -741,11 +741,24 @@ async function handlePortalLoginUnified(event) {
   const password = passInput && passInput.value ? passInput.value : '';
   const cleanId = identifier.toLowerCase();
 
+  let registeredTeachers = [];
+  try {
+    registeredTeachers = JSON.parse(localStorage.getItem('eduflow_teachers') || '[]');
+  } catch(e) {}
+
+  const isTeacherEmail = registeredTeachers.some(t => (t.email || '').toLowerCase() === cleanId || (t.id || '').toLowerCase() === cleanId) || 
+                        cleanId.includes('teacher') || 
+                        cleanId.startsWith('tch_');
+
+  const isParentEmail = cleanId.includes('parent') || cleanId.startsWith('prt_');
+  const isStudentEmail = cleanId.includes('student') || cleanId.includes('2026/') || cleanId.startsWith('std_');
+  const isSuperEmail = cleanId.includes('super');
+
   let targetRole = 'admin';
-  if (cleanId.includes('super')) targetRole = 'superadmin';
-  else if (cleanId.includes('teacher') || cleanId.startsWith('tch_')) targetRole = 'teacher';
-  else if (cleanId.includes('parent')) targetRole = 'parent';
-  else if (cleanId.includes('student') || cleanId.includes('2026/')) targetRole = 'student';
+  if (isSuperEmail) targetRole = 'superadmin';
+  else if (isTeacherEmail) targetRole = 'teacher';
+  else if (isParentEmail) targetRole = 'parent';
+  else if (isStudentEmail) targetRole = 'student';
 
   if (targetRole === 'teacher') {
     localStorage.setItem('eduflow_teacher_email', identifier);

@@ -325,6 +325,7 @@ async function loadDBFromLocalStorage() {
   const localPayments = localStorage.getItem('eduflow_payments');
   const localTimetable = localStorage.getItem('eduflow_timetable');
   const localNotifications = localStorage.getItem('eduflow_notifications');
+  const localTeachers = localStorage.getItem('eduflow_teachers');
 
   if (localStudents && localAttendance && localPayments) {
     try {
@@ -333,17 +334,29 @@ async function loadDBFromLocalStorage() {
       state.db.payments = JSON.parse(localPayments);
       state.db.timetable = localTimetable ? JSON.parse(localTimetable) : DEFAULT_TIMETABLE;
       state.db.notifications = localNotifications ? JSON.parse(localNotifications) : DEFAULT_NOTIFICATIONS;
+      state.db.teachers = localTeachers ? JSON.parse(localTeachers) : [];
     } catch(e) {
       state.db.students = DEFAULT_STUDENTS;
       state.db.attendance = DEFAULT_ATTENDANCE;
       state.db.payments = DEFAULT_PAYMENTS;
       state.db.timetable = DEFAULT_TIMETABLE;
+      state.db.teachers = [];
     }
   } else {
     state.db.students = DEFAULT_STUDENTS;
     state.db.attendance = DEFAULT_ATTENDANCE;
     state.db.payments = DEFAULT_PAYMENTS;
     state.db.timetable = DEFAULT_TIMETABLE;
+    state.db.teachers = [];
+  }
+
+  // Ensure fallback demo teacher exists if list is empty
+  if (!state.db.teachers || state.db.teachers.length === 0) {
+    const currentSchoolId = state.schoolId || localStorage.getItem('eduflow_school_id') || 'school_demo';
+    const currentSchoolName = localStorage.getItem('eduflow_school_name') || 'Eduflow Campus';
+    state.db.teachers = [
+      { id: 'TCH-001', schoolId: currentSchoolId, school: currentSchoolName, name: 'Mr. Segun Arinze', email: 'teacher@eduflow.com', subject: 'Mathematics', assignedClass: 'SSS 1 Science', role: 'Form Master' }
+    ];
   }
 
   // Function to merge locally registered schools into state.rawDB.schools for SuperAdmin
@@ -422,11 +435,12 @@ async function loadDBFromLocalStorage() {
 
 async function saveDBToLocalStorage() {
   // Sync to LocalStorage for safety
-  localStorage.setItem('eduflow_students', JSON.stringify(state.db.students));
-  localStorage.setItem('eduflow_attendance', JSON.stringify(state.db.attendance));
-  localStorage.setItem('eduflow_payments', JSON.stringify(state.db.payments));
-  localStorage.setItem('eduflow_timetable', JSON.stringify(state.db.timetable));
-  localStorage.setItem('eduflow_notifications', JSON.stringify(state.db.notifications));
+  localStorage.setItem('eduflow_students', JSON.stringify(state.db.students || []));
+  localStorage.setItem('eduflow_attendance', JSON.stringify(state.db.attendance || {}));
+  localStorage.setItem('eduflow_payments', JSON.stringify(state.db.payments || []));
+  localStorage.setItem('eduflow_timetable', JSON.stringify(state.db.timetable || {}));
+  localStorage.setItem('eduflow_notifications', JSON.stringify(state.db.notifications || []));
+  localStorage.setItem('eduflow_teachers', JSON.stringify(state.db.teachers || []));
 
   if (!state.rawDB) {
     state.rawDB = {
