@@ -331,26 +331,6 @@
         window.location.href = 'dashboard.html?role=admin';
       }
     }
-    function openPortalLoginModal() {
-      var overlay = document.getElementById('login-modal-overlay');
-      if (overlay) {
-        overlay.style.display = 'flex';
-        overlay.classList.add('active');
-        overlay.style.opacity = '1';
-        overlay.style.pointerEvents = 'auto';
-      } else {
-        window.location.href = 'dashboard.html?role=admin';
-      }
-    }
-    function closePortalLoginModal() {
-      var overlay = document.getElementById('login-modal-overlay');
-      if (overlay) {
-        overlay.classList.remove('active');
-        overlay.style.opacity = '0';
-        overlay.style.pointerEvents = 'none';
-        overlay.style.display = 'none';
-      }
-    }
     function handlePortalLoginUnified(event) {
       if (event && typeof event.preventDefault === 'function') {
         event.preventDefault();
