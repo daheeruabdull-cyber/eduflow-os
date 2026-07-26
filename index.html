@@ -11,6 +11,8 @@
     // Inline Core Navigation & Portal Handlers (Zero-Latency Guarantee)
     function openSchoolRegistrationModal() {
       closePortalLoginModal();
+      var drawer = document.getElementById('mobile-landing-drawer');
+      if (drawer) drawer.classList.remove('active');
       var overlay = document.getElementById('school-modal-overlay');
       if (overlay) {
         overlay.style.setProperty('display', 'flex', 'important');
@@ -76,6 +78,8 @@
     }
     function openPortalLoginModal() {
       closeSchoolRegistrationModal();
+      var drawer = document.getElementById('mobile-landing-drawer');
+      if (drawer) drawer.classList.remove('active');
       var overlay = document.getElementById('login-modal-overlay');
       if (overlay) {
         overlay.style.setProperty('display', 'flex', 'important');
@@ -470,9 +474,9 @@
           <a href="#pricing" class="nav-link">Pricing</a>
         </nav>
 
-        <!-- Header Actions: Visible for all users -->
-        <div class="header-action-group" style="display: flex; align-items: center; gap: 8px;">
-          <button type="button" class="btn btn-secondary" onclick="openPortalLoginModal()" style="font-weight: 700; font-size: 0.8rem; padding: 6px 14px;">Login</button>
+        <!-- Header Actions: Desktop shows Login + Start Trial; Mobile shows Start Trial + Hamburger -->
+        <div class="header-action-group">
+          <a href="javascript:void(0);" class="nav-link desktop-only" onclick="event.preventDefault(); openPortalLoginModal();" style="cursor: pointer;">Login</a>
           <button type="button" class="btn btn-primary btn-header-trial" onclick="openSchoolRegistrationModal()">Start Trial</button>
           
           <!-- Mobile Hamburger Menu Button -->
