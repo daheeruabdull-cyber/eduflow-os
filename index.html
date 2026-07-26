@@ -12,21 +12,23 @@
     function openSchoolRegistrationModal() {
       var overlay = document.getElementById('school-modal-overlay');
       if (overlay) {
+        overlay.style.setProperty('display', 'flex', 'important');
+        overlay.style.setProperty('opacity', '1', 'important');
+        overlay.style.setProperty('pointer-events', 'auto', 'important');
         overlay.classList.add('active');
-        overlay.style.opacity = '1';
-        overlay.style.pointerEvents = 'auto';
-        overlay.style.display = 'flex';
         setOnboardingStepActive(1);
         if (typeof renderOnboardingClasses === 'function') renderOnboardingClasses('Secondary');
+      } else {
+        window.location.href = 'dashboard.html?role=admin';
       }
     }
     function closeSchoolRegistrationModal() {
       var overlay = document.getElementById('school-modal-overlay');
       if (overlay) {
         overlay.classList.remove('active');
-        overlay.style.opacity = '0';
-        overlay.style.pointerEvents = 'none';
-        overlay.style.display = 'none';
+        overlay.style.setProperty('opacity', '0', 'important');
+        overlay.style.setProperty('pointer-events', 'none', 'important');
+        overlay.style.setProperty('display', 'none', 'important');
       }
     }
     function setOnboardingStepActive(stepNum) {
@@ -64,11 +66,29 @@
     function sendOnboardingConfirmationEmail() {
       var nameInput = document.getElementById('reg-school-name');
       var emailInput = document.getElementById('reg-school-email');
-      var schoolName = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : 'GRACELAND INTERNATIONAL COLLEGE';
-      var schoolEmail = (emailInput && emailInput.value.trim()) ? emailInput.value.trim() : 'admin@graceland.edu.ng';
-      if (nameInput && !nameInput.value.trim()) nameInput.value = schoolName;
-      if (emailInput && !emailInput.value.trim()) emailInput.value = schoolEmail;
-      setOnboardingStepActive(2);
+      var name = nameInput && nameInput.value ? nameInput.value : 'School Admin';
+      var email = emailInput && emailInput.value ? emailInput.value : 'admin@school.com';
+      console.log('Sending onboarding confirmation to:', email);
+    }
+    function openPortalLoginModal() {
+      var overlay = document.getElementById('login-modal-overlay');
+      if (overlay) {
+        overlay.style.setProperty('display', 'flex', 'important');
+        overlay.style.setProperty('opacity', '1', 'important');
+        overlay.style.setProperty('pointer-events', 'auto', 'important');
+        overlay.classList.add('active');
+      } else {
+        window.location.href = 'dashboard.html?role=admin';
+      }
+    }
+    function closePortalLoginModal() {
+      var overlay = document.getElementById('login-modal-overlay');
+      if (overlay) {
+        overlay.classList.remove('active');
+        overlay.style.setProperty('opacity', '0', 'important');
+        overlay.style.setProperty('pointer-events', 'none', 'important');
+        overlay.style.setProperty('display', 'none', 'important');
+      }
     }
     function simulateConfirmOnboardingEmail() {
       setOnboardingStepActive(2);

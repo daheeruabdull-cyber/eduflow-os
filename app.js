@@ -212,10 +212,10 @@ function navigateToPage(targetPage, queryParams) {
 function openSchoolRegistrationModal() {
   const overlay = document.getElementById('school-modal-overlay');
   if (overlay) {
+    overlay.style.setProperty('display', 'flex', 'important');
+    overlay.style.setProperty('opacity', '1', 'important');
+    overlay.style.setProperty('pointer-events', 'auto', 'important');
     overlay.classList.add('active');
-    overlay.style.opacity = '1';
-    overlay.style.pointerEvents = 'auto';
-    overlay.style.display = 'flex';
     setOnboardingStepActive(1);
     if (typeof initStatesDropdown === 'function') initStatesDropdown();
     if (typeof renderOnboardingClasses === 'function') renderOnboardingClasses('Secondary');
@@ -668,10 +668,10 @@ async function registerSchoolOnboarding() {
 function openPortalLoginModal() {
   const overlay = document.getElementById('login-modal-overlay');
   if (overlay) {
-    overlay.style.display = 'flex';
+    overlay.style.setProperty('display', 'flex', 'important');
+    overlay.style.setProperty('opacity', '1', 'important');
+    overlay.style.setProperty('pointer-events', 'auto', 'important');
     overlay.classList.add('active');
-    overlay.style.opacity = '1';
-    overlay.style.pointerEvents = 'auto';
   }
   const idInput = document.getElementById('login-identifier');
   const passInput = document.getElementById('login-password');
@@ -683,9 +683,9 @@ function closePortalLoginModal() {
   const overlay = document.getElementById('login-modal-overlay');
   if (overlay) {
     overlay.classList.remove('active');
-    overlay.style.opacity = '0';
-    overlay.style.pointerEvents = 'none';
-    overlay.style.display = 'none';
+    overlay.style.setProperty('opacity', '0', 'important');
+    overlay.style.setProperty('pointer-events', 'none', 'important');
+    overlay.style.setProperty('display', 'none', 'important');
   }
 }
 
