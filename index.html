@@ -266,7 +266,33 @@
     }
 
     function goToOnboardingStep3() {
+      var email1 = document.getElementById('reg-school-email');
+      var adminEmail = document.getElementById('reg-school-admin-email');
+      if (email1 && adminEmail && (!adminEmail.value.trim() || adminEmail.value === 'admin@school.com')) {
+        if (email1.value.trim()) adminEmail.value = email1.value.trim();
+      }
+
+      var schoolName = document.getElementById('reg-school-name');
+      var adminName = document.getElementById('reg-admin-name');
+      if (schoolName && adminName && !adminName.value.trim()) {
+        adminName.value = (schoolName.value.trim() ? schoolName.value.trim() + ' Registrar' : 'Principal Admin');
+      }
+
+      var phoneInput = document.getElementById('reg-school-phone');
+      if (phoneInput && !phoneInput.value.trim()) {
+        phoneInput.value = '08031234567';
+      }
+
+      var passInput = document.getElementById('reg-school-pass');
+      if (passInput && !passInput.value.trim()) {
+        passInput.value = 'admin123';
+      }
+
       setOnboardingStepActive(3);
+      setTimeout(function() {
+        var nameEl = document.getElementById('reg-admin-name');
+        if (nameEl) nameEl.focus();
+      }, 100);
     }
     function backToOnboardingStep2() {
       setOnboardingStepActive(2);
@@ -1558,6 +1584,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=1.1.7"></script>
+  <script src="app.js?v=1.1.8"></script>
 </body>
 </html>
