@@ -210,6 +210,7 @@ function navigateToPage(targetPage, queryParams) {
 
 // 1. MODAL TRIGGERS
 function openSchoolRegistrationModal() {
+  closePortalLoginModal();
   const overlay = document.getElementById('school-modal-overlay');
   if (overlay) {
     overlay.style.setProperty('display', 'flex', 'important');
@@ -666,6 +667,7 @@ async function registerSchoolOnboarding() {
 
 // 3. PORTAL SIGN-IN MODAL CONTROLLERS
 function openPortalLoginModal() {
+  closeSchoolRegistrationModal();
   const overlay = document.getElementById('login-modal-overlay');
   if (overlay) {
     overlay.style.setProperty('display', 'flex', 'important');

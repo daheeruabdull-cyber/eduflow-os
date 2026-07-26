@@ -10,6 +10,7 @@
   <script>
     // Inline Core Navigation & Portal Handlers (Zero-Latency Guarantee)
     function openSchoolRegistrationModal() {
+      closePortalLoginModal();
       var overlay = document.getElementById('school-modal-overlay');
       if (overlay) {
         overlay.style.setProperty('display', 'flex', 'important');
@@ -71,6 +72,7 @@
       console.log('Sending onboarding confirmation to:', email);
     }
     function openPortalLoginModal() {
+      closeSchoolRegistrationModal();
       var overlay = document.getElementById('login-modal-overlay');
       if (overlay) {
         overlay.style.setProperty('display', 'flex', 'important');
