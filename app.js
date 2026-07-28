@@ -746,8 +746,15 @@ async function handlePortalLoginUnified(event) {
     registeredTeachers = JSON.parse(localStorage.getItem('eduflow_teachers') || '[]');
   } catch(e) {}
 
-  // Fetch live server DB teachers if local storage is empty
-  if (registeredTeachers.length === 0) {
+  let matchedTeacher = registeredTeachers.find(t => 
+    (t.email || '').toLowerCase() === cleanId || 
+    (t.id || '').toLowerCase() === cleanId || 
+    (t.email || '').toLowerCase().startsWith(cleanId) ||
+    (t.name || '').toLowerCase().includes(cleanId)
+  );
+
+  // If teacher is not matched in local storage, fetch live server DB
+  if (!matchedTeacher) {
     try {
       const res = await fetch('/api/db');
       if (res.ok) {
@@ -755,19 +762,18 @@ async function handlePortalLoginUnified(event) {
         if (data && Array.isArray(data.teachers)) {
           registeredTeachers = data.teachers;
           localStorage.setItem('eduflow_teachers', JSON.stringify(registeredTeachers));
+          matchedTeacher = registeredTeachers.find(t => 
+            (t.email || '').toLowerCase() === cleanId || 
+            (t.id || '').toLowerCase() === cleanId || 
+            (t.email || '').toLowerCase().startsWith(cleanId) ||
+            (t.name || '').toLowerCase().includes(cleanId)
+          );
         }
       }
     } catch(err) {
       console.warn("Server DB fetch deferred during login.", err);
     }
   }
-
-  const matchedTeacher = registeredTeachers.find(t => 
-    (t.email || '').toLowerCase() === cleanId || 
-    (t.id || '').toLowerCase() === cleanId || 
-    (t.email || '').toLowerCase().startsWith(cleanId) ||
-    (t.name || '').toLowerCase().includes(cleanId)
-  );
 
   const isTeacherEmail = !!matchedTeacher || 
                         cleanId.includes('teacher') || 

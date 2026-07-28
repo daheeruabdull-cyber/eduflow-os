@@ -118,7 +118,15 @@ app.post('/api/auth/login', (req, res) => {
     }
   }
 
-  // 4. Student Sign-In (by Roll Number lookup)
+  // 4. Teacher Sign-In (by Email, ID, or Username lookup)
+  const teacherQuery = db.prepare("SELECT * FROM teachers WHERE LOWER(email) = ? OR LOWER(id) = ? OR LOWER(name) = ?");
+  const teacher = teacherQuery.get(cleanId.toLowerCase(), cleanId.toLowerCase(), cleanId.toLowerCase());
+  if (teacher) {
+    const token = jwt.sign({ id: teacher.id, role: 'teacher', schoolId: teacher.schoolId, email: teacher.email }, JWT_SECRET, { expiresIn: '4h' });
+    return res.status(200).json({ token, role: 'teacher', schoolId: teacher.schoolId, email: teacher.email, name: teacher.name, assignedClass: teacher.assignedClass });
+  }
+
+  // 5. Student Sign-In (by Roll Number lookup)
   const studentQuery = db.prepare("SELECT * FROM students WHERE LOWER(roll) = ?");
   const student = studentQuery.get(cleanId.toLowerCase());
   if (student) {
