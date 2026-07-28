@@ -367,6 +367,18 @@ app.post('/api/db', (req, res) => {
       });
     }
 
+    // Sync Teachers
+    if (Array.isArray(newDB.teachers)) {
+      db.exec("DELETE FROM teachers");
+      const insertTeacher = db.prepare(`
+        INSERT INTO teachers (id, schoolId, name, email, subject, assignedClass, role)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `);
+      newDB.teachers.forEach(t => {
+        insertTeacher.run(t.id, t.schoolId || 'school_demo', t.name, t.email, t.subject || 'General', t.assignedClass || 'SSS 1 Science', t.role || 'Form Master');
+      });
+    }
+
     res.status(200).json({ success: true });
   } catch (err) {
     res.status(500).json({ error: "Failed to sync database modifications.", details: err.message });

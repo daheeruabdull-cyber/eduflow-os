@@ -410,7 +410,19 @@ async function loadDBFromLocalStorage() {
           state.db.attendance = data.attendance || state.db.attendance;
           state.db.timetable = data.timetable || state.db.timetable;
           state.db.notifications = (data.notifications || []).filter(n => (n.schoolId || 'school_demo') === state.schoolId);
-          state.db.teachers = (data.teachers || []).filter(t => (t.schoolId || 'school_demo') === state.schoolId);
+          
+          // Merge server teachers and local storage teachers seamlessly by ID and email
+          const serverTeachers = (data.teachers || []).filter(t => (t.schoolId || 'school_demo') === state.schoolId);
+          let localTeachersList = [];
+          try { localTeachersList = JSON.parse(localStorage.getItem('eduflow_teachers') || '[]'); } catch(e) {}
+          const mergedTeachers = [...serverTeachers];
+          localTeachersList.forEach(lt => {
+            if (!mergedTeachers.some(st => st.email === lt.email || st.id === lt.id)) {
+              mergedTeachers.push(lt);
+            }
+          });
+          state.db.teachers = mergedTeachers;
+          localStorage.setItem('eduflow_teachers', JSON.stringify(state.db.teachers));
           
           const schoolProfile = (data.schools || []).find(s => s.id === state.schoolId);
           if (schoolProfile) {
