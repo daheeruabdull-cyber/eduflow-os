@@ -1996,3 +1996,149 @@ button, input, select, textarea {
     display: none !important;
   }
 }
+
+/* ==========================================================================
+   RESPONSIVE OVERFLOW & CONTAINMENT FIXES (MOBILE, TABLET & LAPTOP)
+   ========================================================================== */
+
+/* Universal Section Containment */
+.app-main-content,
+.dashboard-section,
+#attendance,
+#results,
+#schedules,
+#fees,
+#settings,
+#notifications,
+#analytics {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+/* 1. ATTENDANCE SECTION RESPONSIVENESS */
+#attendance .attendance-header,
+#attendance div[style*="display: flex"],
+#attendance div[style*="grid-template-columns"] {
+  flex-wrap: wrap !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+#attendance .table-responsive,
+#attendance .data-table-container,
+#attendance .table-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  display: block !important;
+  margin-bottom: 16px !important;
+}
+
+#attendance .data-table {
+  width: 100% !important;
+  min-width: 540px !important;
+}
+
+/* 2. RESULT SHEETS & SCORE ENTRY RESPONSIVENESS */
+#results .results-header,
+#results div[style*="display: flex"],
+#results div[style*="grid-template-columns"] {
+  flex-wrap: wrap !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+#results .table-responsive,
+#results .data-table-container,
+#results .results-table-wrapper,
+#results .table-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  display: block !important;
+  margin-bottom: 16px !important;
+}
+
+#results .data-table {
+  width: 100% !important;
+  min-width: 620px !important;
+}
+
+/* Report Card Preview Modal Mobile & Tablet Scaling */
+.report-card,
+#official-report-card-modal .modal-card {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 900px) {
+  .report-card {
+    padding: 16px !important;
+    font-size: 0.8rem !important;
+  }
+  .report-card table {
+    font-size: 0.75rem !important;
+  }
+}
+
+/* 3. SCHEDULE & TIMETABLE RESPONSIVENESS */
+#schedules .schedules-header,
+#schedules div[style*="display: flex"],
+#schedules div[style*="grid-template-columns"] {
+  flex-wrap: wrap !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+#schedules .timetable-container,
+#schedules .table-responsive,
+#schedules .table-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  display: block !important;
+  margin-bottom: 16px !important;
+}
+
+#schedules .timetable-table,
+#schedules .data-table {
+  width: 100% !important;
+  min-width: 680px !important;
+}
+
+/* 4. TABLET & LAPTOP SPECIFIC ADJUSTMENTS (641px - 1024px) */
+@media (max-width: 1024px) {
+  .app-main-content {
+    padding: 16px !important;
+  }
+  .card, .glass-card {
+    padding: 20px !important;
+  }
+}
+
+/* 5. MOBILE PHONES SPECIFIC ADJUSTMENTS (max-width: 640px) */
+@media (max-width: 640px) {
+  .app-main-content {
+    padding: 12px 10px !important;
+  }
+  .card, .glass-card {
+    padding: 16px 12px !important;
+    border-radius: 12px !important;
+  }
+  .section-title, h2 {
+    font-size: 1.35rem !important;
+  }
+  #attendance select, #attendance input:not([type="checkbox"]), #attendance button:not(.btn-icon),
+  #results select, #results input:not([type="checkbox"]), #results button:not(.btn-icon),
+  #schedules select, #schedules input:not([type="checkbox"]), #schedules button:not(.btn-icon) {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin-bottom: 8px !important;
+  }
+}
