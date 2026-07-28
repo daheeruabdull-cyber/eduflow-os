@@ -723,7 +723,65 @@ function renderDashboardStats() {
       }
     }
 
-    if (adminRow) adminRow.style.display = 'grid';
+    if (state.role === 'teacher') {
+      if (adminRow) adminRow.style.display = 'none';
+      let teacherRow = document.getElementById('teacher-dashboard-row');
+      if (!teacherRow && adminRow) {
+        teacherRow = document.createElement('div');
+        teacherRow.id = 'teacher-dashboard-row';
+        teacherRow.className = 'stats-grid';
+        teacherRow.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;';
+        adminRow.parentNode.insertBefore(teacherRow, adminRow.nextSibling);
+      }
+      if (teacherRow) {
+        const teacherEmail = localStorage.getItem('eduflow_teacher_email') || localStorage.getItem('eduflow_user_email') || 'teacher@eduflow.com';
+        const teacher = (state.db.teachers || []).find(t => t.email === teacherEmail) || (state.db.teachers || [])[0];
+        const assignedClass = (teacher && teacher.assignedClass) ? teacher.assignedClass : 'SSS 1 Science';
+        const classStudents = (state.db.students || []).filter(s => s.class === assignedClass);
+        const subjectName = (teacher && teacher.subject) ? teacher.subject : 'General Subjects';
+
+        teacherRow.style.display = 'grid';
+        teacherRow.innerHTML = `
+          <div class="stat-card glass-card">
+            <div class="stat-header">
+              <span class="stat-title">Assigned Class Arm</span>
+              <span class="stat-icon" style="background: rgba(91,79,224,0.1); color: var(--primary);">🎓</span>
+            </div>
+            <div class="stat-value" style="font-size: 1.25rem;">${assignedClass}</div>
+            <div class="stat-footer" style="color: var(--text-muted);">Form Master Assigned</div>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-header">
+              <span class="stat-title">Enrolled Students</span>
+              <span class="stat-icon" style="background: rgba(23,184,166,0.1); color: var(--accent-teal);">👥</span>
+            </div>
+            <div class="stat-value">${classStudents.length}</div>
+            <div class="stat-footer" style="color: var(--accent-teal);">Active Student Roster</div>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-header">
+              <span class="stat-title">Assigned Subject</span>
+              <span class="stat-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;">📚</span>
+            </div>
+            <div class="stat-value" style="font-size: 1.15rem;">${subjectName}</div>
+            <div class="stat-footer" style="color: var(--text-muted);">Academic Curriculum</div>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-header">
+              <span class="stat-title">Score Entry Status</span>
+              <span class="stat-icon" style="background: rgba(16,185,129,0.1); color: #10b981;">📝</span>
+            </div>
+            <div class="stat-value" style="color: #10b981; font-size: 1.1rem;">Ready for CA/Exam</div>
+            <div class="stat-footer" style="color: #10b981;">1st Term Broadsheet</div>
+          </div>
+        `;
+      }
+    } else {
+      if (adminRow) adminRow.style.display = 'grid';
+      const teacherRow = document.getElementById('teacher-dashboard-row');
+      if (teacherRow) teacherRow.style.display = 'none';
+    }
+
     if (studentWidgets) studentWidgets.style.display = 'none';
     if (studentTraj) studentTraj.style.display = 'none';
     if (studentBanner) studentBanner.style.display = 'none';
