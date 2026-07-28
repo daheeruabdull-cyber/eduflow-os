@@ -746,6 +746,22 @@ async function handlePortalLoginUnified(event) {
     registeredTeachers = JSON.parse(localStorage.getItem('eduflow_teachers') || '[]');
   } catch(e) {}
 
+  // Fetch live server DB teachers if local storage is empty
+  if (registeredTeachers.length === 0) {
+    try {
+      const res = await fetch('/api/db');
+      if (res.ok) {
+        const data = await res.json();
+        if (data && Array.isArray(data.teachers)) {
+          registeredTeachers = data.teachers;
+          localStorage.setItem('eduflow_teachers', JSON.stringify(registeredTeachers));
+        }
+      }
+    } catch(err) {
+      console.warn("Server DB fetch deferred during login.", err);
+    }
+  }
+
   const matchedTeacher = registeredTeachers.find(t => 
     (t.email || '').toLowerCase() === cleanId || 
     (t.id || '').toLowerCase() === cleanId || 
