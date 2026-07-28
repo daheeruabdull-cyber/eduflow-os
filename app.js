@@ -746,12 +746,20 @@ async function handlePortalLoginUnified(event) {
     registeredTeachers = JSON.parse(localStorage.getItem('eduflow_teachers') || '[]');
   } catch(e) {}
 
-  const isTeacherEmail = registeredTeachers.some(t => (t.email || '').toLowerCase() === cleanId || (t.id || '').toLowerCase() === cleanId) || 
-                        cleanId.includes('teacher') || 
-                        cleanId.startsWith('tch_');
+  const matchedTeacher = registeredTeachers.find(t => 
+    (t.email || '').toLowerCase() === cleanId || 
+    (t.id || '').toLowerCase() === cleanId || 
+    (t.email || '').toLowerCase().startsWith(cleanId) ||
+    (t.name || '').toLowerCase().includes(cleanId)
+  );
 
-  const isParentEmail = cleanId.includes('parent') || cleanId.startsWith('prt_');
-  const isStudentEmail = cleanId.includes('student') || cleanId.includes('2026/') || cleanId.startsWith('std_');
+  const isTeacherEmail = !!matchedTeacher || 
+                        cleanId.includes('teacher') || 
+                        cleanId.startsWith('tch') || 
+                        cleanId === 'bala';
+
+  const isParentEmail = cleanId.includes('parent') || cleanId.startsWith('prt');
+  const isStudentEmail = cleanId.includes('student') || cleanId.includes('2026/') || cleanId.startsWith('std');
   const isSuperEmail = cleanId.includes('super');
 
   let targetRole = 'admin';
@@ -761,8 +769,9 @@ async function handlePortalLoginUnified(event) {
   else if (isStudentEmail) targetRole = 'student';
 
   if (targetRole === 'teacher') {
-    localStorage.setItem('eduflow_teacher_email', identifier);
-    localStorage.setItem('eduflow_user_email', identifier);
+    const teacherEmailToStore = matchedTeacher ? matchedTeacher.email : identifier;
+    localStorage.setItem('eduflow_teacher_email', teacherEmailToStore);
+    localStorage.setItem('eduflow_user_email', teacherEmailToStore);
   }
 
   let schoolId = localStorage.getItem('eduflow_school_id') || 'school_demo';
