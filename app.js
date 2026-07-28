@@ -783,12 +783,16 @@ async function handlePortalLoginUnified(event) {
   const isParentEmail = cleanId.includes('parent') || cleanId.startsWith('prt');
   const isStudentEmail = cleanId.includes('student') || cleanId.includes('2026/') || cleanId.startsWith('std');
   const isSuperEmail = cleanId.includes('super');
+  
+  const savedSchoolEmail = (localStorage.getItem('eduflow_school_email') || '').toLowerCase();
+  const isAdminEmail = cleanId === savedSchoolEmail || cleanId === 'demo@eduflow.com' || cleanId === 'admin' || cleanId === 'principal@apexschool.ng' || cleanId.includes('admin') || cleanId.includes('principal');
 
-  let targetRole = 'admin';
+  let targetRole = 'teacher';
   if (isSuperEmail) targetRole = 'superadmin';
-  else if (isTeacherEmail) targetRole = 'teacher';
+  else if (isAdminEmail) targetRole = 'admin';
   else if (isParentEmail) targetRole = 'parent';
   else if (isStudentEmail) targetRole = 'student';
+  else targetRole = 'teacher';
 
   if (targetRole === 'teacher') {
     const teacherEmailToStore = matchedTeacher ? matchedTeacher.email : identifier;
