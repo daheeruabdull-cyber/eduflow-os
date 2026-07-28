@@ -774,13 +774,10 @@ async function handlePortalLoginUnified(event) {
     localStorage.setItem('eduflow_user_email', teacherEmailToStore);
   }
 
-  let schoolId = localStorage.getItem('eduflow_school_id') || 'school_demo';
-  let savedSchools = [];
-  try {
-    savedSchools = JSON.parse(localStorage.getItem('eduflow_registered_schools') || '[]');
-  } catch(e) {}
-
-  if (identifier) {
+  if (matchedTeacher && matchedTeacher.schoolId) {
+    schoolId = matchedTeacher.schoolId;
+    localStorage.setItem('eduflow_school_id', matchedTeacher.schoolId);
+  } else if (identifier) {
     const found = savedSchools.find(s => (s.email || '').toLowerCase() === cleanId || s.id === identifier);
     if (found) {
       schoolId = found.id;
