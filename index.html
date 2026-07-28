@@ -369,7 +369,7 @@
         window.location.href = 'dashboard.html?role=admin';
       }
     }
-    function handlePortalLoginUnified(event) {
+    async function handlePortalLoginUnified(event) {
       if (event && typeof event.preventDefault === 'function') {
         event.preventDefault();
       }
@@ -380,28 +380,67 @@
       var password = passInput && passInput.value ? passInput.value : '';
       var cleanId = identifier.toLowerCase();
 
-      var targetRole = 'admin';
-      if (cleanId.indexOf('super') !== -1) targetRole = 'superadmin';
-      else if (cleanId.indexOf('teacher') !== -1) targetRole = 'teacher';
-      else if (cleanId.indexOf('parent') !== -1) targetRole = 'parent';
-      else if (cleanId.indexOf('student') !== -1 || cleanId.indexOf('2026/') !== -1) targetRole = 'student';
-
-      var schoolId = localStorage.getItem('eduflow_school_id') || 'school_demo';
-      var savedSchools = [];
+      var registeredTeachers = [];
       try {
-        savedSchools = JSON.parse(localStorage.getItem('eduflow_registered_schools') || '[]');
+        registeredTeachers = JSON.parse(localStorage.getItem('eduflow_teachers') || '[]');
       } catch(e) {}
 
-      if (identifier) {
-        var found = savedSchools.find(function(s) {
-          return (s.email || '').toLowerCase() === cleanId || s.id === identifier;
-        });
-        if (found) {
-          schoolId = found.id;
-          localStorage.setItem('eduflow_school_id', found.id);
-          localStorage.setItem('eduflow_school_name', found.name);
-        }
-        localStorage.setItem('eduflow_user_identifier', identifier);
+      var matchedTeacher = registeredTeachers.find(function(t) {
+        return (t.email || '').toLowerCase() === cleanId || 
+               (t.id || '').toLowerCase() === cleanId || 
+               (t.email || '').toLowerCase().indexOf(cleanId) !== -1 ||
+               (t.name || '').toLowerCase().indexOf(cleanId) !== -1;
+      });
+
+      if (!matchedTeacher) {
+        try {
+          var res = await fetch('/api/db');
+          if (res.ok) {
+            var data = await res.json();
+            if (data && Array.isArray(data.teachers)) {
+              registeredTeachers = data.teachers;
+              localStorage.setItem('eduflow_teachers', JSON.stringify(registeredTeachers));
+              matchedTeacher = registeredTeachers.find(function(t) {
+                return (t.email || '').toLowerCase() === cleanId || 
+                       (t.id || '').toLowerCase() === cleanId || 
+                       (t.email || '').toLowerCase().indexOf(cleanId) !== -1 ||
+                       (t.name || '').toLowerCase().indexOf(cleanId) !== -1;
+              });
+            }
+          }
+        } catch(err) {}
+      }
+
+      var isTeacherEmail = !!matchedTeacher || 
+                            cleanId.indexOf('teacher') !== -1 || 
+                            cleanId.indexOf('tch') === 0 || 
+                            cleanId === 'bala' || 
+                            cleanId === 'azare';
+
+      var isParentEmail = cleanId.indexOf('parent') !== -1 || cleanId.indexOf('prt') === 0;
+      var isStudentEmail = cleanId.indexOf('student') !== -1 || cleanId.indexOf('2026/') !== -1 || cleanId.indexOf('std') === 0;
+      var isSuperEmail = cleanId.indexOf('super') !== -1;
+      
+      var savedSchoolEmail = (localStorage.getItem('eduflow_school_email') || '').toLowerCase();
+      var isAdminEmail = cleanId === savedSchoolEmail || cleanId === 'demo@eduflow.com' || cleanId === 'admin' || cleanId === 'principal@apexschool.ng' || cleanId.indexOf('admin') !== -1 || cleanId.indexOf('principal') !== -1;
+
+      var targetRole = 'teacher';
+      if (isSuperEmail) targetRole = 'superadmin';
+      else if (isAdminEmail) targetRole = 'admin';
+      else if (isParentEmail) targetRole = 'parent';
+      else if (isStudentEmail) targetRole = 'student';
+      else targetRole = 'teacher';
+
+      if (targetRole === 'teacher') {
+        var teacherEmailToStore = matchedTeacher ? matchedTeacher.email : identifier;
+        localStorage.setItem('eduflow_teacher_email', teacherEmailToStore);
+        localStorage.setItem('eduflow_user_email', teacherEmailToStore);
+      }
+
+      var schoolId = localStorage.getItem('eduflow_school_id') || 'school_demo';
+      if (matchedTeacher && matchedTeacher.schoolId) {
+        schoolId = matchedTeacher.schoolId;
+        localStorage.setItem('eduflow_school_id', matchedTeacher.schoolId);
       }
 
       localStorage.setItem('eduflow_role', targetRole);
@@ -1632,6 +1671,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=1.4.8"></script>
+  <script src="app.js?v=1.4.9"></script>
 </body>
 </html>
