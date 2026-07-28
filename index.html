@@ -681,23 +681,50 @@
       </div>
     </section>
 
-    <!-- Trust Badges & Compliance Bar -->
-    <section class="trust-bar-section" style="padding: 24px 0; background: rgba(91, 79, 224, 0.03); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
-      <div class="container" style="text-align: center;">
-        <p style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); margin-bottom: 16px;">Trusted by 120+ Academies across Lagos, Abuja, Port Harcourt & Kano</p>
-        <div style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap;">
-          <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: var(--text-main); background: white; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
-            <span>🇳🇬</span> Ministry of Education Aligned
+    <!-- Trust Badges & Compliance Sliding Ticker Bar -->
+    <section class="trust-bar-section" style="padding: 28px 0; background: linear-gradient(180deg, rgba(91, 79, 224, 0.04) 0%, rgba(23, 184, 166, 0.03) 100%); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); overflow: hidden; position: relative;">
+      <div class="container" style="text-align: center; margin-bottom: 16px;">
+        <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: var(--primary); background: rgba(91, 79, 224, 0.08); padding: 5px 16px; border-radius: 20px; border: 1px solid rgba(91,79,224,0.15);">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block; box-shadow: 0 0 8px #10b981;"></span>
+          Trusted by 120+ Academies across Lagos, Abuja, Port Harcourt & Kano
+        </div>
+      </div>
+
+      <!-- Sliding Infinite Marquee Track -->
+      <div style="width: 100%; overflow: hidden; white-space: nowrap; position: relative; -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);">
+        <div class="ticker-track">
+          
+          <!-- Badge Item 1 -->
+          <div style="display: inline-flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-main); background: white; padding: 10px 22px; border-radius: 30px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); flex-shrink: 0;">
+            <span style="font-size: 1.15rem;">🇳🇬</span> Ministry of Education Aligned
           </div>
-          <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: var(--text-main); background: white; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
-            <span>🎓</span> WAEC / NECO 40:60 Scale Standard
+          <!-- Badge Item 2 -->
+          <div style="display: inline-flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-main); background: white; padding: 10px 22px; border-radius: 30px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); flex-shrink: 0;">
+            <span style="font-size: 1.15rem;">🎓</span> WAEC / NECO 40:60 Scale Standard
           </div>
-          <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: var(--text-main); background: white; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
-            <span>🔒</span> Bank-Grade Data Security
+          <!-- Badge Item 3 -->
+          <div style="display: inline-flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-main); background: white; padding: 10px 22px; border-radius: 30px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); flex-shrink: 0;">
+            <span style="font-size: 1.15rem;">🔒</span> Bank-Grade Data Security
           </div>
-          <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: var(--text-main); background: white; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
-            <span>⚡</span> 99.9% Cloud & Local Uptime
+          <!-- Badge Item 4 -->
+          <div style="display: inline-flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-main); background: white; padding: 10px 22px; border-radius: 30px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); flex-shrink: 0;">
+            <span style="font-size: 1.15rem;">⚡</span> 99.9% Cloud & Local Uptime
           </div>
+
+          <!-- Duplicated Duplicate Items for Seamless Infinite Continuous Loop -->
+          <div style="display: inline-flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-main); background: white; padding: 10px 22px; border-radius: 30px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); flex-shrink: 0;">
+            <span style="font-size: 1.15rem;">🇳🇬</span> Ministry of Education Aligned
+          </div>
+          <div style="display: inline-flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-main); background: white; padding: 10px 22px; border-radius: 30px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); flex-shrink: 0;">
+            <span style="font-size: 1.15rem;">🎓</span> WAEC / NECO 40:60 Scale Standard
+          </div>
+          <div style="display: inline-flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-main); background: white; padding: 10px 22px; border-radius: 30px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); flex-shrink: 0;">
+            <span style="font-size: 1.15rem;">🔒</span> Bank-Grade Data Security
+          </div>
+          <div style="display: inline-flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-main); background: white; padding: 10px 22px; border-radius: 30px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); flex-shrink: 0;">
+            <span style="font-size: 1.15rem;">⚡</span> 99.9% Cloud & Local Uptime
+          </div>
+
         </div>
       </div>
     </section>
@@ -1671,6 +1698,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=1.4.9"></script>
+  <script src="app.js?v=1.5.0"></script>
 </body>
 </html>

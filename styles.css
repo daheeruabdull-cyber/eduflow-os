@@ -1905,3 +1905,25 @@ button, input, select, textarea {
 @keyframes fadeText {
   to { opacity: 1; }
 }
+
+/* Infinite Marquee Ticker Animation */
+@keyframes tickerSlide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 24px;
+  animation: tickerSlide 22s linear infinite;
+  will-change: transform;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused !important;
+}
