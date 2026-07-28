@@ -4584,7 +4584,8 @@ function renderMasterAccountsTable() {
     if (ac.type === 'teacher') {
       actionButtons = `
         <button class="btn btn-teal" onclick="reassignTeacherClass('${ac.email}')" style="font-size: 0.68rem; padding: 4px 8px; margin-right: 4px; font-weight: 700;">✏️ Assign Class</button>
-        <button class="btn btn-primary" onclick="copyTeacherCredentials('${ac.email}')" style="font-size: 0.68rem; padding: 4px 8px;">🔑 Credentials</button>
+        <button class="btn btn-primary" onclick="copyTeacherCredentials('${ac.email}')" style="font-size: 0.68rem; padding: 4px 8px; margin-right: 4px;">🔑 Credentials</button>
+        <button class="btn btn-warning" onclick="switchToTeacherPortal('${ac.email}')" style="font-size: 0.68rem; padding: 4px 8px; font-weight: 700; background: #f59e0b; color: #fff; border: none;">🚀 Launch Teacher View</button>
       `;
     }
     return `
@@ -4598,6 +4599,21 @@ function renderMasterAccountsTable() {
       </tr>
     `;
   }).join('');
+}
+
+function switchToTeacherPortal(teacherEmail) {
+  let teacher = (state.db.teachers || []).find(t => t.email === teacherEmail || t.id === teacherEmail);
+  if (!teacher && state.rawDB && state.rawDB.teachers) {
+    teacher = state.rawDB.teachers.find(t => t.email === teacherEmail || t.id === teacherEmail);
+  }
+  const emailToUse = teacher ? teacher.email : teacherEmail;
+  localStorage.setItem('eduflow_role', 'teacher');
+  localStorage.setItem('eduflow_teacher_email', emailToUse);
+  localStorage.setItem('eduflow_user_email', emailToUse);
+  const currentSchoolId = state.schoolId || localStorage.getItem('eduflow_school_id') || 'school_demo';
+  
+  alert(`🚀 SWITCHING WORKSPACE:\n\nNow opening Form Master Portal for ${teacher ? teacher.name : 'Teacher'} (${teacher ? teacher.assignedClass : 'Assigned Class'}).\n\nAll Principal controls will be locked.`);
+  window.location.href = `dashboard.html?role=teacher&schoolId=${currentSchoolId}`;
 }
 
 function openAddTeacherModal() {
@@ -4627,11 +4643,15 @@ function openAddTeacherModal() {
   };
 
   state.db.teachers.push(newTeacher);
-  if (state.rawDB && state.rawDB.teachers) state.rawDB.teachers.push(newTeacher);
+  if (!state.rawDB) state.rawDB = { teachers: [] };
+  if (!state.rawDB.teachers) state.rawDB.teachers = [];
+  state.rawDB.teachers.push(newTeacher);
+  
   saveDBToLocalStorage();
   renderMasterAccountsTable();
   
-  const creds = `======================================\n    FORM MASTER PROVISIONED SUCCESSFULLY  \n======================================\nID          : ${nextId}\nName        : ${tName}\nEmail/User  : ${tEmail}\nPassword    : password123\nForm Master : ${tClass || 'SSS 1 Science'}\nSubject     : ${tSubj}\nLogin URL   : http://localhost:8000/dashboard.html?role=teacher\n======================================`;
+  const baseUrl = (window.location && window.location.origin) ? window.location.origin : 'http://localhost:8000';
+  const creds = `======================================\n    FORM MASTER PROVISIONED SUCCESSFULLY  \n======================================\nID          : ${nextId}\nName        : ${tName}\nEmail/User  : ${tEmail}\nPassword    : password123\nForm Master : ${tClass || 'SSS 1 Science'}\nSubject     : ${tSubj}\nLogin URL   : ${baseUrl}/dashboard.html?role=teacher&schoolId=${currentSchoolId}\n======================================`;
   alert(creds);
 }
 
@@ -4665,7 +4685,9 @@ function copyTeacherCredentials(teacherEmail) {
     alert("Teacher record not found.");
     return;
   }
-  const creds = `======================================\n    EDUFLOW TEACHER LOGIN CREDENTIALS  \n======================================\nTeacher Name : ${teacher.name}\nLogin Email  : ${teacher.email}\nPassword     : password123\nForm Master  : ${teacher.assignedClass || 'SSS 1 Science'}\nSubject      : ${teacher.subject || 'General'}\nLogin URL    : http://localhost:8000/dashboard.html?role=teacher\n======================================`;
+  const currentSchoolId = state.schoolId || localStorage.getItem('eduflow_school_id') || 'school_demo';
+  const baseUrl = (window.location && window.location.origin) ? window.location.origin : 'http://localhost:8000';
+  const creds = `======================================\n    EDUFLOW TEACHER LOGIN CREDENTIALS  \n======================================\nTeacher Name : ${teacher.name}\nLogin Email  : ${teacher.email}\nPassword     : password123\nForm Master  : ${teacher.assignedClass || 'SSS 1 Science'}\nSubject      : ${teacher.subject || 'General'}\nLogin URL    : ${baseUrl}/dashboard.html?role=teacher&schoolId=${currentSchoolId}\n======================================`;
   
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(creds).then(() => {
