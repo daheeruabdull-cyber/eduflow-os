@@ -4886,10 +4886,17 @@ async function initApp() {
     const searchString = (window.location && window.location.search) ? window.location.search : '';
     const urlParams = new URLSearchParams(searchString);
     const roleParam = urlParams.get('role');
-    if (roleParam) {
+    
+    const savedRole = localStorage.getItem('eduflow_role');
+    const teacherEmail = localStorage.getItem('eduflow_teacher_email');
+
+    // If active session is a Teacher, enforce Teacher role
+    if (savedRole === 'teacher' || (teacherEmail && savedRole !== 'superadmin' && savedRole !== 'admin')) {
+      state.role = 'teacher';
+    } else if (roleParam) {
       state.role = roleParam;
     } else {
-      state.role = localStorage.getItem('eduflow_role') || 'admin';
+      state.role = savedRole || 'admin';
     }
 
     // Populate Admin Class options across dropdowns
