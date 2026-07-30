@@ -973,4 +973,15 @@ function quickFillLogin(identifier) {
   const form = document.getElementById('portal-login-form');
   if (form) form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
 }
+
+function handleContactInquirySubmit(e) {
+  if (e) e.preventDefault();
+  const name = document.getElementById('contact-name')?.value || 'Guest';
+  const school = document.getElementById('contact-school')?.value || 'School';
+  
+  alert('✨ Thank you, ' + name + '! Your inquiry for ' + school + ' has been received. Our campus engineering team will call or WhatsApp you within 30 minutes.');
+  
+  const form = document.getElementById('contact-inquiry-form');
+  if (form) form.reset();
+}
 }

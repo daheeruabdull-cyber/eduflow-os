@@ -629,9 +629,12 @@
                 </div>
               </div>
 
-              <div style="margin-top: 24px; display: flex; justify-content: space-between; align-items: center;">
-                <button class="btn btn-secondary" onclick="generateClassBroadsheet()" style="font-size: 0.8rem; font-weight: 700;">📊 View Class Broadsheet</button>
-                <button class="btn btn-primary" onclick="submitGradeRecord()">Submit Marks</button>
+              <div style="margin-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn btn-secondary" onclick="generateClassBroadsheet()" style="font-size: 0.8rem; font-weight: 700;">📊 View Class Broadsheet</button>
+                  <button class="btn btn-teal" onclick="toggleRapidScoreEntryModal()" style="font-size: 0.8rem; font-weight: 700;">⚡ Batch Class Entry</button>
+                </div>
+                <button class="btn btn-primary" onclick="submitGradeRecord()">Submit Subject Marks</button>
               </div>
             </div>
 
@@ -639,7 +642,7 @@
             <div id="psychomotor-rating-card" class="glass-card" style="padding: 24px; margin-bottom: 32px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <h4 style="font-size: 0.95rem; font-family: var(--font-family-title); color: var(--text-main); margin: 0;">🧠 Behavioral, Affective & Psychomotor Ratings (1-5 Scale)</h4>
-                <span class="badge badge-success" style="font-size: 0.65rem;">MOE COMPLIANT</span>
+                <button class="btn btn-secondary" onclick="savePsychomotorRatings()" style="font-size: 0.75rem; padding: 4px 10px;">💾 Save Ratings</button>
               </div>
               <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 16px;">Rate student development (1 = Poor, 5 = Excellent) for official report card transcripts.</p>
 
@@ -711,82 +714,251 @@
 
             <!-- PREMIUM MOCK REPORT CARD -->
             <div class="report-card-container">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <h4 style="font-size: 0.95rem;">Active Term Report Card</h4>
-                <div style="display: flex; gap: 8px;">
-                  <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="window.print()">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 4px;"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                    Print
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                <h4 style="font-size: 0.95rem; margin: 0;">Active Term Report Card</h4>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <!-- Hidden File Inputs -->
+                  <input type="file" id="upload-school-logo-input" accept="image/*" style="display: none;" onchange="handleSchoolLogoUpload(event)">
+                  <input type="file" id="upload-student-passport-input" accept="image/*" style="display: none;" onchange="handleStudentPassportUpload(event)">
+
+                  <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem;" onclick="document.getElementById('upload-school-logo-input').click()">
+                    🖼️ Upload School Logo
                   </button>
-                  <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8rem; background: var(--primary);" onclick="downloadReportCardPDF()">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 4px;"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    Download PDF
+                  <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem;" onclick="document.getElementById('upload-student-passport-input').click()">
+                    📸 Upload Student Passport
+                  </button>
+                  <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem;" onclick="window.print()">
+                    🖨️ Print
+                  </button>
+                  <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.78rem; background: var(--primary);" onclick="downloadReportCardPDF()">
+                    📄 Download PDF
                   </button>
                 </div>
               </div>
 
-              <div class="report-card">
-                <div class="card-watermark">
-                  <svg width="100%" height="100%" viewBox="0 0 100 100" fill="currentColor" color="white"><circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2" fill="none"/><path d="M30 40 L50 20 L70 40 L60 40 L60 70 L40 70 L40 40 Z"/></svg>
-                </div>
+              <!-- OFFICIAL NIGERIAN AL-QALAM KADUNA STYLE PUPIL PERFORMANCE REPORT SHEET (ULTRA-COMPACT 1-PAGE FIT) -->
+              <div class="report-card printable-report-sheet" style="background: #FFFFFF; color: #0F172A; font-family: Arial, Helvetica, sans-serif; padding: 14px 16px; border: 2px solid #1E293B; border-radius: 4px; max-width: 900px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.15); text-align: left; box-sizing: border-box;">
                 
-                <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 2px solid var(--primary); padding-bottom: 16px; margin-bottom: 20px; text-align: left;">
-                  <div style="flex: 1;">
-                    <div class="card-school-name" id="card-school-name" style="margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--primary);">EDULITE ACADEMY, LAGOS</div>
-                    <div class="card-doc-type" style="margin: 4px 0 0 0; font-size: 0.75rem; font-family: var(--font-family-mono); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px;">OFFICIAL TRANSCRIPT & PROGRESS REPORT</div>
+                <!-- 1. HEADER SECTION (Logo Left, Text Center, Child Passport Right) -->
+                <div style="display: grid; grid-template-columns: 80px 1fr 90px; gap: 12px; align-items: center; border-bottom: 2px solid #0F172A; padding-bottom: 8px; margin-bottom: 8px; text-align: center;">
+                  
+                  <!-- School Crest Logo (Left) -->
+                  <div id="card-school-logo-container" style="width: 75px; height: 75px; border: 1px solid #CBD5E1; border-radius: 6px; padding: 3px; display: flex; align-items: center; justify-content: center; background: #F8FAFC; margin: 0 auto;">
+                    <img id="card-school-logo-img" src="" alt="School Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
                   </div>
-                  <div id="card-school-logo-container" style="width: 60px; height: 60px; display: none; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--border-color); padding: 4px; border-radius: 6px; background: white;">
-                    <img id="card-school-logo-img" src="" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                  </div>
-                </div>
 
-                <div class="card-student-meta">
+                  <!-- School Info (Center) -->
                   <div>
-                    <span class="meta-label">Student Name:</span>
-                    <span class="meta-value" id="card-student-name" style="float: right;">Tobi Adebayo</span>
-                  </div>
-                  <div>
-                    <span class="meta-label">Class Level:</span>
-                    <span class="meta-value" id="card-student-class" style="float: right;">Grade 10A</span>
-                  </div>
-                  <div>
-                    <span class="meta-label">Roll Number:</span>
-                    <span class="meta-value" id="card-student-roll" style="float: right;">2026/G10/042</span>
-                  </div>
-                  <div>
-                    <span class="meta-label">Academic Term:</span>
-                    <span class="meta-value" id="card-active-term" style="float: right;">First Term 2026</span>
-                  </div>
-                </div>
-
-                <table class="card-table">
-                  <thead>
-                    <tr>
-                      <th>Subject Name</th>
-                      <th>CA /30</th>
-                      <th>Exam /70</th>
-                      <th>Total /100</th>
-                      <th>Grade</th>
-                      <th>Remarks</th>
-                    </tr>
-                  </thead>
-                  <tbody id="card-grades-body">
-                    <!-- Populated via JS -->
-                  </tbody>
-                </table>
-
-                <div class="card-footer">
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 32px;">
-                    <div style="border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 8px; text-align: center;">
-                      <span style="font-size: 0.7rem; color: var(--text-muted); display: block;">CLASS TEACHER SIGNATURE</span>
-                      <span style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; font-style: italic; color: rgba(255,255,255,0.7);" id="card-teacher-sign">Mrs. Adeleke. A</span>
-                    </div>
-                    <div style="border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 8px; text-align: center;">
-                      <span style="font-size: 0.7rem; color: var(--text-muted); display: block;">OFFICIAL REGISTRAR STAMP</span>
-                      <span style="font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--accent-teal);">EDULITE OS SIGNED</span>
+                    <h2 id="card-school-name" style="font-size: 1.45rem; font-weight: 900; color: #1E3A8A; margin: 0; text-transform: uppercase; letter-spacing: -0.5px;">PREMIER MODEL ACADEMY</h2>
+                    <div id="card-school-motto" style="font-size: 0.75rem; font-weight: 700; color: #334155; margin-top: 1px;">Motto: <span style="font-style: italic;">EXCELLENCE & INTEGRITY</span></div>
+                    <div id="card-school-address" style="font-size: 0.68rem; color: #475569; margin-top: 1px;">Main Campus Address, Azare, Bauchi State, Nigeria</div>
+                    <div id="card-school-contact" style="font-size: 0.65rem; color: #64748B; margin-top: 1px;">Tel: +234 812 345 6789 | Email: support@eduflow-os.com</div>
+                    
+                    <div style="background: #1E293B; color: #FFFFFF; font-size: 0.76rem; font-weight: 800; padding: 3px 12px; border-radius: 3px; margin-top: 4px; display: inline-block; letter-spacing: 0.5px;">
+                      <span id="card-active-term">2026 / 2027 - THIRD TERM PUPIL'S PERFORMANCE REPORT</span>
                     </div>
                   </div>
+
+                  <!-- Child Passport Photo (Right) -->
+                  <div style="width: 85px; height: 95px; border: 2px solid #334155; border-radius: 4px; overflow: hidden; background: #E2E8F0; text-align: center; margin: 0 auto;">
+                    <img id="card-child-passport-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 120' fill='%2394A3B8'><rect width='100' height='120' fill='%23F1F5F9'/><circle cx='50' cy='45' r='25'/><path d='M15 110 C15 80 85 80 85 110 Z'/></svg>" alt="Child Passport" style="width: 100%; height: 100%; object-fit: cover;">
+                  </div>
                 </div>
+
+                <!-- 2. TOP METADATA TRIO (PERSONAL DATA | ATTENDANCE & TERMINAL | PERFORMANCE SUMMARY) -->
+                <div style="display: grid; grid-template-columns: 1.35fr 1.15fr 1fr; gap: 8px; margin-bottom: 8px; font-size: 0.68rem; align-items: stretch;">
+                  
+                  <!-- Personal Data Table -->
+                  <table style="width: 100%; border-collapse: collapse; border: 1px solid #0F172A; height: 100%;">
+                    <thead>
+                      <tr style="background: #0F172A; color: white; text-align: center; font-weight: 800;">
+                        <th colspan="2" style="padding: 3px 4px;">PERSONAL DATA</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td style="padding: 2px 5px; font-weight: 700; border: 1px solid #CBD5E1; background: #F8FAFC; width: 38%;">NAME:</td><td style="padding: 2px 5px; font-weight: 800; border: 1px solid #CBD5E1;" id="card-student-name">ENORENSE, KIRIKU VICTORY</td></tr>
+                      <tr><td style="padding: 2px 5px; font-weight: 700; border: 1px solid #CBD5E1; background: #F8FAFC;">ADMN NO:</td><td style="padding: 2px 5px; font-weight: 700; border: 1px solid #CBD5E1;" id="card-student-roll">03/1643</td></tr>
+                      <tr><td style="padding: 2px 5px; font-weight: 700; border: 1px solid #CBD5E1; background: #F8FAFC;">GENDER:</td><td style="padding: 2px 5px; border: 1px solid #CBD5E1;" id="card-student-gender">MALE</td></tr>
+                      <tr><td style="padding: 2px 5px; font-weight: 700; border: 1px solid #CBD5E1; background: #F8FAFC;">CLASS:</td><td style="padding: 2px 5px; font-weight: 800; color: #1E3A8A; border: 1px solid #CBD5E1;" id="card-student-class">CLASS 2A</td></tr>
+                      <tr><td style="padding: 2px 5px; font-weight: 700; border: 1px solid #CBD5E1; background: #F8FAFC;">D.O.B:</td><td style="padding: 2px 5px; border: 1px solid #CBD5E1;" id="card-student-dob">Mon, 02-Feb-2016</td></tr>
+                      <tr><td style="padding: 2px 5px; font-weight: 700; border: 1px solid #CBD5E1; background: #F8FAFC;">CLUB/SOCIETY:</td><td style="padding: 2px 5px; border: 1px solid #CBD5E1;">SCRABBLE, JETS, DEBATE</td></tr>
+                    </tbody>
+                  </table>
+
+                  <!-- Attendance & Terminal Duration Container -->
+                  <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 4px; height: 100%;">
+                    <table style="width: 100%; border-collapse: collapse; border: 1px solid #0F172A;">
+                      <thead>
+                        <tr style="background: #0F172A; color: white; text-align: center; font-weight: 800;">
+                          <th colspan="3" style="padding: 3px 4px;">ATTENDANCE</th>
+                        </tr>
+                        <tr style="background: #F1F5F9; text-align: center; font-size: 0.62rem; font-weight: 700;">
+                          <td style="border: 1px solid #CBD5E1; padding: 2px;">Times Opened</td>
+                          <td style="border: 1px solid #CBD5E1; padding: 2px;">Present</td>
+                          <td style="border: 1px solid #CBD5E1; padding: 2px;">Absent</td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr style="text-align: center; font-weight: 800; font-size: 0.78rem;">
+                          <td style="border: 1px solid #CBD5E1; padding: 2px;">134</td>
+                          <td style="border: 1px solid #CBD5E1; padding: 2px; color: #059669;">130</td>
+                          <td style="border: 1px solid #CBD5E1; padding: 2px; color: #DC2626;">4</td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <table style="width: 100%; border-collapse: collapse; border: 1px solid #0F172A;">
+                      <thead>
+                        <tr style="background: #0F172A; color: white; text-align: center; font-weight: 800;">
+                          <th colspan="2" style="padding: 3px 4px;">TERMINAL DURATION</th>
+                        </tr>
+                        <tr style="background: #F1F5F9; text-align: center; font-size: 0.62rem; font-weight: 700;">
+                          <td style="border: 1px solid #CBD5E1; padding: 2px;">Term Beginning</td>
+                          <td style="border: 1px solid #CBD5E1; padding: 2px;">Term Ending</td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr style="text-align: center; font-weight: 700;">
+                          <td style="border: 1px solid #CBD5E1; padding: 3px;">04/09/2026</td>
+                          <td style="border: 1px solid #CBD5E1; padding: 3px;">18/12/2026</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!-- Performance Summary Table -->
+                  <table style="width: 100%; border-collapse: collapse; border: 1px solid #0F172A; height: 100%;">
+                    <thead>
+                      <tr style="background: #0F172A; color: white; text-align: center; font-weight: 800;">
+                        <th colspan="2" style="padding: 3px 4px;">PERFORMANCE SUMMARY</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td style="padding: 2px 5px; font-weight: 700; border: 1px solid #CBD5E1; background: #F8FAFC;">Total Obtainable:</td><td style="padding: 2px 5px; font-weight: 700; border: 1px solid #CBD5E1;" id="card-total-obtainable">1600.00</td></tr>
+                      <tr><td style="padding: 2px 5px; font-weight: 700; border: 1px solid #CBD5E1; background: #F8FAFC;">Total Obtained:</td><td style="padding: 2px 5px; font-weight: 800; border: 1px solid #CBD5E1; color: #1E3A8A;" id="card-total-obtained">928.83</td></tr>
+                      <tr><td style="padding: 2px 5px; font-weight: 700; border: 1px solid #CBD5E1; background: #F8FAFC;">% TAGE:</td><td style="padding: 2px 5px; font-weight: 800; border: 1px solid #CBD5E1; color: #059669;" id="card-percentage">58.1%</td></tr>
+                      <tr><td style="padding: 2px 5px; font-weight: 700; border: 1px solid #CBD5E1; background: #F8FAFC;">GRADE:</td><td style="padding: 2px 5px; font-weight: 800; border: 1px solid #CBD5E1;" id="card-overall-grade">D</td></tr>
+                      <tr><td style="padding: 2px 5px; font-weight: 700; border: 1px solid #CBD5E1; background: #F8FAFC;">POSITION:</td><td style="padding: 2px 5px; font-weight: 800; color: #D97706; border: 1px solid #CBD5E1;" id="card-position">12th</td></tr>
+                      <tr><td style="padding: 2px 5px; font-weight: 700; border: 1px solid #CBD5E1; background: #F8FAFC;">CLASS SIZE:</td><td style="padding: 2px 5px; font-weight: 700; border: 1px solid #CBD5E1;" id="card-class-size">21</td></tr>
+                    </tbody>
+                  </table>
+
+                </div>
+
+                <!-- 3. MIDDLE SECTION (COGNITIVE DOMAIN TABLE LEFT | AFFECTIVE/PSYCHOMOTOR RIGHT) -->
+                <div style="display: grid; grid-template-columns: 1.75fr 1fr; gap: 8px; margin-bottom: 8px; font-size: 0.65rem; align-items: stretch;">
+                  
+                  <!-- Cognitive Domain Subjects Table Container -->
+                  <div style="display: flex; flex-direction: column; justify-content: flex-start; height: 100%;">
+                    <table style="width: 100%; border-collapse: collapse; border: 1.5px solid #0F172A; text-align: center;">
+                      <thead>
+                        <tr style="background: #CBD5E1; font-weight: 800; color: #0F172A;">
+                          <th style="padding: 3px 5px; text-align: left; border: 1px solid #64748B;">SUBJECTS</th>
+                          <th style="padding: 3px 2px; border: 1px solid #64748B; width: 34px;">C.A.<br><span style="font-weight: 400;">40</span></th>
+                          <th style="padding: 3px 2px; border: 1px solid #64748B; width: 36px;">EXAM<br><span style="font-weight: 400;">60</span></th>
+                          <th style="padding: 3px 2px; border: 1px solid #64748B; width: 44px;">3RD TERM<br><span style="font-weight: 400;">100</span></th>
+                          <th style="padding: 3px 2px; border: 1px solid #64748B; width: 44px;">2ND TERM<br><span style="font-weight: 400;">100</span></th>
+                          <th style="padding: 3px 2px; border: 1px solid #64748B; width: 44px;">1ST TERM<br><span style="font-weight: 400;">100</span></th>
+                          <th style="padding: 3px 2px; border: 1px solid #64748B; width: 46px;">SESSION AVG</th>
+                          <th style="padding: 3px 2px; border: 1px solid #64748B; width: 36px;">GRADE</th>
+                          <th style="padding: 3px 2px; border: 1px solid #64748B; width: 40px;">SUBJ POS</th>
+                          <th style="padding: 3px 4px; border: 1px solid #64748B;">REMARKS</th>
+                        </tr>
+                      </thead>
+                      <tbody id="card-grades-body">
+                        <!-- Populated via JS -->
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!-- Right Side Ratings & Grading Scale Container -->
+                  <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 4px; height: 100%;">
+                    
+                    <!-- Affective Domain Table -->
+                    <table style="width: 100%; border-collapse: collapse; border: 1px solid #0F172A; text-align: left; font-size: 0.61rem;">
+                      <thead>
+                        <tr style="background: #0F172A; color: white; font-weight: 800; text-align: center;">
+                          <th style="padding: 2px 4px;">AFFECTIVE DOMAIN</th>
+                          <th style="padding: 2px; width: 12px;">5</th>
+                          <th style="padding: 2px; width: 12px;">4</th>
+                          <th style="padding: 2px; width: 12px;">3</th>
+                          <th style="padding: 2px; width: 12px;">2</th>
+                          <th style="padding: 2px; width: 12px;">1</th>
+                        </tr>
+                      </thead>
+                      <tbody id="card-affective-body">
+                        <!-- Populated via JS -->
+                      </tbody>
+                    </table>
+
+                    <!-- Psychomotor Skill Table -->
+                    <table style="width: 100%; border-collapse: collapse; border: 1px solid #0F172A; text-align: left; font-size: 0.61rem;">
+                      <thead>
+                        <tr style="background: #0F172A; color: white; font-weight: 800; text-align: center;">
+                          <th style="padding: 2px 4px;">PSYCHOMOTOR SKILL</th>
+                          <th style="padding: 2px; width: 12px;">5</th>
+                          <th style="padding: 2px; width: 12px;">4</th>
+                          <th style="padding: 2px; width: 12px;">3</th>
+                          <th style="padding: 2px; width: 12px;">2</th>
+                          <th style="padding: 2px; width: 12px;">1</th>
+                        </tr>
+                      </thead>
+                      <tbody id="card-psychomotor-body">
+                        <!-- Populated via JS -->
+                      </tbody>
+                    </table>
+
+                    <!-- Grading Scale Table -->
+                    <table style="width: 100%; border-collapse: collapse; border: 1px solid #0F172A; font-size: 0.58rem;">
+                      <thead>
+                        <tr style="background: #334155; color: white; font-weight: 800; text-align: center;">
+                          <th colspan="3" style="padding: 2px;">GRADE SCALE</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr><td style="padding: 1px 3px; font-weight: 700; border: 1px solid #CBD5E1;">A+</td><td style="padding: 1px 3px; border: 1px solid #CBD5E1;">95-100%</td><td style="padding: 1px 3px; font-weight: 700; border: 1px solid #CBD5E1; color: #059669;">EXCEPTIONAL</td></tr>
+                        <tr><td style="padding: 1px 3px; font-weight: 700; border: 1px solid #CBD5E1;">A</td><td style="padding: 1px 3px; border: 1px solid #CBD5E1;">90-94.9%</td><td style="padding: 1px 3px; font-weight: 700; border: 1px solid #CBD5E1; color: #059669;">DISTINCTION</td></tr>
+                        <tr><td style="padding: 1px 3px; font-weight: 700; border: 1px solid #CBD5E1;">A-</td><td style="padding: 1px 3px; border: 1px solid #CBD5E1;">85-89.9%</td><td style="padding: 1px 3px; font-weight: 700; border: 1px solid #CBD5E1; color: #059669;">EXCELLENT</td></tr>
+                        <tr><td style="padding: 1px 3px; font-weight: 700; border: 1px solid #CBD5E1;">B+</td><td style="padding: 1px 3px; border: 1px solid #CBD5E1;">80-84.9%</td><td style="padding: 1px 3px; font-weight: 700; border: 1px solid #CBD5E1; color: #2563EB;">VERY GOOD</td></tr>
+                        <tr><td style="padding: 1px 3px; font-weight: 700; border: 1px solid #CBD5E1;">B</td><td style="padding: 1px 3px; border: 1px solid #CBD5E1;">75-79.9%</td><td style="padding: 1px 3px; font-weight: 700; border: 1px solid #CBD5E1; color: #2563EB;">UPPER CREDIT</td></tr>
+                        <tr><td style="padding: 1px 3px; font-weight: 700; border: 1px solid #CBD5E1;">C+</td><td style="padding: 1px 3px; border: 1px solid #CBD5E1;">60-69.9%</td><td style="padding: 1px 3px; font-weight: 700; border: 1px solid #CBD5E1; color: #059669;">GOOD</td></tr>
+                        <tr><td style="padding: 1px 3px; font-weight: 700; border: 1px solid #CBD5E1;">D</td><td style="padding: 1px 3px; border: 1px solid #CBD5E1;">40-59.9%</td><td style="padding: 1px 3px; font-weight: 700; border: 1px solid #CBD5E1; color: #D97706;">AVERAGE</td></tr>
+                        <tr><td style="padding: 1px 3px; font-weight: 700; border: 1px solid #CBD5E1;">F</td><td style="padding: 1px 3px; border: 1px solid #CBD5E1;">0-39.9%</td><td style="padding: 1px 3px; font-weight: 700; border: 1px solid #CBD5E1; color: #DC2626;">FAIL</td></tr>
+                      </tbody>
+                    </table>
+
+                  </div>
+                </div>
+
+                <!-- 4. BOTTOM REMARKS & OFFICIAL STAMP SEAL -->
+                <div style="border-top: 1.5px solid #0F172A; padding-top: 6px; display: grid; grid-template-columns: 1fr 130px; gap: 12px; align-items: center; font-size: 0.71rem;">
+                  <div>
+                    <div style="margin-bottom: 3px;">
+                      <strong>Class Teacher's Remark:</strong> <span id="card-teacher-remark" style="font-style: italic; color: #1E293B;">Kiriku is a diligent, studious student and always inquisitive. Ready to learn...</span><br>
+                      <strong>Name:</strong> <span id="card-teacher-name" style="font-weight: 700;">MR ADIGUN TIMILEYIN</span>
+                    </div>
+
+                    <div style="margin-top: 3px;">
+                      <strong>Head Teacher's Remark:</strong> <span id="card-principal-remark" style="font-style: italic; color: #059669; font-weight: 700;">A Very Good Result!!.. Keep it Up!</span><br>
+                      <strong>Name/Sign:</strong> <span id="card-principal-name" style="font-weight: 700;">MR OWOLABI BADMOS</span>
+                    </div>
+
+                    <div style="margin-top: 5px; font-weight: 800; color: #0F172A; font-size: 0.69rem;">
+                      Status: <span id="card-promotion-status" style="color: #059669; text-transform: uppercase;">PROMOTED TO NEXT CLASS</span> &nbsp;|&nbsp; 
+                      Next Session Begins: <span id="card-next-session">Wed, 09-September-2026</span>
+                    </div>
+                  </div>
+
+                  <!-- Official Approved Stamp Image & Signature -->
+                  <div style="text-align: center; position: relative;">
+                    <div style="border: 2px double #2563EB; border-radius: 50%; width: 75px; height: 75px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #2563EB; font-weight: 900; font-family: Impact, Arial, sans-serif; transform: rotate(-8deg); opacity: 0.85; background: rgba(37, 99, 235, 0.04);">
+                      <div style="font-size: 0.48rem; letter-spacing: 0.5px;">★ APPROVED ★</div>
+                      <div style="font-size: 0.7rem; border-top: 1px solid #2563EB; border-bottom: 1px solid #2563EB; padding: 1px 0; margin: 1px 0;">VERIFIED</div>
+                      <div style="font-size: 0.42rem;">EDULITE ACADEMY</div>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
@@ -2204,6 +2376,12 @@
           </div>
         </div>
 
+        <div class="input-group" style="margin-top: 12px; text-align: left;">
+          <label for="reg-student-passport" style="font-size: 0.78rem; font-weight: 700; color: var(--text-main);">📸 Child Passport Photo (Onboarding)</label>
+          <input type="file" class="form-input" id="reg-student-passport" accept="image/*" style="padding: 6px; font-size: 0.8rem;">
+          <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 4px;">Once uploaded during onboarding, the pupil's passport will automatically appear on all official class report cards.</span>
+        </div>
+
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
           <button class="btn btn-secondary" onclick="closeStudentRegistrationModal()">Cancel</button>
           <button class="btn btn-primary" onclick="registerNewStudent()">Save Student</button>
@@ -2502,6 +2680,6 @@
     </div>
   </div>
 
-  <script src="dashboard.js?v=2.5.0"></script>
+  <script src="dashboard.js?v=3.1.0"></script>
 </body>
 </html>

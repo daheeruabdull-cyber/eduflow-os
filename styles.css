@@ -1574,32 +1574,70 @@ button, input, select, textarea {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* PRINT MEDIA OVERRIDE */
-@media print {
-  body * {
-    visibility: hidden;
-  }
-  .report-card, .report-card * {
-    visibility: visible;
-  }
-  .report-card {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    border: none;
-    box-shadow: none;
-    background: white !important;
-    color: black !important;
-  }
+/* PRINT MEDIA & RESPONSIVE SINGLE-PAGE OVERRIDE */
+@page {
+  size: A4 portrait;
+  margin: 3mm 4mm !important;
+}
+
+@media screen and (max-width: 900px) {
   .report-card-container {
-    position: static;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 12px;
   }
+  .printable-report-sheet {
+    min-width: 780px !important;
+  }
+}
+
+@media print {
+  html, body {
+    height: 100% !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .printable-report-sheet, .printable-report-sheet * {
+    visibility: visible !important;
+  }
+
+  .printable-report-sheet {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-height: 282mm !important;
+    margin: 0 auto !important;
+    padding: 6px 12px !important;
+    border: 2px solid #0F172A !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    color: #0F172A !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    transform: scale(0.94);
+    transform-origin: top center;
+  }
+
+  .report-card-container {
+    position: static !important;
+    overflow: visible !important;
+  }
+
+  tr, td, th, div, table {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
   .card-school-name {
-    color: black !important;
-  }
-  .card-grade-badge {
-    color: black !important;
+    color: #1E3A8A !important;
   }
 }
 
@@ -1962,9 +2000,103 @@ button, input, select, textarea {
     padding: 20px 18px !important;
     border-radius: 16px !important;
   }
-  .testimonial-card p {
-    font-size: 0.86rem !important;
-    line-height: 1.55 !important;
-    margin-bottom: 18px !important;
+.how-it-works-grid {
+  display: none !important;
+}
+
+.how-it-works-grid.active {
+  display: grid !important;
+}
+
+/* Contact Us Section Responsive Overrides for iPad, Tablet & Mobile */
+@media (max-width: 1024px) {
+  #contact .testimonials-grid {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  #contact {
+    padding: 48px 0 !important;
+  }
+  #contact h2 {
+    font-size: 1.55rem !important;
+    line-height: 1.25 !important;
+    margin-bottom: 8px !important;
+  }
+  #contact p {
+    font-size: 0.85rem !important;
+    line-height: 1.5 !important;
+  }
+  #contact .feature-card {
+    padding: 16px 14px !important;
+    border-radius: 16px !important;
+    gap: 12px !important;
+  }
+  #contact .feature-card > div:first-child {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 1.15rem !important;
+    border-radius: 10px !important;
+  }
+  #contact .feature-card h4 {
+    font-size: 0.9rem !important;
+    margin-bottom: 2px !important;
+  }
+  #contact .feature-card p {
+    font-size: 0.78rem !important;
+    margin-bottom: 4px !important;
+  }
+  #contact .feature-card div[style*="font-family-mono"],
+  #contact .feature-card div[style*="font-family-title"] {
+    font-size: 0.78rem !important;
+    line-height: 1.35 !important;
+  }
+  #contact-inquiry-form div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  #contact input, #contact select, #contact textarea {
+    font-size: 0.85rem !important;
+    padding: 10px 12px !important;
+  }
+}
+
+/* Footer Responsive Layout overrides for Tablet & Mobile */
+@media (max-width: 1024px) {
+  .footer-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 32px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .landing-footer {
+    padding: 48px 0 24px 0 !important;
+  }
+  .landing-footer div[style*="background: linear-gradient"] {
+    padding: 24px 18px !important;
+    margin-bottom: 36px !important;
+    text-align: center !important;
+  }
+  .landing-footer div[style*="background: linear-gradient"] div:last-child {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  .landing-footer div[style*="background: linear-gradient"] button,
+  .landing-footer div[style*="background: linear-gradient"] a {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+    margin-bottom: 32px !important;
+  }
+  .footer-bottom-bar {
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: 10px !important;
   }
 }
