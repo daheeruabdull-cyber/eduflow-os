@@ -184,15 +184,55 @@ function formatPhoneNumberInput(inputElem) {
 }
 
 async function handleStep1Submit(event) {
-  event.preventDefault();
-  onboardingState.schoolName = document.getElementById('ob-school-name').value;
-  onboardingState.category = document.getElementById('ob-category').value;
-  onboardingState.state = document.getElementById('ob-state').value;
-  onboardingState.lga = document.getElementById('ob-lga').value;
-  onboardingState.adminName = document.getElementById('ob-admin-name').value;
-  onboardingState.adminPhone = document.getElementById('ob-admin-phone').value;
-  onboardingState.adminEmail = document.getElementById('ob-admin-email').value;
-  onboardingState.adminPass = document.getElementById('ob-admin-pass').value;
+  if (event) event.preventDefault();
+  
+  const schoolName = (document.getElementById('ob-school-name')?.value || '').trim();
+  const adminName = (document.getElementById('ob-admin-name')?.value || '').trim();
+  const adminPhone = (document.getElementById('ob-admin-phone')?.value || '').trim();
+  const adminEmail = (document.getElementById('ob-admin-email')?.value || '').trim();
+  const adminPass = (document.getElementById('ob-admin-pass')?.value || '').trim();
+  const stateVal = document.getElementById('ob-state')?.value || '';
+  const lgaVal = document.getElementById('ob-lga')?.value || '';
+  const categoryVal = document.getElementById('ob-category')?.value || 'All-Through';
+
+  if (!schoolName) {
+    alert("⚠️ REQUIRED FIELD MISSING: Please enter your official School / Campus Name.");
+    document.getElementById('ob-school-name')?.focus();
+    return false;
+  }
+  if (!adminName) {
+    alert("⚠️ REQUIRED FIELD MISSING: Please enter the Principal / Administrator Full Name.");
+    document.getElementById('ob-admin-name')?.focus();
+    return false;
+  }
+  if (!adminPhone || adminPhone.length < 10) {
+    alert("⚠️ REQUIRED FIELD MISSING: Please enter a valid WhatsApp Contact Phone Number (e.g. 08012345678).");
+    document.getElementById('ob-admin-phone')?.focus();
+    return false;
+  }
+  if (!adminEmail || !adminEmail.includes('@') || !adminEmail.includes('.')) {
+    alert("⚠️ REQUIRED FIELD MISSING: Please enter a valid Admin Login Email Address.");
+    document.getElementById('ob-admin-email')?.focus();
+    return false;
+  }
+  if (!adminPass || adminPass.length < 6) {
+    alert("⚠️ INSECURE PASSWORD: Please enter a password at least 6 characters long.");
+    document.getElementById('ob-admin-pass')?.focus();
+    return false;
+  }
+  if (!stateVal || !lgaVal) {
+    alert("⚠️ REQUIRED FIELD MISSING: Please select your State and LGA location.");
+    return false;
+  }
+
+  onboardingState.schoolName = schoolName;
+  onboardingState.category = categoryVal;
+  onboardingState.state = stateVal;
+  onboardingState.lga = lgaVal;
+  onboardingState.adminName = adminName;
+  onboardingState.adminPhone = adminPhone;
+  onboardingState.adminEmail = adminEmail;
+  onboardingState.adminPass = adminPass;
 
   // Dispatch API Provisioning Payload
   try {

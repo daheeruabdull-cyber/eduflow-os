@@ -520,15 +520,38 @@ async function registerSchoolOnboarding() {
     const schoolStateInput = document.getElementById('reg-school-state');
     const schoolLgaInput = document.getElementById('reg-school-lga');
     
-    const schoolName = (schoolNameInput && schoolNameInput.value.trim()) ? schoolNameInput.value.trim() : 'Eduflow Academy';
-    const schoolEmail = (schoolEmailInput && schoolEmailInput.value.trim()) ? schoolEmailInput.value.trim() : (adminEmailInput && adminEmailInput.value.trim() ? adminEmailInput.value.trim() : 'admin@eduflow.com');
+    const schoolName = schoolNameInput ? schoolNameInput.value.trim() : '';
+    const schoolEmail = schoolEmailInput ? schoolEmailInput.value.trim() : (adminEmailInput ? adminEmailInput.value.trim() : '');
+    const schoolPass = schoolPassInput ? schoolPassInput.value.trim() : '';
+    const schoolPhone = schoolPhoneInput ? schoolPhoneInput.value.trim() : '';
+    const schoolAddress = schoolAddressInput ? schoolAddressInput.value.trim() : '';
+    const registrarName = registrarNameInput ? registrarNameInput.value.trim() : '';
+
+    if (!schoolName) {
+      alert("⚠️ REQUIRED FIELD MISSING: Please enter your official School / Campus Name.");
+      if (schoolNameInput) schoolNameInput.focus();
+      return false;
+    }
+
+    if (!schoolEmail || !schoolEmail.includes('@')) {
+      alert("⚠️ REQUIRED FIELD MISSING: Please enter a valid School Login Email Address.");
+      if (schoolEmailInput) schoolEmailInput.focus();
+      return false;
+    }
+
+    if (!schoolPass || schoolPass.length < 6) {
+      alert("⚠️ INSECURE PASSWORD: Please enter a password at least 6 characters long.");
+      if (schoolPassInput) schoolPassInput.focus();
+      return false;
+    }
+
+    if (!schoolPhone || schoolPhone.length < 10) {
+      alert("⚠️ REQUIRED FIELD MISSING: Please enter a valid Contact Phone Number.");
+      if (schoolPhoneInput) schoolPhoneInput.focus();
+      return false;
+    }
+
     const schoolType = schoolTypeInput ? schoolTypeInput.value : 'Physical Learning';
-    
-    const schoolPhone = (schoolPhoneInput && schoolPhoneInput.value.trim()) ? schoolPhoneInput.value.trim() : '08012345678';
-    const schoolAddress = (schoolAddressInput && schoolAddressInput.value.trim()) ? schoolAddressInput.value.trim() : '12 Campus Boulevard, Victoria Island, Lagos';
-    const registrarName = (registrarNameInput && registrarNameInput.value.trim()) ? registrarNameInput.value.trim() : 'School Administrator';
-    const schoolPass = (schoolPassInput && schoolPassInput.value) ? schoolPassInput.value : 'admin123';
-    
     const schoolLevel = schoolLevelInput ? schoolLevelInput.value : 'Secondary';
     const schoolState = (schoolStateInput && schoolStateInput.value) ? schoolStateInput.value : 'Lagos';
     const schoolLga = (schoolLgaInput && schoolLgaInput.value) ? schoolLgaInput.value : 'Ikeja';
@@ -546,7 +569,7 @@ async function registerSchoolOnboarding() {
 
     const subStatus = (schoolPlan === 'Free') ? 'Active' : ((paymentMethod === 'Manual') ? 'Pending Verification' : 'Active');
 
-    // Read active classes selected by the user, fallback to default stage classes if none checked
+    // Read active classes selected by the user
     const checkedBoxes = document.querySelectorAll('#onboarding-classes-checklist input[type="checkbox"]:checked');
     let defaultClasses = Array.from(checkedBoxes).map(cb => cb.value);
     if (defaultClasses.length === 0) {
@@ -555,31 +578,8 @@ async function registerSchoolOnboarding() {
       else defaultClasses = ['JSS 1', 'JSS 2', 'JSS 3', 'SSS 1', 'SSS 2', 'SSS 3'];
     }
 
+    // Clean Production: Zero initial demo students
     let defaultStudents = [];
-    const firstClass = defaultClasses[0];
-    const secondClass = defaultClasses[1] || defaultClasses[0];
-    
-    if (schoolLevel === 'Nursery') {
-      defaultStudents = [
-        { name: "Chinedu Obi", roll: `2026/NUR/${schoolId.slice(-4)}/001`, class: firstClass, attendanceRate: "100.0%", grades: { "Mathematics": { ca: 25, exam: 60 }, "English Language": { ca: 28, exam: 58 } }, schoolId: schoolId },
-        { name: "Amina Musa", roll: `2026/NUR/${schoolId.slice(-4)}/002`, class: secondClass, attendanceRate: "95.0%", grades: { "Mathematics": { ca: 24, exam: 62 }, "English Language": { ca: 22, exam: 55 } }, schoolId: schoolId }
-      ];
-    } else if (schoolLevel === 'Primary') {
-      defaultStudents = [
-        { name: "Emeka Okafor", roll: `2026/PRI/${schoolId.slice(-4)}/001`, class: firstClass, attendanceRate: "100.0%", grades: { "Mathematics": { ca: 26, exam: 58 }, "English Language": { ca: 22, exam: 60 } }, schoolId: schoolId },
-        { name: "Fatima Yusuf", roll: `2026/PRI/${schoolId.slice(-4)}/002`, class: secondClass, attendanceRate: "98.0%", grades: { "Mathematics": { ca: 28, exam: 64 }, "English Language": { ca: 25, exam: 61 } }, schoolId: schoolId }
-      ];
-    } else if (schoolLevel === 'Secondary') {
-      defaultStudents = [
-        { name: "Tobi Adebayo", roll: `2026/SEC/${schoolId.slice(-4)}/001`, class: firstClass, attendanceRate: "97.5%", grades: { "Mathematics": { ca: 28, exam: 62 }, "English Language": { ca: 24, exam: 58 } }, schoolId: schoolId },
-        { name: "Chioma Nwachukwu", roll: `2026/SEC/${schoolId.slice(-4)}/002`, class: secondClass, attendanceRate: "100.0%", grades: { "Mathematics": { ca: 27, exam: 65 }, "English Language": { ca: 26, exam: 63 } }, schoolId: schoolId }
-      ];
-    } else { // K12
-      defaultStudents = [
-        { name: "Tobi Adebayo", roll: `2026/K12/${schoolId.slice(-4)}/001`, class: firstClass, attendanceRate: "97.5%", grades: { "Mathematics": { ca: 28, exam: 62 }, "English Language": { ca: 24, exam: 58 } }, schoolId: schoolId },
-        { name: "Chinedu Obi", roll: `2026/K12/${schoolId.slice(-4)}/002`, class: secondClass, attendanceRate: "100.0%", grades: { "Mathematics": { ca: 25, exam: 60 }, "English Language": { ca: 28, exam: 58 } }, schoolId: schoolId }
-      ];
-    }
 
     const newSchool = {
       id: schoolId,
