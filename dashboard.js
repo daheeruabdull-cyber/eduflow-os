@@ -4206,7 +4206,48 @@ function renderSuperAdminEnhancements() {
           <p style="font-size: 0.7rem; color: var(--text-muted); margin: 0;">Server Engine • 3 hrs ago</p>
         </div>
       </div>
-    `;
+  }
+  
+  renderOfficialInquiriesTable();
+}
+
+async function renderOfficialInquiriesTable() {
+  const tableBody = document.getElementById('super-inquiries-tbody');
+  const countBadge = document.getElementById('super-inquiries-count');
+  if (!tableBody) return;
+
+  try {
+    const res = await fetch('/api/inquiries');
+    const data = await res.json();
+    const inquiries = data.inquiries || [];
+
+    if (countBadge) countBadge.textContent = `${inquiries.length} Inquiries`;
+
+    if (inquiries.length === 0) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="6" style="padding: 24px; text-align: center; color: var(--text-muted);">
+            📬 No official inquiries received yet. Requests submitted from the website contact form will appear here in real time.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tableBody.innerHTML = inquiries.map(iq => `
+      <tr style="border-bottom: 1px solid var(--border-color);">
+        <td style="padding: 12px; font-weight: 700; color: var(--text-main);">${iq.name}</td>
+        <td style="padding: 12px; color: var(--text-main);">${iq.school}</td>
+        <td style="padding: 12px;">
+          <a href="tel:${iq.phone}" style="color: var(--primary); font-weight: 700; text-decoration: none;">📞 ${iq.phone}</a>
+        </td>
+        <td style="padding: 12px;"><span class="badge badge-primary">${iq.purpose}</span></td>
+        <td style="padding: 12px; max-width: 250px; font-size: 0.8rem; color: var(--text-secondary);">${iq.message || 'No notes provided'}</td>
+        <td style="padding: 12px; font-size: 0.75rem; color: var(--text-muted);">${iq.date}</td>
+      </tr>
+    `).join('');
+  } catch(e) {
+    console.warn("Failed to render inquiries table:", e);
   }
 }
 

@@ -1779,6 +1779,38 @@
           </div>
         </div>
 
+        <!-- OFFICIAL SCHOOL INQUIRIES & DEMO REQUESTS HUB -->
+        <div class="glass-card" style="padding: 24px; margin-top: 32px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <h3 style="font-size: 1rem; font-family: var(--font-family-title); color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 8px;">
+                📨 Official School Inquiries & Live Demo Requests
+                <span class="badge badge-primary" id="super-inquiries-count">0 Inquiries</span>
+              </h3>
+              <p style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px; margin-bottom: 0;">Live inquiries submitted by school proprietors and administrators via the website contact form.</p>
+            </div>
+            <button class="btn btn-secondary" onclick="renderOfficialInquiriesTable()" style="font-size: 0.78rem; font-weight: 600;">🔄 Refresh Inquiries</button>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.8rem; min-width: 650px;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--primary); font-family: var(--font-family-mono); color: var(--text-secondary);">
+                  <th style="padding: 12px 10px; width: 18%;">Full Name</th>
+                  <th style="padding: 12px 10px; width: 20%;">School / Academy</th>
+                  <th style="padding: 12px 10px; width: 18%;">Phone / WhatsApp</th>
+                  <th style="padding: 12px 10px; width: 14%;">Purpose</th>
+                  <th style="padding: 12px 10px; width: 20%;">Message / Requirements</th>
+                  <th style="padding: 12px 10px; width: 10%;">Date Received</th>
+                </tr>
+              </thead>
+              <tbody id="super-inquiries-tbody">
+                <!-- Javascript Populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- MASTER ACCOUNTS MANAGER & PASSWORD RESET CONSOLE -->
         <div class="glass-card" style="padding: 24px; margin-top: 32px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">

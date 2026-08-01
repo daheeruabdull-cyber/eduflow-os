@@ -178,13 +178,24 @@ function initSchema() {
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS teachers (
-      id TEXT PRIMARY KEY,
-      schoolId TEXT,
+      email TEXT PRIMARY KEY,
       name TEXT,
-      email TEXT,
-      subject TEXT,
+      password TEXT,
       assignedClass TEXT,
-      role TEXT
+      subject TEXT,
+      schoolId TEXT
+    )
+  `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS inquiries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT,
+      school TEXT,
+      phone TEXT,
+      purpose TEXT,
+      message TEXT,
+      date TEXT
     )
   `);
 }

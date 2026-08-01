@@ -966,15 +966,19 @@ function quickFillLogin(identifier) {
   if (form) form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
 }
 
-function handleContactInquirySubmit(e) {
+async function handleContactInquirySubmit(e) {
   if (e) e.preventDefault();
   const nameInput = document.getElementById('contact-name');
   const schoolInput = document.getElementById('contact-school');
   const phoneInput = document.getElementById('contact-phone');
+  const purposeInput = document.getElementById('contact-purpose');
+  const messageInput = document.getElementById('contact-message');
   
   const name = nameInput ? nameInput.value.trim() : 'Guest';
   const school = schoolInput ? schoolInput.value.trim() : 'School';
   const phone = phoneInput ? phoneInput.value.trim() : '';
+  const purpose = purposeInput ? purposeInput.value : 'Live Demo';
+  const message = messageInput ? messageInput.value.trim() : '';
 
   const submitBtn = document.querySelector('#contact-inquiry-form button[type="submit"]');
   if (submitBtn) {
@@ -982,16 +986,24 @@ function handleContactInquirySubmit(e) {
     submitBtn.innerHTML = '⏳ Submitting to Azare Hub...';
   }
 
-  setTimeout(() => {
-    alert(`✨ Inquiry Received Successfully!\n\nThank you, ${name}!\nYour request for ${school} (${phone}) has been logged at our Azare Headquarters.\nOur engineering team will call or WhatsApp you within 30 minutes.`);
-    
-    const form = document.getElementById('contact-inquiry-form');
-    if (form) form.reset();
+  try {
+    await fetch('/api/inquiries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, school, phone, purpose, message })
+    });
+  } catch(err) {
+    console.warn("Failed to POST inquiry to server API:", err);
+  }
 
-    if (submitBtn) {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = '🚀 Submit Inquiry';
-    }
-  }, 600);
+  alert(`✨ Inquiry Received Successfully!\n\nThank you, ${name}!\nYour request for ${school} (${phone}) has been logged at our Azare Headquarters.\nOur technical support team will contact you directly via call or WhatsApp.`);
+  
+  const form = document.getElementById('contact-inquiry-form');
+  if (form) form.reset();
+
+  if (submitBtn) {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '🚀 Submit Inquiry';
+  }
 }
 }

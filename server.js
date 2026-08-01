@@ -278,20 +278,34 @@ app.get('/api/auth/me', authenticateToken, (req, res) => {
   res.status(200).json({ user: req.user });
 });
 
-// SuperAdmin Endpoint: Wipe all school registrations (Restricted to SuperAdmin Daheeru)
-app.post('/api/admin/wipe-schools', (req, res) => {
+// ==================== INQUIRIES REST API ====================
+app.post('/api/inquiries', (req, res) => {
   try {
-    db.exec("DELETE FROM schools");
-    db.exec("DELETE FROM students");
-    db.exec("DELETE FROM attendance");
-    db.exec("DELETE FROM payments");
-    db.exec("DELETE FROM timetable");
-    db.exec("DELETE FROM notifications");
-    db.exec("DELETE FROM parents");
-    db.exec("DELETE FROM teachers");
-    return res.status(200).json({ status: 'success', message: 'All school registrations, students, and demo records successfully wiped clean.' });
+    const { name, school, phone, purpose, message } = req.body;
+    const dateStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    const stmt = db.prepare("INSERT INTO inquiries (name, school, phone, purpose, message, date) VALUES (?, ?, ?, ?, ?, ?)");
+    stmt.run(name || 'Guest', school || 'Campus', phone || '', purpose || 'Demo Request', message || '', dateStr);
+    return res.status(200).json({ status: 'success', message: 'Inquiry received successfully.' });
   } catch (err) {
-    return res.status(500).json({ error: 'Failed to wipe school records: ' + err.message });
+    return res.status(500).json({ error: 'Failed to record inquiry: ' + err.message });
+  }
+});
+
+app.get('/api/inquiries', (req, res) => {
+  try {
+    const rows = db.prepare("SELECT * FROM inquiries ORDER BY id DESC").all();
+    return res.status(200).json({ status: 'success', inquiries: rows });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to fetch inquiries: ' + err.message });
+  }
+});
+
+app.delete('/api/inquiries/:id', (req, res) => {
+  try {
+    db.prepare("DELETE FROM inquiries WHERE id = ?").run(req.params.id);
+    return res.status(200).json({ status: 'success', message: 'Inquiry deleted.' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to delete inquiry: ' + err.message });
   }
 });
 
