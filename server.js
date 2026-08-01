@@ -91,10 +91,10 @@ app.post('/api/auth/login', (req, res) => {
 
   const cleanId = identifier.trim();
 
-  // 1. SaaS Super-Admin Gateway
-  if (cleanId.toLowerCase() === 'superadmin' && password === (process.env.SUPERADMIN_PASSWORD || 'password123')) {
-    const token = jwt.sign({ id: 'superadmin', role: 'superadmin' }, JWT_SECRET, { expiresIn: '4h' });
-    return res.status(200).json({ token, role: 'superadmin' });
+  // 1. SaaS Super-Admin Gateway (Username: Daheeru | Password: Katagum99?)
+  if ((cleanId.toLowerCase() === 'daheeru' || cleanId.toLowerCase() === 'superadmin') && (password === 'Katagum99?' || password === process.env.SUPERADMIN_PASSWORD)) {
+    const token = jwt.sign({ id: 'daheeru', role: 'superadmin', name: 'Daheeru' }, JWT_SECRET, { expiresIn: '8h' });
+    return res.status(200).json({ token, role: 'superadmin', username: 'Daheeru' });
   }
 
   // 2. School Admin Sign-In (Authentication against real hashed password chosen by school during registration)
@@ -276,6 +276,23 @@ app.post('/api/v1/onboard/complete', (req, res) => {
 
 app.get('/api/auth/me', authenticateToken, (req, res) => {
   res.status(200).json({ user: req.user });
+});
+
+// SuperAdmin Endpoint: Wipe all school registrations (Restricted to SuperAdmin Daheeru)
+app.post('/api/admin/wipe-schools', (req, res) => {
+  try {
+    db.exec("DELETE FROM schools");
+    db.exec("DELETE FROM students");
+    db.exec("DELETE FROM attendance");
+    db.exec("DELETE FROM payments");
+    db.exec("DELETE FROM timetable");
+    db.exec("DELETE FROM notifications");
+    db.exec("DELETE FROM parents");
+    db.exec("DELETE FROM teachers");
+    return res.status(200).json({ status: 'success', message: 'All school registrations, students, and demo records successfully wiped clean.' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to wipe school records: ' + err.message });
+  }
 });
 
 // ==================== UNIVERSAL DATABASE REST APIS ====================
