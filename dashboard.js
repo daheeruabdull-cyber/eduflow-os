@@ -660,9 +660,9 @@ function renderDashboardStats() {
   } else {
     // Student stats
     const student = (state.db.students || []).find(s => s.id === 1) || (state.db.students || [])[0];
-    if (!student) return;
-
-    if (welcomeTitle) welcomeTitle.textContent = `Welcome, ${student.name}`;
+    const studentName = student ? student.name : 'Student Portal';
+    
+    if (welcomeTitle) welcomeTitle.textContent = `Welcome, ${studentName}`;
     if (welcomeSub) welcomeSub.textContent = 'Check your attendance record, report sheets, and pending fees.';
 
     if (quickBar) quickBar.style.display = 'none';
