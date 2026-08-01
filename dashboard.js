@@ -4906,9 +4906,27 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// 14. MASTER APP INITIALIZATION BOOTSTRAPPER
+function handleUserLogout() {
+  localStorage.clear();
+  sessionStorage.clear();
+  alert("🔒 Logged out successfully.");
+  window.location.href = 'index.html';
+}
+
+// 14. MASTER APP INITIALIZATION BOOTSTRAPPER (STRICT AUTHENTICATION GUARD)
 async function initApp() {
   try {
+    const token = localStorage.getItem('eduflow_jwt_token');
+    const isSuperAdminSession = sessionStorage.getItem('superadmin_authenticated') === 'true';
+    const savedRole = localStorage.getItem('eduflow_role');
+
+    // Strict Security Guard: Prevent unauthenticated users from bypassing login via URL params or old cache
+    if (!token && !isSuperAdminSession && savedRole !== 'superadmin' && savedRole !== 'admin') {
+      alert("⛔ ACCESS DENIED: Unauthenticated session. Please log in with valid credentials.");
+      window.location.href = 'index.html';
+      return;
+    }
+
     await loadDBFromLocalStorage();
     if (typeof loadThemeColors === 'function') loadThemeColors();
     
@@ -4917,13 +4935,12 @@ async function initApp() {
     const urlParams = new URLSearchParams(searchString);
     const roleParam = urlParams.get('role');
     
-    const savedRole = localStorage.getItem('eduflow_role');
     const teacherEmail = localStorage.getItem('eduflow_teacher_email');
 
     // If active session is a Teacher, enforce Teacher role
     if (savedRole === 'teacher' || (teacherEmail && savedRole !== 'superadmin' && savedRole !== 'admin')) {
       state.role = 'teacher';
-    } else if (roleParam) {
+    } else if (roleParam && (token || isSuperAdminSession)) {
       state.role = roleParam;
     } else {
       state.role = savedRole || 'admin';
