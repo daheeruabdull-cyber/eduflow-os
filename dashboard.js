@@ -4885,6 +4885,12 @@ async function initApp() {
   }
 }
 
+// Expose global window methods for inline HTML onclick handlers
+window.showSection = showSection;
+window.switchRole = switchRole;
+window.handleUserLogout = handleUserLogout;
+window.toggleMobileSidebar = toggleMobileSidebar;
+
 if (document.readyState === 'loading') {
   window.addEventListener('DOMContentLoaded', initApp);
 } else {
