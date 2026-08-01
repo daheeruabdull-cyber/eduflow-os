@@ -14,11 +14,6 @@ const DEFAULT_NOTIFICATIONS = [];
 
 const DEFAULT_NOTIFICATIONS_FULL = [];
 
-const DEFAULT_NOTIFICATIONS = [
-  { id: 1, recipient: "Mrs. Adebayo (Parent)", channel: "SMS", destination: "+234 803 123 4567", type: "Attendance", message: "Attendance Alert: Tobi Adebayo was marked PRESENT today at 09:12 AM.", date: "2026-07-11 09:15 AM", status: "Delivered" },
-  { id: 2, recipient: "Mrs. Adebayo (Parent)", channel: "Email", destination: "mother.adebayo@gmail.com", type: "Billing", message: "Billing Invoice: 1st Term Tuition Fees (₦120,000) generated for Tobi Adebayo. Due date: 2026-07-20.", date: "2026-07-10 02:40 PM", status: "Sent" }
-];
-
 // Active State variables
 let state = {
   role: 'admin', // 'admin' or 'student'
