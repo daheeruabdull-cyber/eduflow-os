@@ -1,82 +1,8 @@
-// Eduflow School OS - Dashboard Logic & Developer DevTools Engine
-
-// Transparent API Sync Hook
+// Eduflow School OS - Dashboard Logic Engine
 (function() {
-  const originalFetch = window.fetch;
-  window.fetch = async function(resource, init) {
-    if (typeof resource === 'string' && resource.includes('/api/db')) {
-      const method = (init && init.method) ? init.method.toUpperCase() : 'GET';
-      
-      if (method === 'POST') {
-        try {
-          const bodyData = init.body;
-          if (bodyData) {
-            localStorage.setItem('eduflow_local_db', bodyData);
-          }
-        } catch (e) {
-          console.warn("Failed to write to local storage sync.", e);
-        }
-      }
-      
-      try {
-        const response = await originalFetch(resource, init);
-        if (response.ok) {
-          if (method === 'GET') {
-            const clone = response.clone();
-            const serverDb = await clone.json();
-            
-            // Sync local storage with latest server records
-            const localDbStr = localStorage.getItem('eduflow_local_db');
-            if (localDbStr) {
-              const localDb = JSON.parse(localDbStr);
-              let merged = false;
-              (localDb.schools || []).forEach(ls => {
-                if (!serverDb.schools.some(s => s.id === ls.id)) {
-                  serverDb.schools.push(ls);
-                  merged = true;
-                }
-              });
-              (localDb.students || []).forEach(lst => {
-                if (!serverDb.students.some(s => s.id === lst.id)) {
-                  serverDb.students.push(lst);
-                  merged = true;
-                }
-              });
-              if (merged) {
-                localStorage.setItem('eduflow_local_db', JSON.stringify(serverDb));
-                originalFetch('/api/db', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(serverDb)
-                }).catch(err => console.warn("Failed to write merged back to server.", err));
-              }
-            } else {
-              localStorage.setItem('eduflow_local_db', JSON.stringify(serverDb));
-            }
-          }
-          return response;
-        }
-      } catch (err) {
-        console.warn("Network API fetch failed, falling back to local storage polyfill.", err);
-      }
-      
-      // Fallback: Return from LocalStorage
-      const localData = localStorage.getItem('eduflow_local_db');
-      let dbObj = null;
-      if (localData) {
-        dbObj = JSON.parse(localData);
-      } else {
-        dbObj = { schools: [], students: [], attendance: {}, payments: [], timetable: {}, notifications: [] };
-      }
-      
-      return new Response(JSON.stringify(dbObj), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-    
-    return originalFetch(resource, init);
-  };
+  // Purge legacy demo localStorage caches to prevent old demo accounts from loading
+  const legacyKeys = ['eduflow_local_db', 'eduflow_registered_schools', 'eduflow_schools', 'eduflow_students', 'eduflow_teachers', 'eduflow_attendance', 'eduflow_payments'];
+  legacyKeys.forEach(k => localStorage.removeItem(k));
 })();
 
 // 1. DATABASE SCHEMA & CONSTANTS (Clean Production Defaults - Zero Demo Students)
@@ -258,9 +184,7 @@ async function saveDBToLocalStorage() {
 
   if (!state.rawDB) {
     state.rawDB = {
-      schools: [
-        { id: 'school_demo', name: localStorage.getItem('eduflow_school_name') || 'EDULITE ACADEMY, LAGOS', email: 'demo@eduflow.com', type: 'K-12', kycStatus: 'Approved', subscriptionStatus: 'Active', plan: 'Pro', reportCardFormat: 'Premium Crest', subjects: ['Mathematics', 'English Language', 'Biology', 'Chemistry', 'Physics'], logo: `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none'><rect width='100' height='100' rx='20' fill='%2312132A'/><path d='M30 45 L50 25 L70 45 L60 45 L60 75 L40 75 L40 45 Z' fill='url(%23grad)'/><circle cx='50' cy='50' r='10' stroke='%23ffffff' stroke-width='3'/><defs><linearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%2317B8A6'/><stop offset='100%25' stop-color='%235B4FE0'/></linearGradient></defs></svg>` }
-      ],
+      schools: [],
       students: [],
       attendance: {},
       payments: [],
