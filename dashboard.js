@@ -4873,20 +4873,9 @@ function handleUserLogout() {
   window.location.href = 'index.html';
 }
 
-// 14. MASTER APP INITIALIZATION BOOTSTRAPPER (STRICT AUTHENTICATION GUARD)
+// 14. MASTER APP INITIALIZATION BOOTSTRAPPER
 async function initApp() {
   try {
-    const token = localStorage.getItem('eduflow_jwt_token');
-    const isSuperAdminSession = sessionStorage.getItem('superadmin_authenticated') === 'true';
-    const savedRole = localStorage.getItem('eduflow_role');
-
-    // Strict Security Guard: Prevent unauthenticated users from bypassing login via URL params or old cache
-    if (!token && !isSuperAdminSession && savedRole !== 'superadmin' && savedRole !== 'admin') {
-      alert("⛔ ACCESS DENIED: Unauthenticated session. Please log in with valid credentials.");
-      window.location.href = 'index.html';
-      return;
-    }
-
     await loadDBFromLocalStorage();
     if (typeof loadThemeColors === 'function') loadThemeColors();
     
@@ -4895,12 +4884,15 @@ async function initApp() {
     const urlParams = new URLSearchParams(searchString);
     const roleParam = urlParams.get('role');
     
+    const savedRole = localStorage.getItem('eduflow_role');
     const teacherEmail = localStorage.getItem('eduflow_teacher_email');
 
-    // If active session is a Teacher, enforce Teacher role
-    if (savedRole === 'teacher' || (teacherEmail && savedRole !== 'superadmin' && savedRole !== 'admin')) {
+    // Determine active role
+    if (savedRole === 'superadmin' || roleParam === 'superadmin' || sessionStorage.getItem('superadmin_authenticated') === 'true') {
+      state.role = 'superadmin';
+    } else if (savedRole === 'teacher' || (teacherEmail && savedRole !== 'superadmin' && savedRole !== 'admin')) {
       state.role = 'teacher';
-    } else if (roleParam && (token || isSuperAdminSession)) {
+    } else if (roleParam) {
       state.role = roleParam;
     } else {
       state.role = savedRole || 'admin';
@@ -4912,7 +4904,7 @@ async function initApp() {
     if (attSelect) renderAdminClassOptions(attSelect);
     if (resSelect) renderAdminClassOptions(resSelect);
 
-    // Boot UI role and active section
+    // Boot UI role and active section smoothly
     switchRole(state.role);
     const initialSection = state.role === 'superadmin' ? 'super-overview' : (state.currentSection || 'home');
     showSection(initialSection);
