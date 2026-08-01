@@ -1399,18 +1399,14 @@ function renderReportCard(studentId) {
       const info = getWAECGradeInfo(term3Total);
 
       const tr = document.createElement('tr');
-      tr.style.cssText = 'border-bottom: 1px solid #CBD5E1; text-align: center;';
+      tr.style.cssText = 'border-bottom: 1px solid #CBD5E1; text-align: center; font-size: 0.62rem;';
       tr.innerHTML = `
-        <td style="padding: 4px 6px; text-align: left; font-weight: 700; color: #0F172A; border-right: 1px solid #CBD5E1;">${subj}</td>
-        <td style="padding: 4px; border-right: 1px solid #CBD5E1;">${caScore}</td>
-        <td style="padding: 4px; border-right: 1px solid #CBD5E1;">${examScore}</td>
-        <td style="padding: 4px; font-weight: 800; border-right: 1px solid #CBD5E1; color: #1E3A8A;">${term3Total}</td>
-        <td style="padding: 4px; border-right: 1px solid #CBD5E1;">${term2Total}</td>
-        <td style="padding: 4px; border-right: 1px solid #CBD5E1;">${term1Total}</td>
-        <td style="padding: 4px; font-weight: 700; border-right: 1px solid #CBD5E1;">${sessAvg}</td>
-        <td style="padding: 4px; font-weight: 800; border-right: 1px solid #CBD5E1; color: ${info.color};">${info.grade}</td>
-        <td style="padding: 4px; border-right: 1px solid #CBD5E1;">8th</td>
-        <td style="padding: 4px; font-weight: 700; color: #475569;">${info.remark.toUpperCase()}</td>
+        <td style="padding: 2px 4px; text-align: left; font-weight: 700; color: #0F172A; border-right: 1px solid #CBD5E1;">${subj}</td>
+        <td style="padding: 2px; border-right: 1px solid #CBD5E1;">${caScore}</td>
+        <td style="padding: 2px; border-right: 1px solid #CBD5E1;">${examScore}</td>
+        <td style="padding: 2px; font-weight: 800; border-right: 1px solid #CBD5E1; color: #1E3A8A;">${term3Total}</td>
+        <td style="padding: 2px; font-weight: 800; border-right: 1px solid #CBD5E1; color: ${info.color};">${info.grade}</td>
+        <td style="padding: 2px 4px; font-weight: 700; color: #475569;">${info.remark.toUpperCase()}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -1435,14 +1431,14 @@ function renderReportCard(studentId) {
     const suffix = ["th", "st", "nd", "rd"][rankIdx % 10 > 3 ? 0 : rankIdx % 100 - 20 % 10 || rankIdx % 10] || "th";
 
     if (document.getElementById('card-total-obtainable')) document.getElementById('card-total-obtainable').textContent = totalObtainable.toFixed(2);
-    if (document.getElementById('card-total-obtained')) document.getElementById('card-total-obtained').textContent = scoreSum.toFixed(2);
+    if (document.getElementById('card-total-obtained')) document.getElementById('card-total-obtained').textContent = `${scoreSum.toFixed(1)} / ${totalObtainable}`;
     if (document.getElementById('card-percentage')) document.getElementById('card-percentage').textContent = `${avgPct}%`;
     if (document.getElementById('card-overall-grade')) document.getElementById('card-overall-grade').textContent = overallGrade;
     if (document.getElementById('card-position')) document.getElementById('card-position').textContent = `${rankIdx}${suffix}`;
     if (document.getElementById('card-class-size')) document.getElementById('card-class-size').textContent = classStudents.length || 21;
   }
 
-  // Affective & Psychomotor Checkmark Tables
+  // Affective & Psychomotor Checkmark Tables (Streamlined)
   const affectiveBody = document.getElementById('card-affective-body');
   if (affectiveBody) {
     const items = [
@@ -1450,16 +1446,11 @@ function renderReportCard(studentId) {
       { name: 'Honesty', val: 4 },
       { name: 'Neatness', val: 5 },
       { name: 'Politeness', val: 4 },
-      { name: 'Punctuality/ Assembly', val: 5 },
-      { name: 'Self Control/ Calmness', val: 4 },
-      { name: 'Obedience', val: 5 },
-      { name: 'Reliability', val: 4 },
-      { name: 'Sense Of Responsibility', val: 4 },
-      { name: 'Relationship With Others', val: 5 }
+      { name: 'Punctuality', val: 5 }
     ];
     affectiveBody.innerHTML = items.map(item => `
       <tr style="border-bottom: 1px solid #E2E8F0;">
-        <td style="padding: 2px 4px; font-weight: 600;">${item.name}</td>
+        <td style="padding: 1px 3px; font-weight: 600;">${item.name}</td>
         <td style="text-align: center; border-left: 1px solid #CBD5E1;">${item.val === 5 ? '✓' : ''}</td>
         <td style="text-align: center; border-left: 1px solid #CBD5E1;">${item.val === 4 ? '✓' : ''}</td>
         <td style="text-align: center; border-left: 1px solid #CBD5E1;">${item.val === 3 ? '✓' : ''}</td>
@@ -1472,16 +1463,14 @@ function renderReportCard(studentId) {
   const psychomotorBody = document.getElementById('card-psychomotor-body');
   if (psychomotorBody) {
     const items = [
-      { name: 'Handling Of Tools', val: 4 },
-      { name: 'Drawing/ Painting', val: 5 },
       { name: 'Handwriting', val: 4 },
-      { name: 'Public Speaking', val: 5 },
-      { name: 'Speech Fluency', val: 4 },
-      { name: 'Sports & Games', val: 5 }
+      { name: 'Games & Sports', val: 5 },
+      { name: 'Crafts & Drawing', val: 4 },
+      { name: 'Speech Fluency', val: 5 }
     ];
     psychomotorBody.innerHTML = items.map(item => `
       <tr style="border-bottom: 1px solid #E2E8F0;">
-        <td style="padding: 2px 4px; font-weight: 600;">${item.name}</td>
+        <td style="padding: 1px 3px; font-weight: 600;">${item.name}</td>
         <td style="text-align: center; border-left: 1px solid #CBD5E1;">${item.val === 5 ? '✓' : ''}</td>
         <td style="text-align: center; border-left: 1px solid #CBD5E1;">${item.val === 4 ? '✓' : ''}</td>
         <td style="text-align: center; border-left: 1px solid #CBD5E1;">${item.val === 3 ? '✓' : ''}</td>
@@ -1531,6 +1520,29 @@ function handleStudentPassportUpload(event) {
     alert(`📸 Child passport photo updated for ${student.name}! Saved to official student record.`);
   };
   reader.readAsDataURL(file);
+}
+
+function toggleReportCardViewMode() {
+  const sheet = document.getElementById('official-printable-sheet');
+  const btn = document.getElementById('view-mode-toggle-btn');
+  if (!sheet) return;
+
+  if (sheet.classList.contains('fit-screen-mode')) {
+    sheet.classList.remove('fit-screen-mode');
+    sheet.style.transform = '';
+    sheet.style.minWidth = '';
+    if (btn) btn.innerHTML = '📱 Fit Screen Mode';
+  } else {
+    sheet.classList.add('fit-screen-mode');
+    const containerWidth = sheet.parentElement ? sheet.parentElement.clientWidth : window.innerWidth;
+    if (containerWidth < 900) {
+      const scale = (containerWidth - 24) / 900;
+      sheet.style.transform = `scale(${Math.max(0.4, scale)})`;
+      sheet.style.transformOrigin = 'top center';
+      sheet.style.minWidth = '900px';
+    }
+    if (btn) btn.innerHTML = '🔍 Full A4 View';
+  }
 }
 
 function savePsychomotorRatings() {
