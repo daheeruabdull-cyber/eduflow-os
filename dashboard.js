@@ -4891,6 +4891,21 @@ window.switchRole = switchRole;
 window.handleUserLogout = handleUserLogout;
 window.toggleMobileSidebar = toggleMobileSidebar;
 
+// Global Event Delegation Guard: Ensures every sidebar menu item and button responds on click
+document.addEventListener('click', function(e) {
+  const link = e.target.closest('a[onclick*="showSection"], button[onclick*="showSection"], .menu-item a');
+  if (link) {
+    const onclickAttr = link.getAttribute('onclick');
+    if (onclickAttr && onclickAttr.includes('showSection')) {
+      const match = onclickAttr.match(/showSection\(['"]([^'"]+)['"]/);
+      if (match && match[1]) {
+        e.preventDefault();
+        showSection(match[1]);
+      }
+    }
+  }
+});
+
 if (document.readyState === 'loading') {
   window.addEventListener('DOMContentLoaded', initApp);
 } else {
