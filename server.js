@@ -91,43 +91,26 @@ app.post('/api/auth/login', (req, res) => {
 
   const cleanId = identifier.trim();
 
-  // 1. SaaS Super-Admin Bypass
-  if (cleanId.toLowerCase() === 'superadmin' && (password === 'password123' || !password)) {
+  // 1. SaaS Super-Admin Gateway
+  if (cleanId.toLowerCase() === 'superadmin' && password === (process.env.SUPERADMIN_PASSWORD || 'password123')) {
     const token = jwt.sign({ id: 'superadmin', role: 'superadmin' }, JWT_SECRET, { expiresIn: '4h' });
     return res.status(200).json({ token, role: 'superadmin' });
   }
 
-  // 1b. Demo Credentials Fallback Gateway (password123)
-  if (password === 'password123' || !password || password === 'admin' || password === 'teacher' || password === 'parent' || password === 'student') {
-    const idLower = cleanId.toLowerCase();
-    
-    // Principal / Admin Demo
-    if (idLower === 'demo@eduflow.com' || idLower === 'admin' || idLower === 'principal@apexschool.ng' || idLower.includes('admin') || idLower.includes('principal')) {
-      const token = jwt.sign({ id: 'school_demo', role: 'admin', schoolId: 'school_demo' }, JWT_SECRET, { expiresIn: '4h' });
-      return res.status(200).json({ token, role: 'admin', schoolId: 'school_demo', schoolName: 'EDULITE ACADEMY, LAGOS' });
-    }
-    
-    // Form Master / Teacher Demo
-    if (idLower === 'teacher@eduflow.com' || idLower === 'teacher' || idLower.includes('teacher')) {
-      const token = jwt.sign({ id: 'teacher_1', role: 'teacher', schoolId: 'school_demo' }, JWT_SECRET, { expiresIn: '4h' });
-      return res.status(200).json({ token, role: 'teacher', schoolId: 'school_demo', email: 'teacher@eduflow.com' });
-    }
-
-    // Parent Demo
-    if (idLower === 'parent@eduflow.com' || idLower === 'parent' || idLower === 'parent.tobi@gmail.com' || idLower.includes('parent')) {
-      const token = jwt.sign({ id: 'parent@eduflow.com', role: 'parent', children: [1] }, JWT_SECRET, { expiresIn: '4h' });
-      return res.status(200).json({ token, role: 'parent', email: 'parent@eduflow.com', children: [1] });
-    }
-
-    // Student Demo
-    if (idLower === 'tobi@eduflow.com' || idLower === 'student' || idLower === '2026/g10a/001' || idLower.includes('student') || idLower.includes('2026/')) {
-      const token = jwt.sign({ id: 1, role: 'student', schoolId: 'school_demo', studentId: 1 }, JWT_SECRET, { expiresIn: '4h' });
-      return res.status(200).json({ token, role: 'student', schoolId: 'school_demo', studentId: 1, studentName: 'Adebayo Tobi' });
+  // 2. School Admin Sign-In (Authentication against real hashed password chosen by school during registration)
+  const schoolQuery = db.prepare("SELECT * FROM schools WHERE id = ? OR LOWER(email) = ?");
+  const school = schoolQuery.get(cleanId, cleanId.toLowerCase());
+  if (school) {
+    if (bcrypt.compareSync(password || '', school.password)) {
+      const token = jwt.sign({ id: school.id, role: 'admin', schoolId: school.id }, JWT_SECRET, { expiresIn: '4h' });
+      return res.status(200).json({ token, role: 'admin', schoolId: school.id, schoolName: school.name });
+    } else {
+      return res.status(401).json({ error: 'Incorrect school password entered.' });
     }
   }
 
-  // 2. Parent Portal Sign-In
-  const parentQuery = db.prepare("SELECT * FROM parents WHERE email = ?");
+  // 3. Parent Portal Sign-In
+  const parentQuery = db.prepare("SELECT * FROM parents WHERE LOWER(email) = ?");
   const parent = parentQuery.get(cleanId.toLowerCase());
   if (parent) {
     if (bcrypt.compareSync(password || '', parent.password)) {
@@ -139,19 +122,7 @@ app.post('/api/auth/login', (req, res) => {
     }
   }
 
-  // 3. School Admin Sign-In (check email or school ID)
-  const schoolQuery = db.prepare("SELECT * FROM schools WHERE id = ? OR email = ?");
-  const school = schoolQuery.get(cleanId, cleanId.toLowerCase());
-  if (school) {
-    if (bcrypt.compareSync(password || '', school.password)) {
-      const token = jwt.sign({ id: school.id, role: 'admin', schoolId: school.id }, JWT_SECRET, { expiresIn: '4h' });
-      return res.status(200).json({ token, role: 'admin', schoolId: school.id, schoolName: school.name });
-    } else {
-      return res.status(401).json({ error: 'Incorrect portal access credentials.' });
-    }
-  }
-
-  // 4. Teacher Sign-In (by Email, ID, or Username lookup)
+  // 4. Teacher Sign-In
   const teacherQuery = db.prepare("SELECT * FROM teachers WHERE LOWER(email) = ? OR LOWER(id) = ? OR LOWER(name) = ?");
   const teacher = teacherQuery.get(cleanId.toLowerCase(), cleanId.toLowerCase(), cleanId.toLowerCase());
   if (teacher) {
@@ -254,8 +225,46 @@ app.post('/api/v1/onboard/validate-csv', (req, res) => {
 // Step 4: Complete Onboarding & Launch Endpoint
 app.post('/api/v1/onboard/complete', (req, res) => {
   const payload = req.body;
+  const { schoolName, adminEmail, password, category, state, lga } = payload;
   
-  // Simulated WhatsApp & SMS broadcast trigger
+  if (schoolName && adminEmail && password) {
+    const slug = (schoolName || 'school').toLowerCase().replace(/[^\w]/g, '');
+    const schoolId = `school_${slug}`;
+    const hashedPassword = bcrypt.hashSync(password, 10);
+
+    const insertSchool = db.prepare(`
+      INSERT OR REPLACE INTO schools (id, name, email, type, kycStatus, subscriptionStatus, plan, reportCardFormat, password, logo, classes, config)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const defaultConfig = {
+      school_name: schoolName,
+      school_email: adminEmail,
+      school_state: state || 'Bauchi',
+      school_lga: lga || 'Azare',
+      classes: ["SSS 1", "SSS 2", "SSS 3", "JSS 1", "JSS 2", "JSS 3", "Primary 1", "Primary 2", "Primary 3", "Primary 4", "Primary 5", "Primary 6"],
+      school_term: "First Term 2026",
+      tuition: 150000,
+      theme_primary: "#5B4FE0",
+      theme_accent: "#17B8A6"
+    };
+
+    insertSchool.run(
+      schoolId,
+      schoolName,
+      adminEmail.toLowerCase(),
+      category || 'All-Through',
+      'Approved',
+      'Active',
+      'Pro',
+      'Premium Crest',
+      hashedPassword,
+      '',
+      JSON.stringify(defaultConfig.classes),
+      JSON.stringify(defaultConfig)
+    );
+  }
+
   console.log(`[WhatsApp Broadcast Engine] Dispatched magic login links to ${payload.validatedRows ? payload.validatedRows.length : 0} contacts for ${payload.schoolName || 'Campus'}`);
 
   return res.status(200).json({

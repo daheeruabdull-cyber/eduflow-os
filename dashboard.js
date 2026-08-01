@@ -1545,6 +1545,15 @@ function toggleReportCardViewMode() {
   }
 }
 
+function clearLocalDemoCache() {
+  if (confirm("🧹 Clean Local Cache?\n\nThis will reset local browser demo cache and reload a clean production workspace. Real registered schools and database records will remain safe.")) {
+    localStorage.clear();
+    sessionStorage.clear();
+    alert("✨ Local cache cleaned! Reloading clean workspace...");
+    window.location.href = 'index.html';
+  }
+}
+
 function savePsychomotorRatings() {
   const student = state.db.students.find(s => s.id === state.currentStudentId);
   if (!student) {
