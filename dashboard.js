@@ -4954,7 +4954,8 @@ async function initApp() {
 
     // Boot UI role and active section
     switchRole(state.role);
-    showSection(state.currentSection || 'home');
+    const initialSection = state.role === 'superadmin' ? 'super-overview' : (state.currentSection || 'home');
+    showSection(initialSection);
   } catch(err) {
     console.error("Critical error during Eduflow App initialization:", err);
   }

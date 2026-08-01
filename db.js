@@ -189,9 +189,14 @@ function initSchema() {
   `);
 }
 
-// 2. Seed default data if empty (Clean Production - No hardcoded demo data)
+// 2. Seed default data if empty (Clean Production - Wipe all old registrations)
 function seedDatabase() {
-  console.log("SQLite database initialized for Clean Production Tenant Register.");
+  try {
+    db.exec("DELETE FROM schools; DELETE FROM students; DELETE FROM attendance; DELETE FROM payments; DELETE FROM timetable; DELETE FROM notifications; DELETE FROM parents; DELETE FROM teachers;");
+    console.log("SQLite Database wiped clean! All previous demo accounts and registered schools purged.");
+  } catch(e) {
+    console.warn("DB wipe notice:", e);
+  }
 }
 
 // Initialize
