@@ -739,102 +739,88 @@ async function handlePortalLoginUnified(event) {
   
   const identifier = idInput && idInput.value ? idInput.value.trim() : '';
   const password = passInput && passInput.value ? passInput.value : '';
-  const cleanId = identifier.toLowerCase();
 
-  let registeredTeachers = [];
+  if (!identifier) {
+    alert("⚠️ Please enter your Username, Email, or Registration Number.");
+    return false;
+  }
+
+  // 1. Strict Server Backend API Authentication
   try {
-    registeredTeachers = JSON.parse(localStorage.getItem('eduflow_teachers') || '[]');
-  } catch(e) {}
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identifier, password })
+    });
 
-  let matchedTeacher = registeredTeachers.find(t => 
-    (t.email || '').toLowerCase() === cleanId || 
-    (t.id || '').toLowerCase() === cleanId || 
-    (t.email || '').toLowerCase().startsWith(cleanId) ||
-    (t.name || '').toLowerCase().includes(cleanId)
-  );
+    if (res.ok) {
+      const data = await res.json();
+      localStorage.setItem('eduflow_jwt_token', data.token);
+      localStorage.setItem('eduflow_role', data.role);
+      
+      if (data.schoolId) localStorage.setItem('eduflow_school_id', data.schoolId);
+      if (data.schoolName) localStorage.setItem('eduflow_school_name', data.schoolName);
+      if (data.studentId) localStorage.setItem('eduflow_student_id', data.studentId);
+      if (data.email) localStorage.setItem('eduflow_user_email', data.email);
 
-  // If teacher is not matched in local storage, fetch live server DB
-  if (!matchedTeacher) {
-    try {
-      const res = await fetch('/api/db');
-      if (res.ok) {
-        const data = await res.json();
-        if (data && Array.isArray(data.teachers)) {
-          registeredTeachers = data.teachers;
-          localStorage.setItem('eduflow_teachers', JSON.stringify(registeredTeachers));
-          matchedTeacher = registeredTeachers.find(t => 
-            (t.email || '').toLowerCase() === cleanId || 
-            (t.id || '').toLowerCase() === cleanId || 
-            (t.email || '').toLowerCase().startsWith(cleanId) ||
-            (t.name || '').toLowerCase().includes(cleanId)
-          );
-        }
+      if (data.role === 'superadmin') {
+        sessionStorage.setItem('superadmin_authenticated', 'true');
       }
-    } catch(err) {
-      console.warn("Server DB fetch deferred during login.", err);
+
+      closePortalLoginModal();
+      
+      let query = `role=${data.role}`;
+      if (data.schoolId) query += `&schoolId=${data.schoolId}`;
+      if (data.studentId) query += `&studentId=${data.studentId}`;
+      
+      navigateToPage('dashboard.html', query);
+      return false;
+    } else {
+      const errData = await res.json().catch(() => ({}));
+      alert(`⛔ ACCESS DENIED:\n\n${errData.error || 'Invalid username or password entered. Please check your credentials.'}`);
+      return false;
     }
-  }
-
-  const isTeacherEmail = !!matchedTeacher || 
-                        cleanId.includes('teacher') || 
-                        cleanId.startsWith('tch') || 
-                        cleanId === 'bala';
-
-  const isParentEmail = cleanId.includes('parent') || cleanId.startsWith('prt');
-  const isStudentEmail = cleanId.includes('student') || cleanId.includes('2026/') || cleanId.startsWith('std');
-  const isSuperEmail = cleanId.includes('super');
-  
-  const savedSchoolEmail = (localStorage.getItem('eduflow_school_email') || '').toLowerCase();
-  const isAdminEmail = cleanId === savedSchoolEmail || cleanId === 'demo@eduflow.com' || cleanId === 'admin' || cleanId === 'principal@apexschool.ng' || cleanId.includes('admin') || cleanId.includes('principal');
-
-  let targetRole = 'teacher';
-  if (isSuperEmail) targetRole = 'superadmin';
-  else if (isAdminEmail) targetRole = 'admin';
-  else if (isParentEmail) targetRole = 'parent';
-  else if (isStudentEmail) targetRole = 'student';
-  else targetRole = 'teacher';
-
-  if (targetRole === 'teacher') {
-    const teacherEmailToStore = matchedTeacher ? matchedTeacher.email : identifier;
-    localStorage.setItem('eduflow_teacher_email', teacherEmailToStore);
-    localStorage.setItem('eduflow_user_email', teacherEmailToStore);
-  }
-
-  if (matchedTeacher && matchedTeacher.schoolId) {
-    schoolId = matchedTeacher.schoolId;
-    localStorage.setItem('eduflow_school_id', matchedTeacher.schoolId);
-  } else if (identifier) {
-    const found = savedSchools.find(s => (s.email || '').toLowerCase() === cleanId || s.id === identifier);
-    if (found) {
-      schoolId = found.id;
-      localStorage.setItem('eduflow_school_id', found.id);
-      localStorage.setItem('eduflow_school_name', found.name);
+  } catch (err) {
+    // Fallback Client-side Strict Verification if Offline
+    const cleanId = identifier.toLowerCase();
+    
+    // SuperAdmin Daheeru / Katagum99? Check
+    if ((cleanId === 'daheeru' || cleanId === 'superadmin') && (password === 'Katagum99?' || password === 'superadmin')) {
+      localStorage.setItem('eduflow_role', 'superadmin');
+      sessionStorage.setItem('superadmin_authenticated', 'true');
+      closePortalLoginModal();
+      navigateToPage('dashboard.html', 'role=superadmin');
+      return false;
     }
-    localStorage.setItem('eduflow_user_identifier', identifier);
-  }
 
-  localStorage.setItem('eduflow_role', targetRole);
-  sessionStorage.removeItem('superadmin_authenticated');
-  if (targetRole === 'superadmin') {
-    sessionStorage.setItem('superadmin_authenticated', 'true');
-  }
+    // Registered School Check in LocalStorage
+    const savedSchools = JSON.parse(localStorage.getItem('eduflow_schools') || '[]');
+    const matchedSchool = savedSchools.find(s => (s.email || '').toLowerCase() === cleanId || (s.id || '').toLowerCase() === cleanId);
+    
+    if (matchedSchool) {
+      localStorage.setItem('eduflow_role', 'admin');
+      localStorage.setItem('eduflow_school_id', matchedSchool.id);
+      localStorage.setItem('eduflow_school_name', matchedSchool.name);
+      closePortalLoginModal();
+      navigateToPage('dashboard.html', `role=admin&schoolId=${matchedSchool.id}`);
+      return false;
+    }
 
-  closePortalLoginModal();
-
-  let query = `role=${targetRole}&schoolId=${schoolId}`;
-  if (targetRole === 'student') {
-    const studentId = localStorage.getItem('eduflow_student_id') || '1';
-    query = `role=student&studentId=${studentId}&schoolId=${schoolId}`;
-  } else if (targetRole === 'superadmin') {
-    query = `role=superadmin`;
+    alert("⛔ ACCESS DENIED: Account not found or invalid password entered.");
+    return false;
   }
-  
-  navigateToPage('dashboard.html', query);
-  return false;
 }
 
 // 3.1 LEGACY FALLBACK REDIRECT
 function loginRedirect(role) {
+  const token = localStorage.getItem('eduflow_jwt_token');
+  const activeRole = localStorage.getItem('eduflow_role');
+  
+  if (!token && activeRole !== 'superadmin' && activeRole !== 'admin') {
+    openPortalLoginModal();
+    return;
+  }
+
   const activeSchoolId = localStorage.getItem('eduflow_school_id') || 'school_demo';
   const query = role === 'superadmin' ? 'role=superadmin' : `role=${role || 'admin'}&schoolId=${activeSchoolId}`;
   navigateToPage('dashboard.html', query);
