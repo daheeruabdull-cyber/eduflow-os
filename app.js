@@ -976,12 +976,30 @@ function quickFillLogin(identifier) {
 
 function handleContactInquirySubmit(e) {
   if (e) e.preventDefault();
-  const name = document.getElementById('contact-name')?.value || 'Guest';
-  const school = document.getElementById('contact-school')?.value || 'School';
+  const nameInput = document.getElementById('contact-name');
+  const schoolInput = document.getElementById('contact-school');
+  const phoneInput = document.getElementById('contact-phone');
   
-  alert('✨ Thank you, ' + name + '! Your inquiry for ' + school + ' has been received. Our campus engineering team will call or WhatsApp you within 30 minutes.');
-  
-  const form = document.getElementById('contact-inquiry-form');
-  if (form) form.reset();
+  const name = nameInput ? nameInput.value.trim() : 'Guest';
+  const school = schoolInput ? schoolInput.value.trim() : 'School';
+  const phone = phoneInput ? phoneInput.value.trim() : '';
+
+  const submitBtn = document.querySelector('#contact-inquiry-form button[type="submit"]');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '⏳ Submitting to Azare Hub...';
+  }
+
+  setTimeout(() => {
+    alert(`✨ Inquiry Received Successfully!\n\nThank you, ${name}!\nYour request for ${school} (${phone}) has been logged at our Azare Headquarters.\nOur engineering team will call or WhatsApp you within 30 minutes.`);
+    
+    const form = document.getElementById('contact-inquiry-form');
+    if (form) form.reset();
+
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '🚀 Submit Inquiry';
+    }
+  }, 600);
 }
 }

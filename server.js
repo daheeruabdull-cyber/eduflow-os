@@ -3,16 +3,49 @@ const path = require('path');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const helmet = require('helmet');
+const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 const db = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
-const JWT_SECRET = 'eduflow_saas_secret_key_12345';
+const JWT_SECRET = process.env.JWT_SECRET || 'eduflow_saas_secret_key_12345';
+
+// 1. SECURITY LAYER: Helmet HTTP Security Headers
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false
+}));
+
+// 2. SECURITY LAYER: CORS Origin Control
+app.use(cors());
+
+// 3. SECURITY LAYER: Anti Brute-Force & Anti DDoS Rate Limiting
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 15, // Max 15 login attempts per IP per 15 minutes
+  message: { error: 'Too many login attempts. Please try again after 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 150, // Max 150 requests per minute
+  message: { error: 'API rate limit exceeded. Please slow down.' }
+});
+
+app.use('/api/auth/login', authLimiter);
+app.use('/api/', apiLimiter);
 
 app.use(express.json({ limit: '50mb' }));
 
-// Force no-cache headers for static files to guarantee instant updates on Render
+// 4. SECURITY LAYER: Anti-Sniffing & Cache Control Headers
 app.use((req, res, next) => {
+  res.set('X-Frame-Options', 'SAMEORIGIN');
+  res.set('X-Content-Type-Options', 'nosniff');
+  res.set('X-XSS-Protection', '1; mode=block');
   res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.set('Pragma', 'no-cache');
   res.set('Expires', '0');
