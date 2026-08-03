@@ -4219,6 +4219,7 @@ function renderSuperAdminEnhancements() {
           <p style="font-size: 0.7rem; color: var(--text-muted); margin: 0;">Server Engine • 3 hrs ago</p>
         </div>
       </div>
+    `;
   }
   
   renderOfficialInquiriesTable();
