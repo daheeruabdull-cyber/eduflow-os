@@ -244,7 +244,13 @@ function showSection(sectionId, event) {
     event.preventDefault();
   }
   
-  if (state.role === 'teacher') {
+  // Strict RBAC Router Enforcement
+  if (state.role === 'superadmin') {
+    const validSuperSections = ['super-overview', 'super-directory', 'super-security', 'super-kyc', 'super-setup', 'super-rosters', 'super-schedules', 'super-billing', 'super-outbox'];
+    if (!validSuperSections.includes(sectionId)) {
+      sectionId = 'super-overview';
+    }
+  } else if (state.role === 'teacher') {
     const restrictedTeacherSections = ['settings', 'fees', 'analytics', 'super-overview', 'super-directory', 'super-security', 'super-kyc', 'super-setup', 'super-rosters', 'super-schedules', 'super-billing', 'super-outbox'];
     if (restrictedTeacherSections.includes(sectionId)) {
       alert("⛔ ACCESS RESTRICTED: School Control, Financial Invoices, and Admin Setup are reserved for the School Principal.");
@@ -321,6 +327,13 @@ function showSection(sectionId, event) {
 
 function switchRole(role) {
   state.role = role;
+  if (role === 'superadmin') {
+    state.currentSection = 'super-overview';
+  } else if (role === 'admin' || role === 'teacher' || role === 'student') {
+    if (state.currentSection.startsWith('super-')) {
+      state.currentSection = 'home';
+    }
+  }
   
   // Update switcher banner buttons
   const btnAdmin = document.getElementById('btn-role-admin');

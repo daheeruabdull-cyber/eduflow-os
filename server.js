@@ -80,6 +80,18 @@ function authenticateToken(req, res, next) {
   });
 }
 
+// Helper Middleware to enforce Role-Based Access Control (RBAC)
+function requireRole(allowedRoles) {
+  return (req, res, next) => {
+    if (!req.user) return res.status(401).json({ error: 'Authentication required' });
+    const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ error: `Access denied. Required role: ${roles.join(' or ')}.` });
+    }
+    next();
+  };
+}
+
 // ==================== AUTHENTICATION ENDPOINTS ====================
 
 // unified single sign-in gateway
