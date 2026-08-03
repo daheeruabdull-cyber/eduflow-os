@@ -4901,15 +4901,19 @@ async function initApp() {
     const savedRole = localStorage.getItem('eduflow_role');
     const teacherEmail = localStorage.getItem('eduflow_teacher_email');
 
-    // Determine active role
-    if (savedRole === 'superadmin' || roleParam === 'superadmin' || sessionStorage.getItem('superadmin_authenticated') === 'true') {
+    // Determine active role with strict role precedence
+    if (roleParam === 'superadmin' || savedRole === 'superadmin' || sessionStorage.getItem('superadmin_authenticated') === 'true') {
       state.role = 'superadmin';
-    } else if (savedRole === 'teacher' || (teacherEmail && savedRole !== 'superadmin' && savedRole !== 'admin')) {
+    } else if (roleParam === 'admin' || savedRole === 'admin') {
+      state.role = 'admin';
+    } else if (roleParam === 'teacher' || savedRole === 'teacher') {
       state.role = 'teacher';
-    } else if (roleParam) {
-      state.role = roleParam;
+    } else if (roleParam === 'parent' || savedRole === 'parent') {
+      state.role = 'parent';
+    } else if (roleParam === 'student' || savedRole === 'student') {
+      state.role = 'student';
     } else {
-      state.role = savedRole || 'admin';
+      state.role = 'admin';
     }
 
     // Populate Admin Class options across dropdowns

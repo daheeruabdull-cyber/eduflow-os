@@ -758,14 +758,27 @@ async function handlePortalLoginUnified(event) {
       localStorage.setItem('eduflow_jwt_token', data.token);
       localStorage.setItem('eduflow_role', data.role);
       
+      if (data.role === 'admin') {
+        localStorage.removeItem('eduflow_teacher_email');
+        localStorage.removeItem('eduflow_parent_email');
+        localStorage.removeItem('eduflow_student_id');
+      } else if (data.role === 'teacher') {
+        if (data.email) localStorage.setItem('eduflow_teacher_email', data.email);
+        localStorage.removeItem('eduflow_parent_email');
+        localStorage.removeItem('eduflow_student_id');
+      } else if (data.role === 'parent') {
+        if (data.email) localStorage.setItem('eduflow_parent_email', data.email);
+        localStorage.removeItem('eduflow_teacher_email');
+      } else if (data.role === 'superadmin') {
+        sessionStorage.setItem('superadmin_authenticated', 'true');
+        localStorage.removeItem('eduflow_teacher_email');
+        localStorage.removeItem('eduflow_parent_email');
+      }
+      
       if (data.schoolId) localStorage.setItem('eduflow_school_id', data.schoolId);
       if (data.schoolName) localStorage.setItem('eduflow_school_name', data.schoolName);
       if (data.studentId) localStorage.setItem('eduflow_student_id', data.studentId);
       if (data.email) localStorage.setItem('eduflow_user_email', data.email);
-
-      if (data.role === 'superadmin') {
-        sessionStorage.setItem('superadmin_authenticated', 'true');
-      }
 
       closePortalLoginModal();
       
