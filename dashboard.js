@@ -4915,7 +4915,6 @@ async function initApp() {
     const urlParams = new URLSearchParams(searchString);
     const roleParam = urlParams.get('role');
     
-    const savedRole = localStorage.getItem('eduflow_role');
     const teacherEmail = localStorage.getItem('eduflow_teacher_email');
 
     // Determine active role with strict role precedence
