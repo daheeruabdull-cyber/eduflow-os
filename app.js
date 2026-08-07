@@ -850,6 +850,14 @@ async function handlePortalLoginUnified(event) {
   }
 }
 
+// Explicitly bind to window for global inline event handlers (onsubmit/onclick)
+if (typeof window !== 'undefined') {
+  window.handlePortalLoginUnified = handlePortalLoginUnified;
+  window.openPortalLoginModal = openPortalLoginModal;
+  window.closePortalLoginModal = closePortalLoginModal;
+  window.navigateToPage = navigateToPage;
+}
+
 // 3.1 LEGACY FALLBACK REDIRECT
 function loginRedirect(role) {
   const token = localStorage.getItem('eduflow_jwt_token');
