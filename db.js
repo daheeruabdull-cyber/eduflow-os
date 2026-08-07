@@ -200,38 +200,14 @@ function initSchema() {
   `);
 }
 
-// 2. Seed default data if empty (Preserve registered schools & seed default Principal account)
+// 2. Pure Clean Production Database Initializer (Zero Demo Data)
 function seedDatabase() {
-  try {
-    const row = db.prepare("SELECT COUNT(*) as count FROM schools").get();
-    if (!row || row.count === 0) {
-      const defaultPass = bcrypt.hashSync('admin123', 10);
-      const insertStmt = db.prepare(`
-        INSERT INTO schools (id, name, email, type, kycStatus, subscriptionStatus, plan, reportCardFormat, password, logo, classes, config)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `);
-      insertStmt.run(
-        'school_demo',
-        'Eduflow Demo Academy',
-        'admin@eduflow.com',
-        'K-12 Private Campus',
-        'Approved',
-        'Active',
-        'Enterprise Plan',
-        'Premium Crest',
-        defaultPass,
-        '',
-        JSON.stringify(["SSS 1 Science", "SSS 2 Science", "SSS 3", "JSS 1", "Primary 1", "Nursery 1"]),
-        JSON.stringify({})
-      );
-      console.log("Seeded default Principal School Account (admin@eduflow.com / admin123).");
-    }
-  } catch(e) {
-    console.warn("DB seed notice:", e);
-  }
+  // Database initialized completely clean and empty.
+  // Registered school campuses, students, teachers, and parents persist permanently.
+  console.log("Pristine Production Database Initialized: 0 Demo Records.");
 }
 
-// Initialize
+// Initialize Schema & Clean Production Environment
 initSchema();
 seedDatabase();
 
