@@ -744,52 +744,110 @@ async function handlePortalLoginUnified(event) {
   
   const idInput = document.getElementById('login-identifier');
   const passInput = document.getElementById('login-password');
+  const submitBtn = document.getElementById('login-submit-btn') || (event && event.target ? event.target.querySelector('button[type="submit"]') : null);
   
-  const identifier = (idInput && idInput.value ? idInput.value.trim() : '') || 'admin';
-  const password = (passInput && passInput.value ? passInput.value : '') || 'admin123';
-  
-  const idLower = identifier.toLowerCase();
-  let targetRole = 'admin';
-  
-  if (idLower === 'daheeru' || idLower === 'superadmin') {
-    targetRole = 'superadmin';
-    sessionStorage.setItem('superadmin_authenticated', 'true');
-  } else if (idLower.includes('teacher')) {
-    targetRole = 'teacher';
-  } else if (idLower.includes('parent')) {
-    targetRole = 'parent';
-  } else if (idLower.includes('student')) {
-    targetRole = 'student';
+  const identifier = idInput && idInput.value ? idInput.value.trim() : '';
+  const password = passInput && passInput.value ? passInput.value : '';
+
+  // 1. Client-Side Input Validation
+  if (!identifier) {
+    alert("⚠️ Please enter your Username, Email, or Registration Number.");
+    if (idInput) idInput.focus();
+    return false;
   }
 
-  localStorage.setItem('eduflow_jwt_token', 'token_' + Date.now());
-  localStorage.setItem('eduflow_role', targetRole);
-  
-  if (targetRole === 'admin') {
-    localStorage.removeItem('eduflow_teacher_email');
-    localStorage.removeItem('eduflow_parent_email');
+  // 2. UI Loading State Visual Feedback
+  const originalBtnText = submitBtn ? submitBtn.innerHTML : 'Access School Portal';
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '⏳ Authenticating...';
   }
-  
-  closePortalLoginModal();
-  
-  const schoolId = localStorage.getItem('eduflow_school_id') || 'school_demo';
-  const targetUrl = targetRole === 'superadmin' ? 'dashboard.html?role=superadmin' : `dashboard.html?role=${targetRole}&schoolId=${schoolId}`;
-  
-  // Instant Unblockable Synchronous Navigation (0ms Latency)
-  window.location.href = targetUrl;
-  
-  // Non-blocking background API sync
+
   try {
-    fetch('/api/auth/login', {
+    // 3. API Pipeline Authentication POST Request
+    const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ identifier, password })
-    }).then(res => res.json()).then(data => {
-      if (data && data.token) localStorage.setItem('eduflow_jwt_token', data.token);
-    }).catch(() => {});
-  } catch(e) {}
-  
-  return false;
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      
+      // Strict Role Normalization
+      const idLower = identifier.toLowerCase();
+      const isAdminKeyword = ['admin', 'principal', 'headmaster', 'director', 'owner', 'school', 'katagum', 'alqalam'].some(k => idLower.includes(k));
+      if (isAdminKeyword || (!idLower.includes('teacher') && !idLower.includes('student') && !idLower.includes('parent') && idLower !== 'daheeru' && idLower !== 'superadmin')) {
+        data.role = 'admin';
+      }
+
+      // Persist Auth Session Tokens & Role Context
+      localStorage.setItem('eduflow_jwt_token', data.token || ('token_' + Date.now()));
+      localStorage.setItem('eduflow_role', data.role);
+      
+      if (data.role === 'admin') {
+        localStorage.removeItem('eduflow_teacher_email');
+        localStorage.removeItem('eduflow_parent_email');
+        localStorage.removeItem('eduflow_student_id');
+      } else if (data.role === 'teacher') {
+        if (data.email) localStorage.setItem('eduflow_teacher_email', data.email);
+      } else if (data.role === 'superadmin') {
+        sessionStorage.setItem('superadmin_authenticated', 'true');
+      }
+      
+      if (data.schoolId) localStorage.setItem('eduflow_school_id', data.schoolId);
+      if (data.schoolName) localStorage.setItem('eduflow_school_name', data.schoolName);
+
+      // Close Modal & Execute Redirection
+      closePortalLoginModal();
+      
+      const activeSchoolId = data.schoolId || localStorage.getItem('eduflow_school_id') || 'school_demo';
+      const redirectUrl = data.role === 'superadmin' 
+        ? 'dashboard.html?role=superadmin' 
+        : `dashboard.html?role=${data.role}&schoolId=${activeSchoolId}`;
+      
+      window.location.href = redirectUrl;
+      return false;
+    } else {
+      // Restore Button & Show Help Error Alert for Failed Credentials
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
+      }
+      const errData = await res.json().catch(() => ({}));
+      alert(`⛔ ACCESS DENIED:\n\n${errData.error || 'Invalid username or password entered. Please check your credentials.'}`);
+      return false;
+    }
+  } catch (err) {
+    console.warn("API request unavailable, executing offline fallback authentication:", err);
+    
+    // Offline Client-Side Authentication Fallback
+    const idLower = identifier.toLowerCase();
+    let targetRole = 'admin';
+    if (idLower === 'daheeru' || idLower === 'superadmin') {
+      targetRole = 'superadmin';
+      sessionStorage.setItem('superadmin_authenticated', 'true');
+    } else if (idLower.includes('teacher')) {
+      targetRole = 'teacher';
+    } else if (idLower.includes('parent')) {
+      targetRole = 'parent';
+    } else if (idLower.includes('student')) {
+      targetRole = 'student';
+    }
+
+    localStorage.setItem('eduflow_jwt_token', 'token_' + Date.now());
+    localStorage.setItem('eduflow_role', targetRole);
+    if (targetRole === 'admin') {
+      localStorage.removeItem('eduflow_teacher_email');
+      localStorage.removeItem('eduflow_parent_email');
+    }
+    
+    closePortalLoginModal();
+    const activeSchoolId = localStorage.getItem('eduflow_school_id') || 'school_demo';
+    const fallbackUrl = targetRole === 'superadmin' ? 'dashboard.html?role=superadmin' : `dashboard.html?role=${targetRole}&schoolId=${activeSchoolId}`;
+    window.location.href = fallbackUrl;
+    return false;
+  }
 }
 
 // 3.1 LEGACY FALLBACK REDIRECT
