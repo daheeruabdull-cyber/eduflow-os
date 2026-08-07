@@ -693,6 +693,14 @@ async function registerSchoolOnboarding() {
 }
 
 // 3. PORTAL SIGN-IN MODAL CONTROLLERS
+function navigateToPage(page, query) {
+  let targetUrl = page || 'dashboard.html';
+  if (query) {
+    targetUrl += (targetUrl.includes('?') ? '&' : '?') + query;
+  }
+  window.location.href = targetUrl;
+}
+
 function openPortalLoginModal(e) {
   if (e && typeof e.preventDefault === 'function') e.preventDefault();
   closeSchoolRegistrationModal();
