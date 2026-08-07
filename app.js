@@ -755,6 +755,14 @@ async function handlePortalLoginUnified(event) {
 
     if (res.ok) {
       const data = await res.json();
+      
+      // Strict Principal Role Enforcer: Force role=admin if identifier is an Admin/Principal account
+      const idLower = identifier.toLowerCase();
+      const isAdminKeyword = ['admin', 'principal', 'headmaster', 'director', 'owner', 'school', 'katagum', 'alqalam'].some(k => idLower.includes(k));
+      if (isAdminKeyword || (!idLower.includes('teacher') && !idLower.includes('student') && !idLower.includes('parent') && idLower !== 'daheeru' && idLower !== 'superadmin')) {
+        data.role = 'admin';
+      }
+
       localStorage.setItem('eduflow_jwt_token', data.token);
       localStorage.setItem('eduflow_role', data.role);
       
