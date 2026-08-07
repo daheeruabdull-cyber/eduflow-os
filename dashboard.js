@@ -4893,9 +4893,20 @@ function handleUserLogout() {
   window.location.href = 'index.html';
 }
 
-// 14. MASTER APP INITIALIZATION BOOTSTRAPPER
+// 14. MASTER APP INITIALIZATION BOOTSTRAPPER & ROUTE GUARD
 async function initApp() {
   try {
+    // 1. Strict Client-Side Dashboard Route Protection Guard
+    const token = localStorage.getItem('eduflow_jwt_token');
+    const savedRole = localStorage.getItem('eduflow_role');
+    const isSuperAdminAuth = sessionStorage.getItem('superadmin_authenticated') === 'true';
+
+    if (!token && !savedRole && !isSuperAdminAuth) {
+      console.warn("Unauthorized direct URL access attempt. Redirecting to login page...");
+      window.location.href = 'index.html#login';
+      return;
+    }
+
     await loadDBFromLocalStorage();
     if (typeof loadThemeColors === 'function') loadThemeColors();
     
