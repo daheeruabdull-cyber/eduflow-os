@@ -189,6 +189,87 @@ app.post('/api/auth/login', (req, res) => {
   return res.status(401).json({ success: false, message: 'Invalid credentials or account does not exist in system database.' });
 });
 
+// ==================== PRINCIPAL USER CREATION & ROLE ASSIGNMENT ====================
+app.post('/api/principal/create-account', (req, res) => {
+  const { fullName, role, classAssigned, subjectsAssigned, username, password, schoolId } = req.body;
+
+  if (!fullName || !username || !password || !role) {
+    return res.status(400).json({ success: false, message: 'Full name, role, username, and password are required.' });
+  }
+
+  const cleanUsername = username.trim().toLowerCase();
+  const activeSchoolId = schoolId || 'school_demo';
+  const hashedPassword = bcrypt.hashSync(password, 10);
+
+  try {
+    // 1. Duplicate Username Verification across DB tables
+    const existingTeacher = db.prepare("SELECT * FROM teachers WHERE LOWER(id) = ? OR LOWER(email) = ?").get(cleanUsername, cleanUsername);
+    const existingStudent = db.prepare("SELECT * FROM students WHERE LOWER(id) = ? OR LOWER(rollNumber) = ?").get(cleanUsername, cleanUsername);
+
+    if (existingTeacher || existingStudent) {
+      return res.status(400).json({ success: false, message: 'Username or ID number already registered in database.' });
+    }
+
+    // 2. Insert into appropriate role table
+    const normalizedRole = role.toLowerCase().replace(/\s+/g, '_');
+
+    if (normalizedRole === 'teacher' || normalizedRole === 'form_master') {
+      const email = cleanUsername.includes('@') ? cleanUsername : `${cleanUsername}@eduflow.ng`;
+      const insertStmt = db.prepare(`
+        INSERT INTO teachers (id, name, email, role, assignedClass, subjects, schoolId, password, createdAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      insertStmt.run(
+        username.trim(),
+        fullName.trim(),
+        email,
+        normalizedRole === 'form_master' ? 'Form Master' : 'Teacher',
+        classAssigned || 'General',
+        Array.isArray(subjectsAssigned) ? JSON.stringify(subjectsAssigned) : (subjectsAssigned || 'Mathematics'),
+        activeSchoolId,
+        hashedPassword,
+        new Date().toISOString()
+      );
+    } else if (normalizedRole === 'student') {
+      const insertStmt = db.prepare(`
+        INSERT INTO students (id, rollNumber, name, class, gender, guardianPhone, fees, results, schoolId, password, createdAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      insertStmt.run(
+        username.trim(),
+        username.trim(),
+        fullName.trim(),
+        classAssigned || 'JSS 1',
+        'Unspecified',
+        '08012345678',
+        JSON.stringify({ tuition: { amount: 45000, paid: false }, pta: { amount: 5000, paid: false } }),
+        JSON.stringify({}),
+        activeSchoolId,
+        hashedPassword,
+        new Date().toISOString()
+      );
+    }
+
+    console.log(`Successfully created ${normalizedRole} account for ${fullName} (${username})`);
+    return res.status(200).json({
+      success: true,
+      message: 'Account created and activated successfully.',
+      user: {
+        id: username.trim(),
+        fullName: fullName.trim(),
+        role: normalizedRole,
+        classAssigned: classAssigned || 'General',
+        subjectsAssigned: subjectsAssigned || 'N/A',
+        username: username.trim(),
+        status: 'Active'
+      }
+    });
+  } catch (err) {
+    console.error("Error creating principal managed account:", err);
+    return res.status(500).json({ success: false, message: 'Database error creating user account: ' + err.message });
+  }
+});
+
 // ==================== 4-STAGE NIGERIAN ONBOARDING ENGINE ENDPOINTS ====================
 
 // Step 1: Provision Campus Tenant Endpoint

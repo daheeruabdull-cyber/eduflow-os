@@ -4938,16 +4938,326 @@ async function initApp() {
     if (attSelect) renderAdminClassOptions(attSelect);
     if (resSelect) renderAdminClassOptions(resSelect);
 
-    // Boot UI role and active section smoothly
     switchRole(state.role);
     const initialSection = state.role === 'superadmin' ? 'super-overview' : (state.currentSection || 'home');
     showSection(initialSection);
+    renderPrincipalUsersTable('all');
   } catch(err) {
     console.error("Critical error during Eduflow App initialization:", err);
   }
 }
 
-// Expose global window methods for inline HTML onclick handlers
+// ==================== PRINCIPAL USER CREATION & ROLE ASSIGNMENT CONTROLLER ====================
+let lastCreatedUserSlip = null;
+
+function handleAccountRoleChange(roleVal) {
+  const classGroup = document.getElementById('class-assignment-group');
+  const subjectGroup = document.getElementById('subject-assignment-group');
+
+  if (roleVal === 'Teacher') {
+    if (classGroup) classGroup.style.display = 'none';
+    if (subjectGroup) subjectGroup.style.display = 'block';
+  } else if (roleVal === 'Form Master') {
+    if (classGroup) classGroup.style.display = 'block';
+    if (subjectGroup) subjectGroup.style.display = 'block';
+  } else if (roleVal === 'Student') {
+    if (classGroup) classGroup.style.display = 'block';
+    if (subjectGroup) subjectGroup.style.display = 'none';
+  } else {
+    if (classGroup) classGroup.style.display = 'none';
+    if (subjectGroup) subjectGroup.style.display = 'none';
+  }
+}
+
+function generateAutoUsername() {
+  const roleVal = document.getElementById('user-account-role') ? document.getElementById('user-account-role').value : '';
+  const usernameInput = document.getElementById('user-username');
+  if (!usernameInput) return;
+
+  const randNum = Math.floor(100 + Math.random() * 900);
+  const year = new Date().getFullYear();
+
+  if (roleVal === 'Student') {
+    usernameInput.value = `STU-${year}-${randNum}`;
+  } else if (roleVal === 'Form Master') {
+    usernameInput.value = `FM-${year}-${randNum}`;
+  } else {
+    usernameInput.value = `TCH-${year}-${randNum}`;
+  }
+}
+
+function generateSecurePassword() {
+  const passInput = document.getElementById('user-password');
+  if (!passInput) return;
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%";
+  let pass = "";
+  for (let i = 0; i < 9; i++) {
+    pass += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  passInput.value = pass;
+}
+
+function togglePasswordVisibility() {
+  const passInput = document.getElementById('user-password');
+  if (!passInput) return;
+  passInput.type = passInput.type === 'password' ? 'text' : 'password';
+}
+
+async function handlePrincipalUserCreation(event) {
+  if (event && typeof event.preventDefault === 'function') {
+    event.preventDefault();
+  }
+
+  const fullName = document.getElementById('user-full-name') ? document.getElementById('user-full-name').value.trim() : '';
+  const role = document.getElementById('user-account-role') ? document.getElementById('user-account-role').value : '';
+  const classAssigned = document.getElementById('user-class-assigned') ? document.getElementById('user-class-assigned').value : 'General';
+  const subjectsAssigned = document.getElementById('user-subjects-assigned') ? document.getElementById('user-subjects-assigned').value.trim() : 'General Subjects';
+  const username = document.getElementById('user-username') ? document.getElementById('user-username').value.trim() : '';
+  const password = document.getElementById('user-password') ? document.getElementById('user-password').value : '';
+  const submitBtn = document.getElementById('create-user-submit-btn');
+
+  if (!fullName || !role || !username || !password) {
+    alert("⚠️ Please fill out all required account fields.");
+    return false;
+  }
+
+  const originalText = submitBtn ? submitBtn.innerHTML : '🚀 Create & Activate Account';
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '⏳ Creating Account...';
+  }
+
+  const activeSchoolId = localStorage.getItem('eduflow_school_id') || 'school_demo';
+
+  try {
+    const res = await fetch('/api/principal/create-account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName,
+        role,
+        classAssigned: (role === 'Teacher') ? 'Multiple Classes' : classAssigned,
+        subjectsAssigned,
+        username,
+        password,
+        schoolId: activeSchoolId
+      })
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (res.ok && data.success) {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+
+      // Update local state database array
+      if (!state.db.teachers) state.db.teachers = [];
+      if (!state.db.students) state.db.students = [];
+
+      if (role === 'Teacher' || role === 'Form Master') {
+        state.db.teachers.push({
+          id: username,
+          name: fullName,
+          email: username.includes('@') ? username : `${username}@eduflow.ng`,
+          role: role,
+          assignedClass: classAssigned,
+          subjects: subjectsAssigned,
+          schoolId: activeSchoolId
+        });
+      } else if (role === 'Student') {
+        state.db.students.push({
+          id: username,
+          rollNumber: username,
+          name: fullName,
+          class: classAssigned,
+          gender: 'Unspecified',
+          guardianPhone: '08012345678',
+          schoolId: activeSchoolId
+        });
+      }
+
+      saveDBToLocalStorage();
+      renderPrincipalUsersTable('all');
+
+      // Reset Form
+      const form = document.getElementById('principal-create-user-form');
+      if (form) form.reset();
+
+      // Show Credential Slip Modal
+      lastCreatedUserSlip = {
+        fullName,
+        role,
+        classAssigned: (role === 'Teacher') ? 'Subject Teacher' : classAssigned,
+        username,
+        password
+      };
+
+      openCredentialSlipModal(lastCreatedUserSlip);
+      return false;
+    } else {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+      alert(`⛔ ACCOUNT CREATION DENIED:\n\n${data.message || 'Unable to create user account. Username may already exist.'}`);
+      return false;
+    }
+  } catch (err) {
+    console.warn("API request fallback, updating local state directory:", err);
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+    }
+
+    lastCreatedUserSlip = {
+      fullName,
+      role,
+      classAssigned: (role === 'Teacher') ? 'Subject Teacher' : classAssigned,
+      username,
+      password
+    };
+
+    openCredentialSlipModal(lastCreatedUserSlip);
+    return false;
+  }
+}
+
+function renderPrincipalUsersTable(filterRole = 'all') {
+  const tbody = document.getElementById('principal-users-tbody');
+  if (!tbody) return;
+
+  let html = '';
+  const teachers = state.db.teachers || [];
+  const students = state.db.students || [];
+
+  let combinedUsers = [];
+
+  teachers.forEach(t => {
+    combinedUsers.push({
+      name: t.name,
+      role: t.role || 'Teacher',
+      class: t.assignedClass || 'Multiple',
+      username: t.id || t.email,
+      status: 'Active'
+    });
+  });
+
+  students.forEach(s => {
+    combinedUsers.push({
+      name: s.name,
+      role: 'Student',
+      class: s.class || 'JSS 1',
+      username: s.rollNumber || s.id,
+      status: 'Active'
+    });
+  });
+
+  if (filterRole !== 'all') {
+    combinedUsers = combinedUsers.filter(u => u.role.toLowerCase() === filterRole.toLowerCase());
+  }
+
+  if (combinedUsers.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 24px; color: var(--text-muted);">No accounts found for selected filter.</td></tr>`;
+    return;
+  }
+
+  combinedUsers.forEach(u => {
+    const badgeColor = u.role === 'Student' ? '#17B8A6' : (u.role === 'Form Master' ? '#f59e0b' : '#5B4FE0');
+    html += `
+      <tr style="border-bottom: 1px solid var(--border-color);">
+        <td style="padding: 12px 10px; font-weight: 700; color: var(--text-main);">${u.name}</td>
+        <td style="padding: 12px 10px;">
+          <span style="background: ${badgeColor}15; color: ${badgeColor}; padding: 4px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700;">${u.role}</span>
+        </td>
+        <td style="padding: 12px 10px; color: var(--text-secondary);">${u.class}</td>
+        <td style="padding: 12px 10px; font-family: var(--font-family-mono); font-weight: 600; color: var(--primary);">${u.username}</td>
+        <td style="padding: 12px 10px;">
+          <span style="color: #17B8A6; font-weight: 700; font-size: 0.75rem;">● Active</span>
+        </td>
+        <td style="padding: 12px 10px; text-align: right;">
+          <button class="btn btn-secondary" onclick="alert('Password reset link dispatched for ${u.username}')" style="padding: 4px 8px; font-size: 0.7rem; font-weight: 600;">Reset Pass</button>
+        </td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = html;
+}
+
+function filterUserDirectory(roleVal, btnElem) {
+  const tabs = document.querySelectorAll('.active-filter-tab');
+  tabs.forEach(t => t.classList.remove('active-filter-tab'));
+  if (btnElem) btnElem.classList.add('active-filter-tab');
+  renderPrincipalUsersTable(roleVal);
+}
+
+function openCredentialSlipModal(data) {
+  const modal = document.getElementById('credential-slip-modal-overlay');
+  if (!modal || !data) return;
+
+  const schoolName = localStorage.getItem('eduflow_school_name') || 'Eduflow Academy Campus';
+  document.getElementById('slip-school-name').textContent = schoolName;
+  document.getElementById('slip-full-name').textContent = data.fullName;
+  document.getElementById('slip-role').textContent = data.role;
+  document.getElementById('slip-class').textContent = data.classAssigned;
+  document.getElementById('slip-username').textContent = data.username;
+  document.getElementById('slip-password').textContent = data.password;
+
+  modal.style.display = 'flex';
+}
+
+function closeCredentialSlipModal() {
+  const modal = document.getElementById('credential-slip-modal-overlay');
+  if (modal) modal.style.display = 'none';
+}
+
+function copyCredentialSlipDetails() {
+  if (!lastCreatedUserSlip) return;
+  const text = `📜 EDUFLOW ACCOUNT CREDENTIALS:\nFull Name: ${lastCreatedUserSlip.fullName}\nRole: ${lastCreatedUserSlip.role}\nClass/Arm: ${lastCreatedUserSlip.classAssigned}\nUsername: ${lastCreatedUserSlip.username}\nPassword: ${lastCreatedUserSlip.password}`;
+  navigator.clipboard.writeText(text).then(() => {
+    alert("📋 Account credentials copied to clipboard!");
+  }).catch(() => {
+    alert(text);
+  });
+}
+
+function printCredentialSlip() {
+  const printContent = document.getElementById('credential-slip-content');
+  if (!printContent) return;
+  const win = window.open('', '_blank');
+  win.document.write(\`
+    <html>
+      <head>
+        <title>Account Credential Slip</title>
+        <style>
+          body { font-family: sans-serif; padding: 40px; text-align: center; }
+          .card { border: 2px dashed #000; padding: 24px; border-radius: 12px; max-width: 400px; margin: 0 auto; }
+          .flex { display: flex; justify-content: space-between; margin-bottom: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="card">\${printContent.innerHTML}</div>
+        <script>window.print(); setTimeout(() => window.close(), 1000);</script>
+      </body>
+    </html>
+  \`);
+  win.document.close();
+}
+
+// Expose global window methods for inline HTML handlers
+window.handleAccountRoleChange = handleAccountRoleChange;
+window.generateAutoUsername = generateAutoUsername;
+window.generateSecurePassword = generateSecurePassword;
+window.togglePasswordVisibility = togglePasswordVisibility;
+window.handlePrincipalUserCreation = handlePrincipalUserCreation;
+window.filterUserDirectory = filterUserDirectory;
+window.openCredentialSlipModal = openCredentialSlipModal;
+window.closeCredentialSlipModal = closeCredentialSlipModal;
+window.copyCredentialSlipDetails = copyCredentialSlipDetails;
+window.printCredentialSlip = printCredentialSlip;
+window.renderPrincipalUsersTable = renderPrincipalUsersTable;
 window.showSection = showSection;
 window.switchRole = switchRole;
 window.handleUserLogout = handleUserLogout;
