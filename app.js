@@ -677,9 +677,16 @@ async function registerSchoolOnboarding() {
       console.warn("Background sync error ignored.", e);
     }
 
+    // Explicitly persist Principal role & clear any legacy superadmin flags
+    localStorage.setItem('eduflow_jwt_token', token || ('token_' + Date.now()));
+    localStorage.setItem('eduflow_role', 'admin');
+    localStorage.setItem('userRole', 'admin');
+    localStorage.setItem('authToken', token || ('token_' + Date.now()));
+    sessionStorage.removeItem('superadmin_authenticated');
+
     closeSchoolRegistrationModal();
     
-    // Redirect instantly to Admin dashboard with specific schoolId and status context
+    // Redirect instantly to Principal (Admin) dashboard with specific schoolId and status context
     const redirectUrl = (paymentMethod === 'Manual') 
       ? `dashboard.html?role=admin&schoolId=${schoolId}&pendingVerify=true`
       : `dashboard.html?role=admin&schoolId=${schoolId}`;

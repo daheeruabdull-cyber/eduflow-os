@@ -4917,17 +4917,20 @@ async function initApp() {
     
     const teacherEmail = localStorage.getItem('eduflow_teacher_email');
 
-    // Determine active role with strict role precedence
-    if (roleParam === 'superadmin' || savedRole === 'superadmin' || sessionStorage.getItem('superadmin_authenticated') === 'true') {
+    // Determine active role with strict URL parameter precedence
+    if (roleParam) {
+      state.role = roleParam;
+      if (roleParam !== 'superadmin') {
+        sessionStorage.removeItem('superadmin_authenticated');
+        localStorage.setItem('eduflow_role', roleParam);
+        localStorage.setItem('userRole', roleParam);
+      } else {
+        sessionStorage.setItem('superadmin_authenticated', 'true');
+      }
+    } else if (savedRole) {
+      state.role = savedRole;
+    } else if (sessionStorage.getItem('superadmin_authenticated') === 'true') {
       state.role = 'superadmin';
-    } else if (roleParam === 'admin' || savedRole === 'admin') {
-      state.role = 'admin';
-    } else if (roleParam === 'teacher' || savedRole === 'teacher') {
-      state.role = 'teacher';
-    } else if (roleParam === 'parent' || savedRole === 'parent') {
-      state.role = 'parent';
-    } else if (roleParam === 'student' || savedRole === 'student') {
-      state.role = 'student';
     } else {
       state.role = 'admin';
     }
