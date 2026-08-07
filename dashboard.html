@@ -149,13 +149,13 @@
     </aside>
 
     <!-- Mobile Sidebar Backdrop -->
-    <div id="sidebar-mobile-backdrop" onclick="toggleMobileSidebar()" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 1050; backdrop-filter: blur(4px);"></div>
+    <div id="sidebar-mobile-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 1050; backdrop-filter: blur(4px);"></div>
 
     <!-- App Body Content -->
     <main class="app-content">
       <header class="app-header">
         <div class="app-header-inner">
-          <button class="mobile-menu-toggle btn btn-secondary" onclick="toggleMobileSidebar()" style="padding: 6px 10px; font-size: 1.1rem; margin-right: 12px; font-weight: 700;">☰</button>
+          <button id="mobileSidebarToggle" class="mobile-menu-toggle btn btn-secondary" style="padding: 6px 10px; font-size: 1.1rem; margin-right: 12px; font-weight: 700;">☰</button>
 
           <div class="header-search" id="header-search-container">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -2693,6 +2693,6 @@
     </div>
   </div>
 
-  <script src="dashboard.js?v=23.0.0"></script>
+  <script src="dashboard.js?v=24.0.0"></script>
 </body>
 </html>

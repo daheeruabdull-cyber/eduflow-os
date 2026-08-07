@@ -4969,6 +4969,24 @@ document.addEventListener('click', function(e) {
   }
 });
 
+// Clean Modern DOM Event Listener for Mobile Sidebar Toggle
+document.addEventListener('DOMContentLoaded', () => {
+  const mobileToggleBtn = document.getElementById('mobileSidebarToggle');
+  const backdrop = document.getElementById('sidebar-mobile-backdrop');
+
+  if (mobileToggleBtn) {
+    mobileToggleBtn.addEventListener('click', () => {
+      toggleMobileSidebar();
+    });
+  }
+  
+  if (backdrop) {
+    backdrop.addEventListener('click', () => {
+      toggleMobileSidebar();
+    });
+  }
+});
+
 if (document.readyState === 'loading') {
   window.addEventListener('DOMContentLoaded', initApp);
 } else {
