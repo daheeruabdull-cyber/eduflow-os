@@ -4969,22 +4969,43 @@ document.addEventListener('click', function(e) {
   }
 });
 
-// Clean Modern DOM Event Listener for Mobile Sidebar Toggle
+// Clean Modern DOM Event Delegation for Mobile Sidebar Controller
 document.addEventListener('DOMContentLoaded', () => {
-  const mobileToggleBtn = document.getElementById('mobileSidebarToggle');
-  const backdrop = document.getElementById('sidebar-mobile-backdrop');
+  const sidebar = document.getElementById('sidebar') || document.querySelector('.app-sidebar');
+  const toggleBtn = document.getElementById('mobileSidebarToggle');
+  const closeBtn = document.getElementById('sidebarCloseBtn');
+  const overlay = document.getElementById('sidebar-mobile-backdrop') || document.getElementById('sidebarOverlay');
 
-  if (mobileToggleBtn) {
-    mobileToggleBtn.addEventListener('click', () => {
-      toggleMobileSidebar();
-    });
+  function toggleMenu() {
+    if (sidebar) {
+      sidebar.classList.toggle('open');
+      sidebar.classList.toggle('active');
+      sidebar.classList.toggle('mobile-open');
+    }
+    if (overlay) {
+      overlay.classList.toggle('active');
+      overlay.classList.toggle('open');
+      if (overlay.style.display === 'block') {
+        overlay.style.display = 'none';
+      } else {
+        overlay.style.display = 'block';
+      }
+    }
   }
-  
-  if (backdrop) {
-    backdrop.addEventListener('click', () => {
-      toggleMobileSidebar();
+
+  if (toggleBtn) toggleBtn.addEventListener('click', toggleMenu);
+  if (closeBtn) closeBtn.addEventListener('click', toggleMenu);
+  if (overlay) overlay.addEventListener('click', toggleMenu);
+
+  // Auto-dismiss sidebar on mobile when navigating menu sections
+  const menuLinks = document.querySelectorAll('.sidebar-menu a, .menu-item a');
+  menuLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth <= 1024 && sidebar && (sidebar.classList.contains('open') || sidebar.classList.contains('active') || sidebar.classList.contains('mobile-open'))) {
+        toggleMenu();
+      }
     });
-  }
+  });
 });
 
 if (document.readyState === 'loading') {
