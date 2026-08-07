@@ -773,15 +773,16 @@ async function handlePortalLoginUnified(event) {
 
     const data = await response.json().catch(() => ({}));
 
-    // 4. Strict Conditional Redirect: ONLY for verified registered users
+    // 4. Dynamic Role-Based Redirection Engine
     if (response.ok && data.success && data.token) {
-      const userRole = (data.user && data.user.role) ? data.user.role : data.role;
+      const rawRole = (data.user && data.user.role) ? data.user.role : (data.role || 'admin');
+      const role = rawRole.toLowerCase();
       const schoolId = (data.user && data.user.schoolId) ? data.user.schoolId : (data.schoolId || 'school_demo');
       
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('eduflow_jwt_token', data.token);
-      localStorage.setItem('userRole', userRole);
-      localStorage.setItem('eduflow_role', userRole);
+      localStorage.setItem('userRole', role);
+      localStorage.setItem('eduflow_role', role);
       
       if (schoolId) {
         localStorage.setItem('eduflow_school_id', schoolId);
@@ -790,11 +791,31 @@ async function handlePortalLoginUnified(event) {
         localStorage.setItem('eduflow_school_name', data.schoolName);
       }
 
+      if (role === 'superadmin') {
+        sessionStorage.setItem('superadmin_authenticated', 'true');
+        localStorage.removeItem('eduflow_teacher_email');
+        localStorage.removeItem('eduflow_parent_email');
+      } else {
+        sessionStorage.removeItem('superadmin_authenticated');
+      }
+
       closePortalLoginModal();
 
-      const redirectUrl = userRole === 'superadmin' 
-        ? 'dashboard.html?role=superadmin' 
-        : `dashboard.html?role=${userRole}&schoolId=${schoolId}`;
+      // Dynamic RBAC Redirection Router
+      let redirectUrl = 'dashboard.html?role=admin';
+      if (role === 'superadmin') {
+        redirectUrl = 'dashboard.html?role=superadmin';
+      } else if (role === 'principal' || role === 'admin') {
+        redirectUrl = `dashboard.html?role=admin&schoolId=${schoolId}`;
+      } else if (role === 'teacher') {
+        redirectUrl = `dashboard.html?role=teacher&schoolId=${schoolId}`;
+      } else if (role === 'parent') {
+        redirectUrl = `dashboard.html?role=parent`;
+      } else if (role === 'student') {
+        redirectUrl = `dashboard.html?role=student&schoolId=${schoolId}`;
+      } else {
+        redirectUrl = 'dashboard.html?role=admin';
+      }
       
       window.location.href = redirectUrl;
       return false;
