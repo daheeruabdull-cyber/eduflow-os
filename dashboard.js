@@ -5227,22 +5227,12 @@ function printCredentialSlip() {
   const printContent = document.getElementById('credential-slip-content');
   if (!printContent) return;
   const win = window.open('', '_blank');
-  win.document.write(\`
-    <html>
-      <head>
-        <title>Account Credential Slip</title>
-        <style>
-          body { font-family: sans-serif; padding: 40px; text-align: center; }
-          .card { border: 2px dashed #000; padding: 24px; border-radius: 12px; max-width: 400px; margin: 0 auto; }
-          .flex { display: flex; justify-content: space-between; margin-bottom: 12px; }
-        </style>
-      </head>
-      <body>
-        <div class="card">\${printContent.innerHTML}</div>
-        <script>window.print(); setTimeout(() => window.close(), 1000);</script>
-      </body>
-    </html>
-  \`);
+  const slipHtml = printContent.innerHTML;
+  win.document.write(
+    '<html><head><title>Account Credential Slip</title><style>body{font-family:sans-serif;padding:40px;text-align:center;}.card{border:2px dashed #000;padding:24px;border-radius:12px;max-width:400px;margin:0 auto;}</style></head><body><div class="card">' +
+    slipHtml +
+    '</div><script>window.print(); setTimeout(function(){ window.close(); }, 1000);</script></body></html>'
+  );
   win.document.close();
 }
 
