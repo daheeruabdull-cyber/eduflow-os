@@ -764,88 +764,65 @@ async function handlePortalLoginUnified(event) {
   }
 
   try {
-    // 3. API Pipeline Authentication POST Request
-    const res = await fetch('/api/auth/login', {
+    // 3. API POST Request Pipeline
+    const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ identifier, password })
     });
 
-    if (res.ok) {
-      const data = await res.json();
+    const data = await response.json().catch(() => ({}));
+
+    // 4. Strict Conditional Redirect: ONLY for verified registered users
+    if (response.ok && data.success && data.token) {
+      const userRole = (data.user && data.user.role) ? data.user.role : data.role;
+      const schoolId = (data.user && data.user.schoolId) ? data.user.schoolId : (data.schoolId || 'school_demo');
       
-      // Strict Role Normalization
-      const idLower = identifier.toLowerCase();
-      const isAdminKeyword = ['admin', 'principal', 'headmaster', 'director', 'owner', 'school', 'katagum', 'alqalam'].some(k => idLower.includes(k));
-      if (isAdminKeyword || (!idLower.includes('teacher') && !idLower.includes('student') && !idLower.includes('parent') && idLower !== 'daheeru' && idLower !== 'superadmin')) {
-        data.role = 'admin';
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('eduflow_jwt_token', data.token);
+      localStorage.setItem('userRole', userRole);
+      localStorage.setItem('eduflow_role', userRole);
+      
+      if (schoolId) {
+        localStorage.setItem('eduflow_school_id', schoolId);
+      }
+      if (data.schoolName) {
+        localStorage.setItem('eduflow_school_name', data.schoolName);
       }
 
-      // Persist Auth Session Tokens & Role Context
-      localStorage.setItem('eduflow_jwt_token', data.token || ('token_' + Date.now()));
-      localStorage.setItem('eduflow_role', data.role);
-      
-      if (data.role === 'admin') {
-        localStorage.removeItem('eduflow_teacher_email');
-        localStorage.removeItem('eduflow_parent_email');
-        localStorage.removeItem('eduflow_student_id');
-      } else if (data.role === 'teacher') {
-        if (data.email) localStorage.setItem('eduflow_teacher_email', data.email);
-      } else if (data.role === 'superadmin') {
-        sessionStorage.setItem('superadmin_authenticated', 'true');
-      }
-      
-      if (data.schoolId) localStorage.setItem('eduflow_school_id', data.schoolId);
-      if (data.schoolName) localStorage.setItem('eduflow_school_name', data.schoolName);
-
-      // Close Modal & Execute Redirection
       closePortalLoginModal();
-      
-      const activeSchoolId = data.schoolId || localStorage.getItem('eduflow_school_id') || 'school_demo';
-      const redirectUrl = data.role === 'superadmin' 
+
+      const redirectUrl = userRole === 'superadmin' 
         ? 'dashboard.html?role=superadmin' 
-        : `dashboard.html?role=${data.role}&schoolId=${activeSchoolId}`;
+        : `dashboard.html?role=${userRole}&schoolId=${schoolId}`;
       
       window.location.href = redirectUrl;
       return false;
     } else {
-      // Restore Button & Show Help Error Alert for Failed Credentials
+      // Clear any previous token and display error alert
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('eduflow_jwt_token');
+      localStorage.removeItem('eduflow_role');
+
       if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalBtnText;
       }
-      const errData = await res.json().catch(() => ({}));
-      alert(`⛔ ACCESS DENIED:\n\n${errData.error || 'Invalid username or password entered. Please check your credentials.'}`);
+
+      alert(data.message || 'Access Denied: Account not registered.');
       return false;
     }
   } catch (err) {
-    console.warn("API request unavailable, executing offline fallback authentication:", err);
+    console.error("Login API network error:", err);
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('eduflow_jwt_token');
     
-    // Offline Client-Side Authentication Fallback
-    const idLower = identifier.toLowerCase();
-    let targetRole = 'admin';
-    if (idLower === 'daheeru' || idLower === 'superadmin') {
-      targetRole = 'superadmin';
-      sessionStorage.setItem('superadmin_authenticated', 'true');
-    } else if (idLower.includes('teacher')) {
-      targetRole = 'teacher';
-    } else if (idLower.includes('parent')) {
-      targetRole = 'parent';
-    } else if (idLower.includes('student')) {
-      targetRole = 'student';
-    }
-
-    localStorage.setItem('eduflow_jwt_token', 'token_' + Date.now());
-    localStorage.setItem('eduflow_role', targetRole);
-    if (targetRole === 'admin') {
-      localStorage.removeItem('eduflow_teacher_email');
-      localStorage.removeItem('eduflow_parent_email');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnText;
     }
     
-    closePortalLoginModal();
-    const activeSchoolId = localStorage.getItem('eduflow_school_id') || 'school_demo';
-    const fallbackUrl = targetRole === 'superadmin' ? 'dashboard.html?role=superadmin' : `dashboard.html?role=${targetRole}&schoolId=${activeSchoolId}`;
-    window.location.href = fallbackUrl;
+    alert('⛔ Network Error: Unable to verify credentials with server.');
     return false;
   }
 }

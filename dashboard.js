@@ -4897,8 +4897,8 @@ function handleUserLogout() {
 async function initApp() {
   try {
     // 1. Strict Client-Side Dashboard Route Protection Guard
-    const token = localStorage.getItem('eduflow_jwt_token');
-    const savedRole = localStorage.getItem('eduflow_role');
+    const token = localStorage.getItem('authToken') || localStorage.getItem('eduflow_jwt_token');
+    const savedRole = localStorage.getItem('userRole') || localStorage.getItem('eduflow_role');
     const isSuperAdminAuth = sessionStorage.getItem('superadmin_authenticated') === 'true';
 
     if (!token && !savedRole && !isSuperAdminAuth) {
