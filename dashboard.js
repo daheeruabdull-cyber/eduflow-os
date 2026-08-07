@@ -2271,11 +2271,17 @@ function parseQueryRole() {
   state.role = role;
 }
 
+async function initDB() {
+  if (typeof loadDBFromLocalStorage === 'function') {
+    await loadDBFromLocalStorage();
+  }
+}
+
 // 15. WINDOW DOM LOADER
 window.addEventListener('DOMContentLoaded', async () => {
   parseQueryRole();
   await initDB();
-  loadThemeColors();
+  if (typeof loadThemeColors === 'function') loadThemeColors();
   
   if (state.role === 'superadmin') {
     // Hide standard switcher banner & search bar
