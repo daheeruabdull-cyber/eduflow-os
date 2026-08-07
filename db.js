@@ -200,13 +200,34 @@ function initSchema() {
   `);
 }
 
-// 2. Seed default data if empty (Clean Production - Wipe all old registrations)
+// 2. Seed default data if empty (Preserve registered schools & seed default Principal account)
 function seedDatabase() {
   try {
-    db.exec("DELETE FROM schools; DELETE FROM students; DELETE FROM attendance; DELETE FROM payments; DELETE FROM timetable; DELETE FROM notifications; DELETE FROM parents; DELETE FROM teachers;");
-    console.log("SQLite Database wiped clean! All previous demo accounts and registered schools purged.");
+    const row = db.prepare("SELECT COUNT(*) as count FROM schools").get();
+    if (!row || row.count === 0) {
+      const defaultPass = bcrypt.hashSync('admin123', 10);
+      const insertStmt = db.prepare(`
+        INSERT INTO schools (id, name, email, type, kycStatus, subscriptionStatus, plan, reportCardFormat, password, logo, classes, config)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      insertStmt.run(
+        'school_demo',
+        'Eduflow Demo Academy',
+        'admin@eduflow.com',
+        'K-12 Private Campus',
+        'Approved',
+        'Active',
+        'Enterprise Plan',
+        'Premium Crest',
+        defaultPass,
+        '',
+        JSON.stringify(["SSS 1 Science", "SSS 2 Science", "SSS 3", "JSS 1", "Primary 1", "Nursery 1"]),
+        JSON.stringify({})
+      );
+      console.log("Seeded default Principal School Account (admin@eduflow.com / admin123).");
+    }
   } catch(e) {
-    console.warn("DB wipe notice:", e);
+    console.warn("DB seed notice:", e);
   }
 }
 
