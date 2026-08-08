@@ -598,11 +598,11 @@ function renderDashboardStats() {
     if (studentTraj) studentTraj.style.display = 'block';
 
     const attElem = document.getElementById('stat-attendance-rate');
-    if (attElem) attElem.textContent = student.attendanceRate;
+    if (attElem) attElem.textContent = student ? (student.attendanceRate || '100%') : '100%';
     
     let totalScoreSum = 0;
     let subjectCount = 0;
-    if (student.grades) {
+    if (student && student.grades) {
       Object.keys(student.grades).forEach(subj => {
         totalScoreSum += (student.grades[subj].ca || 0) + (student.grades[subj].exam || 0);
         subjectCount++;
@@ -614,7 +614,7 @@ function renderDashboardStats() {
     
     // Student outstanding fees
     let outstanding = 0;
-    if (student.fees) {
+    if (student && student.fees) {
       Object.keys(student.fees).forEach(feeKey => {
         if (!student.fees[feeKey].paid) {
           outstanding += student.fees[feeKey].amount || 0;
@@ -4105,7 +4105,7 @@ function renderStudentDashboardEnhancements() {
   // 2. Attendance Streaks Badge & Percentage
   const streakPct = document.getElementById('student-streak-pct');
   const streakBadge = document.getElementById('student-streak-badge');
-  if (streakPct) streakPct.textContent = student.attendanceRate || '97.5%';
+  if (streakPct) streakPct.textContent = student ? (student.attendanceRate || '97.5%') : '97.5%';
   if (streakBadge) streakBadge.textContent = '🔥 5-DAY STREAK';
 
   // 3. Student Trajectory Line Chart
