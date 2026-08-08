@@ -1,9 +1,4 @@
 // Eduflow School OS - Dashboard Logic Engine
-(function() {
-  // Purge legacy demo localStorage caches to prevent old demo accounts from loading
-  const legacyKeys = ['eduflow_local_db', 'eduflow_registered_schools', 'eduflow_schools', 'eduflow_students', 'eduflow_teachers', 'eduflow_attendance', 'eduflow_payments'];
-  legacyKeys.forEach(k => localStorage.removeItem(k));
-})();
 
 // 1. DATABASE SCHEMA & CONSTANTS (Clean Production Defaults - Zero Demo Students)
 const DEFAULT_STUDENTS = [];
@@ -4627,6 +4622,23 @@ async function fetchAndRenderSuperTenantsAndKyc() {
 
     const tenants = Array.from(tenantMap.values());
     superTenantsCache = tenants;
+
+    // 0. UPDATE SUPERADMIN COMMAND CENTER STAT CARDS
+    const totalCount = tenants.length;
+    const pendingKycCount = tenants.filter(t => t.kycStatus === 'Pending' || t.kycStatus === 'pending_kyc').length;
+    const activeSubCount = tenants.filter(t => t.kycStatus === 'Approved' || t.kycStatus === 'active' || t.subscriptionStatus === 'Active').length;
+
+    const elTotal = document.getElementById('super-stat-total-schools');
+    const elPending = document.getElementById('super-stat-pending-kyc');
+    const elActive = document.getElementById('super-stat-active-subs');
+    const elMrr = document.getElementById('super-stat-mrr-revenue');
+    const elArr = document.getElementById('super-stat-arr-revenue');
+
+    if (elTotal) elTotal.textContent = totalCount;
+    if (elPending) elPending.textContent = pendingKycCount;
+    if (elActive) elActive.textContent = activeSubCount;
+    if (elMrr) elMrr.textContent = `₦${(activeSubCount * 7500).toLocaleString()}`;
+    if (elArr) elArr.textContent = `₦${(activeSubCount * 90000).toLocaleString()}`;
 
     // 1. Render Tenant Campuses Directory Table (#super-schools-directory-tbody)
     if (directoryTbody) {
