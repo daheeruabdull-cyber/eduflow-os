@@ -413,6 +413,7 @@ app.post('/api/onboarding/complete', (req, res) => {
 app.get('/api/superadmin/tenants-kyc', (req, res) => {
   try {
     const schools = db.prepare("SELECT * FROM schools").all();
+    console.log("[SUPERADMIN DB QUERY RESULTS] Fetching tenants list from SQLite database:", schools.length, "schools found.");
     const tenants = schools.map(s => {
       let config = {};
       try { config = JSON.parse(s.config || '{}'); } catch(e) {}

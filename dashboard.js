@@ -4544,9 +4544,88 @@ async function fetchAndRenderSuperTenantsAndKyc() {
   if (!directoryTbody && !kycQueueList) return;
 
   try {
-    const res = await fetch('/api/superadmin/tenants-kyc');
-    const data = await res.json();
-    const tenants = data.tenants || [];
+    // 1. Fetch server-persisted SQLite tenants
+    let serverTenants = [];
+    try {
+      const res = await fetch('/api/superadmin/tenants-kyc');
+      if (res.ok) {
+        const data = await res.json();
+        serverTenants = data.tenants || [];
+      }
+    } catch(e) {
+      console.warn("Server API fetch warning:", e);
+    }
+
+    // 2. Merge local storage registered schools registry for 100% offline & online coverage
+    let localRegistered = [];
+    try {
+      localRegistered = JSON.parse(localStorage.getItem('eduflow_registered_schools') || '[]');
+    } catch(e) {}
+
+    let rawSchools = (state.rawDB && state.rawDB.schools) ? state.rawDB.schools : [];
+
+    // Map all sources into a unified tenant list with strict deduplication by ID or Email
+    const tenantMap = new Map();
+
+    serverTenants.forEach(st => {
+      const key = (st.id || st.email).toLowerCase();
+      tenantMap.set(key, {
+        id: st.id,
+        school_name: st.school_name || st.name || 'Unnamed Campus',
+        principal_name: st.principal_name || st.registrar || 'Principal Admin',
+        email: st.email,
+        phone: st.phone || 'N/A',
+        state: st.state || 'Lagos',
+        lga: st.lga || 'Ikeja',
+        plan: st.plan || 'Free',
+        kycStatus: st.kycStatus || 'Pending',
+        paymentMethod: st.paymentMethod || 'Online',
+        paymentProof: st.paymentProof || '',
+        registeredAt: st.registeredAt || '2026-08-08'
+      });
+    });
+
+    localRegistered.forEach(lr => {
+      const key = (lr.id || lr.email).toLowerCase();
+      if (!tenantMap.has(key)) {
+        tenantMap.set(key, {
+          id: lr.id || `school_${Date.now()}`,
+          school_name: lr.name || 'Unnamed Campus',
+          principal_name: lr.registrar || 'Principal Admin',
+          email: lr.email,
+          phone: lr.phone || 'N/A',
+          state: lr.state || 'Lagos',
+          lga: lr.lga || 'Ikeja',
+          plan: lr.plan || 'Free',
+          kycStatus: lr.kycStatus || 'Pending',
+          paymentMethod: lr.paymentMethod || 'Online',
+          paymentProof: lr.paymentProof || '',
+          registeredAt: '2026-08-08'
+        });
+      }
+    });
+
+    rawSchools.forEach(rs => {
+      const key = (rs.id || rs.email).toLowerCase();
+      if (!tenantMap.has(key)) {
+        tenantMap.set(key, {
+          id: rs.id || `school_${Date.now()}`,
+          school_name: rs.name || 'Unnamed Campus',
+          principal_name: rs.registrar || 'Principal Admin',
+          email: rs.email,
+          phone: rs.phone || 'N/A',
+          state: rs.state || 'Lagos',
+          lga: rs.lga || 'Ikeja',
+          plan: rs.plan || 'Free',
+          kycStatus: rs.kycStatus || 'Pending',
+          paymentMethod: rs.paymentMethod || 'Online',
+          paymentProof: rs.paymentProof || '',
+          registeredAt: '2026-08-08'
+        });
+      }
+    });
+
+    const tenants = Array.from(tenantMap.values());
     superTenantsCache = tenants;
 
     // 1. Render Tenant Campuses Directory Table (#super-schools-directory-tbody)
