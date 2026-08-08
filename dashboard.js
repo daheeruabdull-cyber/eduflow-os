@@ -742,9 +742,9 @@ function renderAttendanceRoster() {
   if (classStudents.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="4" style="text-align: center; padding: 32px; color: var(--text-muted);">
-          No enrolled students found in <strong>${classSelect}</strong>.<br>
-          <button class="btn btn-teal" style="margin-top: 12px; font-size: 0.78rem;" onclick="openStudentRegistrationModal()">+ Register Student to ${classSelect}</button>
+        <td colspan="4" style="text-align: center; padding: 24px 12px; color: var(--text-muted); box-sizing: border-box;">
+          <p style="font-size: 0.85rem; margin: 0 0 12px 0; word-break: break-word;">No enrolled students found in <strong>${classSelect}</strong>.</p>
+          <button class="btn btn-teal" style="font-size: 0.78rem; font-weight: 700; max-width: 100%; white-space: normal; padding: 8px 16px;" onclick="openStudentRegistrationModal()">+ Register Student to ${classSelect}</button>
         </td>
       </tr>
     `;

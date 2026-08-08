@@ -2217,21 +2217,66 @@ html, body {
 }
 
 /* 2. Responsive Table Wrappers (-webkit-overflow-scrolling) */
-.table-responsive, [style*="overflow-x: auto"] {
+.table-wrapper,
+.table-responsive,
+[style*="overflow-x: auto"] {
   width: 100% !important;
   max-width: 100% !important;
   overflow-x: auto !important;
   -webkit-overflow-scrolling: touch !important;
   display: block !important;
   margin-bottom: 16px !important;
+  box-sizing: border-box !important;
 }
 
-.table-responsive table, .super-table, table {
-  min-width: 600px;
+.table-wrapper table,
+.table-responsive table,
+.custom-table,
+.super-table,
+table {
+  min-width: 550px;
+  border-collapse: collapse;
+}
+
+/* 2b. Attendance Filter Bar & Controls Alignment */
+.filter-bar {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+
+.filter-bar .form-select,
+.filter-bar .form-input {
+  flex: 1 1 180px !important;
+  min-width: 130px !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 /* 3. Fluid Grid Systems for Mobile & Tablet */
 @media (max-width: 768px) {
+  .filter-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  .filter-bar .form-select,
+  .filter-bar .form-input,
+  #attendance-admin-view .btn-primary {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+
+  #attendance-admin-view {
+    padding: 16px 12px !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
   /* Stack grid containers into single-column layouts on mobile */
   div[style*="grid-template-columns"],
   form[style*="grid-template-columns"],
