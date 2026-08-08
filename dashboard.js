@@ -5043,6 +5043,103 @@ async function resetUserPasswordSuperAdmin(userId, type) {
   }
 }
 
+function openStudentRegistrationModal() {
+  const sName = prompt("🎓 Enroll New Student:\n\nEnter Student Full Name (e.g. Tobi Adebayo):");
+  if (!sName) return;
+
+  const currentClass = document.getElementById('results-class-select') ? document.getElementById('results-class-select').value : 'SSS 1 Science';
+  const sClass = prompt(`Enter Class Arm for ${sName}:`, currentClass || 'SSS 1 Science');
+  if (!sClass) return;
+
+  const parentEmail = prompt(`Enter Parent Login Email for ${sName}:`, `${sName.toLowerCase().trim().replace(/\s+/g, '.')}parent@gmail.com`);
+
+  const nextId = (state.db.students || []).length + 1;
+  const classSlug = sClass.replace(/\s+/g, '');
+  const sRoll = `2026/G${classSlug}/${String(nextId).padStart(3, '0')}`;
+
+  const currentSchoolId = state.schoolId || localStorage.getItem('eduflow_school_id') || 'school_demo';
+  const currentSchoolName = localStorage.getItem('eduflow_school_name') || 'Eduflow Campus';
+
+  const newStudent = {
+    id: nextId,
+    schoolId: currentSchoolId,
+    name: sName,
+    roll: sRoll,
+    class: sClass,
+    parentEmail: parentEmail || '',
+    attendanceRate: '100.0%',
+    grades: {
+      'Mathematics': { ca: 25, exam: 55 },
+      'English Language': { ca: 26, exam: 58 }
+    },
+    fees: {
+      tuition: { amount: 150000, paid: false, due: '2026-09-30' },
+      development: { amount: 15000, paid: false, due: '2026-09-30' }
+    }
+  };
+
+  if (!state.db.students) state.db.students = [];
+  state.db.students.push(newStudent);
+
+  // Auto-provision associated parent account if parent email provided
+  if (parentEmail) {
+    if (!state.rawDB) state.rawDB = {};
+    if (!state.rawDB.parents) state.rawDB.parents = [];
+    
+    const existingParent = state.rawDB.parents.find(p => p.email && p.email.toLowerCase() === parentEmail.toLowerCase());
+    if (!existingParent) {
+      state.rawDB.parents.push({
+        id: parentEmail,
+        name: `Parent of ${sName}`,
+        email: parentEmail.toLowerCase(),
+        password: 'parent123',
+        children: JSON.stringify([nextId]),
+        schoolId: currentSchoolId
+      });
+    }
+  }
+
+  saveDBToLocalStorage();
+  renderResultsRoster();
+  renderDashboardStats();
+
+  const baseUrl = (window.location && window.location.origin) ? window.location.origin : 'http://localhost:8000';
+  alert(`✅ STUDENT & PARENT ENROLLED SUCCESSFULLY!\n\n======================================\nSTUDENT NAME : ${sName}\nROLL / ADM NO: ${sRoll}\nCLASS ARM    : ${sClass}\n\nSTUDENT LOGIN CREDENTIALS:\nIdentifier   : ${sRoll}\nPasscode     : student123\n\nPARENT LOGIN CREDENTIALS:\nEmail        : ${parentEmail || 'N/A'}\nPasscode     : parent123\nLOGIN URL    : ${baseUrl}/dashboard.html\n======================================`);
+}
+
+function openAddParentModal() {
+  const pName = prompt("👨‍👩‍👧 Provision New Parent Account:\n\nEnter Parent Full Name (e.g. Mr. & Mrs. Adebayo):");
+  if (!pName) return;
+
+  const pEmail = prompt(`Enter Login Email Address for ${pName}:`, 'parent@gmail.com');
+  if (!pEmail) return;
+
+  const childRef = prompt(`Enter Ward Student Name or Roll Number for ${pName}:`, 'Tobi Adebayo');
+  const pPass = prompt(`Set Access Passcode for ${pName}:`, 'parent123');
+
+  const currentSchoolId = state.schoolId || localStorage.getItem('eduflow_school_id') || 'school_demo';
+
+  if (!state.rawDB) state.rawDB = {};
+  if (!state.rawDB.parents) state.rawDB.parents = [];
+
+  state.rawDB.parents.push({
+    id: pEmail.toLowerCase(),
+    name: pName,
+    email: pEmail.toLowerCase(),
+    password: pPass || 'parent123',
+    children: JSON.stringify([childRef || 1]),
+    schoolId: currentSchoolId
+  });
+
+  saveDBToLocalStorage();
+  const baseUrl = (window.location && window.location.origin) ? window.location.origin : 'http://localhost:8000';
+  alert(`✅ PARENT ACCOUNT CREATED SUCCESSFULLY!\n\n======================================\nParent Name  : ${pName}\nLogin Email  : ${pEmail}\nPasscode     : ${pPass || 'parent123'}\nWard Student : ${childRef}\nLogin URL    : ${baseUrl}/dashboard.html?role=parent\n======================================`);
+}
+
+window.openStudentRegistrationModal = openStudentRegistrationModal;
+window.openAddStudentModal = openStudentRegistrationModal;
+window.openAddParentModal = openAddParentModal;
+
 function savePlatformGlobalConfig(event) {
   event.preventDefault();
   const name = document.getElementById('cfg-platform-name').value;
