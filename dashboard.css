@@ -2242,7 +2242,7 @@ table {
 .filter-bar {
   display: flex !important;
   flex-wrap: wrap !important;
-  gap: 12px !important;
+  gap: 10px !important;
   width: 100% !important;
   max-width: 100% !important;
   align-items: center !important;
@@ -2254,7 +2254,22 @@ table {
   flex: 1 1 180px !important;
   min-width: 130px !important;
   max-width: 100% !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
+  padding: 6px 12px !important;
+  font-size: 0.85rem !important;
+  border-radius: 8px !important;
   box-sizing: border-box !important;
+}
+
+#attendance-admin-view .btn-primary {
+  height: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
+  padding: 0 16px !important;
+  font-size: 0.85rem !important;
+  border-radius: 8px !important;
 }
 
 /* 3. Fluid Grid Systems for Mobile & Tablet */
@@ -2262,6 +2277,7 @@ table {
   .filter-bar {
     flex-direction: column !important;
     align-items: stretch !important;
+    gap: 10px !important;
   }
   
   .filter-bar .form-select,
@@ -2269,6 +2285,11 @@ table {
   #attendance-admin-view .btn-primary {
     width: 100% !important;
     min-width: 100% !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    padding: 6px 12px !important;
+    box-sizing: border-box !important;
   }
 
   #attendance-admin-view {
