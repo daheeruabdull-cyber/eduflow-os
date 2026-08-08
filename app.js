@@ -1090,12 +1090,12 @@ function toggleMobileLandingMenu() {
   }
 }
 
-function quickFillLogin(identifier) {
+function quickFillLogin(identifier, password = '') {
   const idInput = document.getElementById('login-identifier');
   const passInput = document.getElementById('login-password');
   if (idInput) idInput.value = identifier;
   if (passInput) {
-    passInput.value = '';
+    passInput.value = password;
     passInput.focus();
   }
 }

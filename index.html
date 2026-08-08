@@ -1712,21 +1712,31 @@
       </div>
 
       <form id="portal-login-form" action="javascript:void(0);" onsubmit="handlePortalLoginUnified(event); return false;" style="text-align: left;">
-        <div class="input-group" style="margin-bottom: 16px;">
-          <label for="login-identifier" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px; display: block;">Username / Email / Roll Number</label>
-          <input type="text" class="form-input" id="login-identifier" placeholder="" style="width: 100%;" autocomplete="off">
+        <div class="input-group" style="margin-bottom: 14px;">
+          <label for="login-identifier" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px; display: block;">Username / Email / Admission Number</label>
+          <input type="text" class="form-input" id="login-identifier" placeholder="e.g. parent@eduflow.com or 2026/G10A/042" style="width: 100%; font-size: 0.85rem;" autocomplete="off">
         </div>
 
-        <div class="input-group" style="margin-bottom: 24px;">
-          <label for="login-password" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px; display: block;">Password</label>
-          <input type="password" class="form-input" id="login-password" placeholder="" style="width: 100%;" autocomplete="current-password">
+        <div class="input-group" style="margin-bottom: 20px;">
+          <label for="login-password" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px; display: block;">Password / Passcode</label>
+          <input type="password" class="form-input" id="login-password" placeholder="••••••••" style="width: 100%; font-size: 0.85rem;" autocomplete="current-password">
         </div>
 
         <button type="submit" id="login-submit-btn" class="btn btn-primary" style="width: 100%; height: 42px; font-weight: 700; font-size: 0.85rem; margin-bottom: 10px;">Access School Portal</button>
+      
+        <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-color); text-align: left;">
+          <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 8px;">⚡ DEMO QUICK PORTAL ACCESS:</span>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary" onclick="quickFillLogin('admin@eduflow.com', 'admin123')" style="font-size: 0.68rem; padding: 4px 8px; font-weight: 700;">🏫 Principal</button>
+            <button type="button" class="btn btn-secondary" onclick="quickFillLogin('teacher@eduflow.com', 'teacher123')" style="font-size: 0.68rem; padding: 4px 8px; font-weight: 700;">👨‍🏫 Teacher</button>
+            <button type="button" class="btn btn-secondary" onclick="quickFillLogin('parent@eduflow.com', 'parent123')" style="font-size: 0.68rem; padding: 4px 8px; font-weight: 700; background: rgba(23,184,166,0.12); color: var(--accent-teal);">👨‍👩‍👧 Parent</button>
+            <button type="button" class="btn btn-secondary" onclick="quickFillLogin('2026/G10A/042', 'student123')" style="font-size: 0.68rem; padding: 4px 8px; font-weight: 700; background: rgba(91,79,224,0.12); color: var(--primary);">🎓 Student</button>
+          </div>
+        </div>
       </form>
     </div>
   </div>
 
-  <script src="app.js?v=49.0.0"></script>
+  <script src="app.js?v=50.0.0"></script>
 </body>
 </html>
