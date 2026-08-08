@@ -754,8 +754,13 @@ function openPortalLoginModal(e) {
       innerModal.style.cssText = "display: block !important; opacity: 1 !important; visibility: visible !important; transform: scale(1) !important;";
     }
     const idInput = document.getElementById('login-identifier');
+    const passInput = document.getElementById('login-password');
     if (idInput) {
+      idInput.value = '';
       setTimeout(() => idInput.focus(), 100);
+    }
+    if (passInput) {
+      passInput.value = '';
     }
   } else {
     window.location.href = 'dashboard.html?role=admin';
