@@ -119,7 +119,13 @@ app.post('/api/auth/login', (req, res) => {
   const school = schoolQuery.get(cleanId.toLowerCase(), cleanId, cleanId.toLowerCase());
   
   if (school) {
-    const isPasswordValid = bcrypt.compareSync(password || '', school.password);
+    const cleanInputPassword = String(password || '').trim();
+    const isPasswordValid = bcrypt.compareSync(cleanInputPassword, school.password);
+
+    console.log(`[AUTH LOGIN DEBUG] Login Attempt Email/Identifier: "${cleanId}"`);
+    console.log(`[AUTH LOGIN DEBUG] User Found in DB: true (School: ${school.name}, ID: ${school.id})`);
+    console.log(`[AUTH LOGIN DEBUG] Password Hash Match Result: ${isPasswordValid}`);
+
     if (isPasswordValid) {
       if (school.kycStatus === 'Rejected') {
         return res.status(403).json({
@@ -297,10 +303,11 @@ app.post('/api/onboarding/complete', (req, res) => {
 
   const registrarName = (adminCredentials && adminCredentials.name) || req.body.registrar || req.body.adminName || 'Principal Admin';
   const adminPhone = (adminCredentials && adminCredentials.phone) || req.body.phone || req.body.adminPhone || '';
-  const adminPassword = (adminCredentials && adminCredentials.password) || req.body.password || req.body.adminPassword;
+  const rawAdminPassword = (adminCredentials && adminCredentials.password) || req.body.password || req.body.adminPassword || '';
+  const cleanPassword = String(rawAdminPassword).trim();
 
   // 2. Strict Input Validation
-  if (!schoolName || !schoolEmail || !adminPassword) {
+  if (!schoolName || !schoolEmail || !cleanPassword) {
     return res.status(400).json({
       success: false,
       message: 'Missing required onboarding parameters: school name, email, and admin password are required.'
@@ -309,7 +316,9 @@ app.post('/api/onboarding/complete', (req, res) => {
 
   const cleanEmail = schoolEmail.trim().toLowerCase();
   const schoolId = 'school_' + Math.floor(1000 + Math.random() * 9000);
-  const hashedPassword = bcrypt.hashSync(adminPassword, 10);
+
+  // SINGLE-PASS BCRYPT HASHING: Hash plain-text password exactly once before inserting into database
+  const hashedPassword = bcrypt.hashSync(cleanPassword, 10);
   const subStatus = (schoolPlan === 'Free') ? 'Active' : ((paymentMethod === 'Manual') ? 'Pending Verification' : 'Active');
 
   try {
