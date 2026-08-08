@@ -2436,11 +2436,51 @@ select optgroup,
 
 #results-admin-sidebar,
 #results-admin-form,
-#psychomotor-rating-card {
+#psychomotor-rating-card,
+.report-card-responsive-wrapper {
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
   overflow: hidden !important;
+}
+
+.report-card-responsive-wrapper {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  display: block !important;
+  margin-bottom: 16px !important;
+}
+
+.report-card-responsive-wrapper .printable-report-sheet {
+  min-width: 680px;
+}
+
+.domain-rating-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+  gap: 8px !important;
+  box-sizing: border-box !important;
+}
+
+.domain-rating-row span {
+  font-size: 0.78rem !important;
+  flex: 1 1 auto !important;
+  word-break: break-word !important;
+  color: var(--text-main) !important;
+}
+
+.domain-rating-row input {
+  width: 52px !important;
+  min-width: 52px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 2px 4px !important;
+  font-size: 0.8rem !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
 }
 
 @media (max-width: 1024px) {
@@ -2452,28 +2492,23 @@ select optgroup,
 
 @media (max-width: 768px) {
   #sect-results .glass-card {
-    padding: 16px 12px !important;
+    padding: 14px 10px !important;
     border-radius: 14px !important;
     box-sizing: border-box !important;
   }
 
-  /* Stack inputs & score previews into clean vertical layout on mobile */
-  #results-admin-form div[style*="grid-template-columns"],
-  #psychomotor-rating-card div[style*="grid-template-columns"] {
+  /* Score total preview box 3-column compact grid */
+  #results-admin-form #grade-total-preview,
+  #results-admin-form #grade-letter-preview,
+  #results-admin-form #grade-remark-preview {
+    font-size: 1.05rem !important;
+  }
+
+  /* Stack inputs into clean vertical layout on mobile */
+  #results-admin-form div[style*="display: grid"],
+  #psychomotor-rating-card div[style*="display: grid"] {
     grid-template-columns: 1fr !important;
     gap: 12px !important;
-  }
-
-  /* Score total preview box stack */
-  #results-admin-form div[style*="grid-template-columns: 1fr 1fr 1fr"] {
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 6px !important;
-    padding: 10px 6px !important;
-    text-align: center !important;
-  }
-
-  #results-admin-form div[style*="grid-template-columns: 1fr 1fr 1fr"] span[style*="font-size: 1.4rem"] {
-    font-size: 1.05rem !important;
   }
 
   /* Action Buttons Full-Width Responsive Stack */
