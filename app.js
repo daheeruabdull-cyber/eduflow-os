@@ -663,45 +663,65 @@ async function registerSchoolOnboarding() {
     });
     localStorage.setItem('eduflow_registered_schools', JSON.stringify(registeredSchools));
 
-    // Asynchronous non-blocking background database sync
+    // Send 3-step structured payload to backend persistence API /api/onboarding/complete
+    let activeToken = 'token_' + Date.now();
+    let finalSchoolId = schoolId;
+
     try {
-      fetch('/api/db')
-        .then(res => res.ok ? res.json() : null)
-        .then(db => {
-          if (db) {
-            if (!db.schools) db.schools = [];
-            if (!db.students) db.students = [];
-            db.schools.push(newSchool);
-            defaultStudents.forEach(st => {
-              const maxId = db.students.reduce((max, s) => s.id > max ? s.id : max, 0);
-              st.id = maxId + 1;
-              db.students.push(st);
-            });
-            fetch('/api/db', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(db)
-            }).catch(e => console.warn('Backend write deferred.', e));
+      const res = await fetch('/api/onboarding/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          schoolDetails: {
+            name: schoolName,
+            email: schoolEmail,
+            address: schoolAddress,
+            state: schoolState,
+            lga: schoolLga,
+            logo: logoData,
+            plan: schoolPlan,
+            paymentMethod: paymentMethod,
+            paymentProof: receiptData
+          },
+          academicStructure: {
+            type: schoolType,
+            level: schoolLevel,
+            classes: defaultClasses
+          },
+          adminCredentials: {
+            name: registrarName,
+            phone: schoolPhone,
+            password: schoolPass
           }
         })
-        .catch(err => console.warn('Backend read deferred.', err));
-    } catch (e) {
-      console.warn("Background sync error ignored.", e);
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success && data.token) {
+        activeToken = data.token;
+        if (data.schoolId) finalSchoolId = data.schoolId;
+      }
+    } catch(err) {
+      console.warn("Backend API sync deferred, persisting locally:", err);
     }
 
-    // Explicitly persist Principal role & clear any legacy superadmin flags
-    localStorage.setItem('eduflow_jwt_token', token || ('token_' + Date.now()));
+    // Persist session tokens & principal role context
+    localStorage.setItem('authToken', activeToken);
+    localStorage.setItem('eduflow_jwt_token', activeToken);
+    localStorage.setItem('eduflow_school_id', finalSchoolId);
+    localStorage.setItem('eduflow_school_name', schoolName);
+    localStorage.setItem('eduflow_school_email', schoolEmail);
+    localStorage.setItem('eduflow_school_type', schoolType);
     localStorage.setItem('eduflow_role', 'admin');
     localStorage.setItem('userRole', 'admin');
-    localStorage.setItem('authToken', token || ('token_' + Date.now()));
     sessionStorage.removeItem('superadmin_authenticated');
 
     closeSchoolRegistrationModal();
     
-    // Redirect instantly to Principal (Admin) dashboard with specific schoolId and status context
+    // Redirect instantly to Principal Dashboard with schoolId
     const redirectUrl = (paymentMethod === 'Manual') 
-      ? `dashboard.html?role=admin&schoolId=${schoolId}&pendingVerify=true`
-      : `dashboard.html?role=admin&schoolId=${schoolId}`;
+      ? `dashboard.html?role=admin&schoolId=${finalSchoolId}&pendingVerify=true`
+      : `dashboard.html?role=admin&schoolId=${finalSchoolId}`;
     
     window.location.href = redirectUrl;
   } catch (globalErr) {

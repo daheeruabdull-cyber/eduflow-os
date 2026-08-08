@@ -270,6 +270,128 @@ app.post('/api/principal/create-account', (req, res) => {
   }
 });
 
+// ==================== 3-STEP SCHOOL ONBOARDING PERSISTENCE API ====================
+app.post('/api/onboarding/complete', (req, res) => {
+  const { schoolDetails, academicStructure, adminCredentials } = req.body;
+
+  // 1. Extract values cleanly from request body (supporting modular payload or flat structure)
+  const schoolName = (schoolDetails && schoolDetails.name) || req.body.schoolName || req.body.name;
+  const schoolEmail = (schoolDetails && schoolDetails.email) || req.body.schoolEmail || req.body.email;
+  const schoolAddress = (schoolDetails && schoolDetails.address) || req.body.schoolAddress || req.body.address || 'Campus Address';
+  const schoolState = (schoolDetails && schoolDetails.state) || req.body.schoolState || req.body.state || 'Lagos';
+  const schoolLga = (schoolDetails && schoolDetails.lga) || req.body.schoolLga || req.body.lga || 'Ikeja';
+  const schoolLogo = (schoolDetails && schoolDetails.logo) || req.body.logo || '';
+  const schoolPlan = (schoolDetails && schoolDetails.plan) || req.body.plan || 'Free';
+  const paymentMethod = (schoolDetails && schoolDetails.paymentMethod) || req.body.paymentMethod || 'Online';
+  const paymentProof = (schoolDetails && schoolDetails.paymentProof) || req.body.paymentProof || '';
+
+  const classes = (academicStructure && academicStructure.classes) || req.body.classes || ['JSS 1', 'JSS 2', 'JSS 3', 'SSS 1', 'SSS 2', 'SSS 3'];
+  const schoolType = (academicStructure && academicStructure.type) || req.body.type || 'Physical Learning';
+  const schoolLevel = (academicStructure && academicStructure.level) || req.body.level || 'Secondary';
+
+  const registrarName = (adminCredentials && adminCredentials.name) || req.body.registrar || req.body.adminName || 'Principal Admin';
+  const adminPhone = (adminCredentials && adminCredentials.phone) || req.body.phone || req.body.adminPhone || '';
+  const adminPassword = (adminCredentials && adminCredentials.password) || req.body.password || req.body.adminPassword;
+
+  // 2. Strict Input Validation
+  if (!schoolName || !schoolEmail || !adminPassword) {
+    return res.status(400).json({
+      success: false,
+      message: 'Missing required onboarding parameters: school name, email, and admin password are required.'
+    });
+  }
+
+  const cleanEmail = schoolEmail.trim().toLowerCase();
+  const schoolId = 'school_' + Math.floor(1000 + Math.random() * 9000);
+  const hashedPassword = bcrypt.hashSync(adminPassword, 10);
+  const subStatus = (schoolPlan === 'Free') ? 'Active' : ((paymentMethod === 'Manual') ? 'Pending Verification' : 'Active');
+
+  try {
+    // 3. Database Check for Existing School Record
+    const existingSchool = db.prepare("SELECT * FROM schools WHERE LOWER(email) = ? OR id = ?").get(cleanEmail, schoolId);
+    if (existingSchool) {
+      return res.status(400).json({ success: false, message: 'A school campus with this email address is already registered.' });
+    }
+
+    // 4. Atomic Database Insertion into SQLite Database
+    const insertSchoolStmt = db.prepare(`
+      INSERT INTO schools (
+        id, name, email, type, kycStatus, subscriptionStatus, plan, reportCardFormat,
+        password, logo, phone, address, registrar, paymentMethod, paymentProof, state, lga, classes, config
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const schoolConfig = JSON.stringify({
+      school_name: schoolName,
+      school_email: cleanEmail,
+      school_logo: schoolLogo,
+      school_phone: adminPhone,
+      school_address: schoolAddress,
+      school_state: schoolState,
+      school_lga: schoolLga,
+      school_level: schoolLevel,
+      classes: classes,
+      school_term: 'First Term 2026',
+      theme_primary: '#5B4FE0',
+      theme_accent: '#17B8A6'
+    });
+
+    insertSchoolStmt.run(
+      schoolId,
+      schoolName.trim(),
+      cleanEmail,
+      schoolType,
+      'Pending',
+      subStatus,
+      schoolPlan,
+      'Premium Crest',
+      hashedPassword,
+      schoolLogo,
+      adminPhone,
+      schoolAddress,
+      registrarName,
+      paymentMethod,
+      paymentProof,
+      schoolState,
+      schoolLga,
+      JSON.stringify(classes),
+      schoolConfig
+    );
+
+    // 5. Generate Signed JWT Auth Token for Immediate Principal Session Access
+    const token = jwt.sign(
+      { id: schoolId, role: 'admin', schoolId: schoolId, schoolName: schoolName.trim(), email: cleanEmail },
+      JWT_SECRET,
+      { expiresIn: '8h' }
+    );
+
+    console.log(`[ONBOARDING SUCCESS] Campus ${schoolName} (${schoolId}) permanently registered to SQLite database.`);
+
+    return res.status(201).json({
+      success: true,
+      message: 'School profile, academic structure, and admin account successfully created.',
+      token,
+      schoolId,
+      schoolName: schoolName.trim(),
+      user: {
+        id: schoolId,
+        role: 'admin',
+        schoolId: schoolId,
+        schoolName: schoolName.trim(),
+        email: cleanEmail,
+        registrar: registrarName
+      }
+    });
+
+  } catch (err) {
+    console.error("[ONBOARDING ERROR] Failed to persist school profile to database:", err);
+    return res.status(500).json({
+      success: false,
+      message: 'Database error creating school account: ' + err.message
+    });
+  }
+});
+
 // ==================== 4-STAGE NIGERIAN ONBOARDING ENGINE ENDPOINTS ====================
 
 // Step 1: Provision Campus Tenant Endpoint
