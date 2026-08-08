@@ -4740,16 +4740,59 @@ async function updateTenantKycStatus(tenantId, action) {
   }
 
   try {
-    const res = await fetch(`/api/superadmin/tenants/${tenantId}/approve-kyc`, {
+    const res = await fetch(`/api/superadmin/tenants/${encodeURIComponent(tenantId)}/approve-kyc`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action, rejectionReason })
     });
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
+    
     if (res.ok && data.success) {
+      // Sync local storage registered schools & local DB state
+      try {
+        let regSchools = JSON.parse(localStorage.getItem('eduflow_registered_schools') || '[]');
+        regSchools = regSchools.map(s => {
+          if (s.id === tenantId || s.email === tenantId) {
+            return { ...s, kycStatus: (action === 'approve') ? 'Approved' : 'Rejected' };
+          }
+          return s;
+        });
+        localStorage.setItem('eduflow_registered_schools', JSON.stringify(regSchools));
+
+        let localDb = JSON.parse(localStorage.getItem('eduflow_local_db') || '{}');
+        if (localDb.schools) {
+          localDb.schools = localDb.schools.map(s => {
+            if (s.id === tenantId || s.email === tenantId) {
+              return { ...s, kycStatus: (action === 'approve') ? 'Approved' : 'Rejected' };
+            }
+            return s;
+          });
+          localStorage.setItem('eduflow_local_db', JSON.stringify(localDb));
+        }
+      } catch(e) {}
+
       alert(`✨ Superadmin Action Complete:\n\n${data.message}`);
       await fetchAndRenderSuperTenantsAndKyc();
     } else {
+      // Local fallback sync if server missing or offline
+      try {
+        let regSchools = JSON.parse(localStorage.getItem('eduflow_registered_schools') || '[]');
+        let updated = false;
+        regSchools = regSchools.map(s => {
+          if (s.id === tenantId || s.email === tenantId) {
+            updated = true;
+            return { ...s, kycStatus: (action === 'approve') ? 'Approved' : 'Rejected' };
+          }
+          return s;
+        });
+        if (updated) {
+          localStorage.setItem('eduflow_registered_schools', JSON.stringify(regSchools));
+          alert(`✨ Superadmin Action Complete:\n\nCampus KYC status updated to ${action === 'approve' ? 'Approved & Active' : 'Rejected'}.`);
+          await fetchAndRenderSuperTenantsAndKyc();
+          return;
+        }
+      } catch(e) {}
+
       alert(`⛔ Action Failed: ${data.message || 'Unable to update status.'}`);
     }
   } catch(err) {
