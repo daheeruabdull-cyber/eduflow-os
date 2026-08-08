@@ -121,6 +121,12 @@ app.post('/api/auth/login', (req, res) => {
   if (school) {
     const isPasswordValid = bcrypt.compareSync(password || '', school.password);
     if (isPasswordValid) {
+      if (school.kycStatus === 'Rejected') {
+        return res.status(403).json({
+          success: false,
+          message: 'Access Denied: Your school campus (KYC) is currently rejected by the Superadmin. Operations will be unlocked once approved.'
+        });
+      }
       const token = jwt.sign({ id: school.id, role: 'admin', schoolId: school.id }, JWT_SECRET, { expiresIn: '8h' });
       return res.status(200).json({
         success: true,
@@ -389,6 +395,79 @@ app.post('/api/onboarding/complete', (req, res) => {
       success: false,
       message: 'Database error creating school account: ' + err.message
     });
+  }
+});
+
+// ==================== UNIFIED SUPERADMIN KYC & TENANT MANAGEMENT ENDPOINTS ====================
+
+// 1. GET /api/superadmin/tenants-kyc: Fetch all tenants & KYC status from SQLite DB
+app.get('/api/superadmin/tenants-kyc', (req, res) => {
+  try {
+    const schools = db.prepare("SELECT * FROM schools").all();
+    const tenants = schools.map(s => {
+      let config = {};
+      try { config = JSON.parse(s.config || '{}'); } catch(e) {}
+      return {
+        id: s.id,
+        school_name: s.name || 'Unnamed Campus',
+        campus_code: s.id,
+        principal_name: s.registrar || 'Principal Admin',
+        email: s.email,
+        phone: s.phone || 'N/A',
+        state: s.state || 'Lagos',
+        lga: s.lga || 'Ikeja',
+        address: s.address || 'N/A',
+        plan: s.plan || 'Free',
+        kycStatus: s.kycStatus || 'Pending',
+        operational_status: (s.kycStatus === 'Approved') ? 'active' : ((s.kycStatus === 'Rejected') ? 'rejected' : 'pending_kyc'),
+        paymentMethod: s.paymentMethod || 'Online',
+        paymentProof: s.paymentProof || '',
+        registeredAt: s.createdAt || new Date().toISOString()
+      };
+    });
+    return res.status(200).json({ success: true, count: tenants.length, tenants });
+  } catch(err) {
+    console.error("Error fetching superadmin tenants:", err);
+    return res.status(500).json({ success: false, message: 'Database error: ' + err.message });
+  }
+});
+
+// 2. PATCH /api/superadmin/tenants/:id/approve-kyc: Approve or Reject KYC & Activate Campus
+app.patch('/api/superadmin/tenants/:id/approve-kyc', (req, res) => {
+  const { id } = req.params;
+  const { action, rejectionReason } = req.body; // action: 'approve' | 'reject'
+
+  if (!id) {
+    return res.status(400).json({ success: false, message: 'Tenant ID is required.' });
+  }
+
+  const school = db.prepare("SELECT * FROM schools WHERE id = ?").get(id);
+  if (!school) {
+    return res.status(404).json({ success: false, message: 'Campus tenant record not found in database.' });
+  }
+
+  try {
+    const newKycStatus = (action === 'approve') ? 'Approved' : 'Rejected';
+    const updateStmt = db.prepare("UPDATE schools SET kycStatus = ? WHERE id = ?");
+    updateStmt.run(newKycStatus, id);
+
+    console.log(`[SUPERADMIN KYC] Campus ${school.name} (${id}) updated to KYC Status: ${newKycStatus}`);
+
+    return res.status(200).json({
+      success: true,
+      message: (action === 'approve') 
+        ? `Campus "${school.name}" KYC approved! Primary Principal account activated.`
+        : `Campus "${school.name}" KYC rejected.`,
+      tenant: {
+        id: school.id,
+        school_name: school.name,
+        kycStatus: newKycStatus,
+        operational_status: (action === 'approve') ? 'active' : 'rejected'
+      }
+    });
+  } catch(err) {
+    console.error("Error updating KYC status:", err);
+    return res.status(500).json({ success: false, message: 'Database update failed: ' + err.message });
   }
 });
 

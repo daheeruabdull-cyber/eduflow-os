@@ -4534,6 +4534,116 @@ async function handleSuperOnboardSchoolSubmit(event) {
   alert(`⚡ School Onboarded Successfully!\n\nID: ${newId}\nCampus: ${name}\nAdmin Login: ${email}\nInitial Tier: ${plan.toUpperCase()}`);
 }
 
+// ==================== UNIFIED SUPERADMIN KYC & TENANT MANAGEMENT SYSTEM ====================
+
+let superTenantsCache = [];
+
+async function fetchAndRenderSuperTenantsAndKyc() {
+  const directoryTbody = document.getElementById('super-schools-directory-tbody');
+  const kycQueueList = document.getElementById('super-kyc-queue-list');
+  if (!directoryTbody && !kycQueueList) return;
+
+  try {
+    const res = await fetch('/api/superadmin/tenants-kyc');
+    const data = await res.json();
+    const tenants = data.tenants || [];
+    superTenantsCache = tenants;
+
+    // 1. Render Tenant Campuses Directory Table (#super-schools-directory-tbody)
+    if (directoryTbody) {
+      if (tenants.length === 0) {
+        directoryTbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 24px; color: var(--text-muted);">No campus tenants registered in database yet.</td></tr>`;
+      } else {
+        directoryTbody.innerHTML = tenants.map(t => {
+          let badgeColor = '#f59e0b';
+          let badgeText = '● Pending KYC';
+          if (t.kycStatus === 'Approved') { badgeColor = '#17B8A6'; badgeText = '● Active (Verified)'; }
+          else if (t.kycStatus === 'Rejected') { badgeColor = '#ef4444'; badgeText = '● Rejected / Locked'; }
+
+          return `
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 12px; font-family: var(--font-family-mono); font-weight: 700; color: var(--text-muted);">${t.id}</td>
+              <td style="padding: 12px;">
+                <div style="font-weight: 700; color: var(--text-main);">${t.school_name}</div>
+                <div style="font-size: 0.72rem; color: var(--text-secondary);">${t.lga}, ${t.state} • Reg: ${t.registeredAt ? t.registeredAt.slice(0,10) : '2026-08-08'}</div>
+              </td>
+              <td style="padding: 12px; font-family: var(--font-family-mono); font-size: 0.75rem;">${t.email}</td>
+              <td style="padding: 12px;"><span class="badge badge-primary">${t.plan}</span></td>
+              <td style="padding: 12px;">
+                <span style="background: ${badgeColor}15; color: ${badgeColor}; padding: 4px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700;">${badgeText}</span>
+              </td>
+              <td style="padding: 12px; font-size: 0.75rem; color: var(--text-secondary);">${t.paymentMethod}</td>
+              <td style="padding: 12px; text-align: right;">
+                <div style="display: flex; gap: 4px; justify-content: flex-end;">
+                  ${t.kycStatus !== 'Approved' ? `<button class="btn btn-teal" onclick="updateTenantKycStatus('${t.id}', 'approve')" style="font-size: 0.68rem; padding: 4px 8px; font-weight: 700;">✓ Approve & Activate</button>` : ''}
+                  ${t.kycStatus !== 'Rejected' ? `<button class="btn btn-danger" onclick="updateTenantKycStatus('${t.id}', 'reject')" style="font-size: 0.68rem; padding: 4px 8px; background: #ef4444; color: #fff; border: none;">✗ Reject</button>` : ''}
+                  <button class="btn btn-secondary" onclick="impersonateTenantSchool('${t.id}')" style="font-size: 0.68rem; padding: 4px 8px;">🎭 Impersonate</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
+    // 2. Render KYC Compliance Vault Queue (#super-kyc-queue-list)
+    if (kycQueueList) {
+      if (tenants.length === 0) {
+        kycQueueList.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--text-muted);">No compliance records in queue.</div>`;
+      } else {
+        kycQueueList.innerHTML = tenants.map(t => {
+          let badgeColor = '#f59e0b';
+          let badgeText = 'Pending KYC Review';
+          if (t.kycStatus === 'Approved') { badgeColor = '#17B8A6'; badgeText = 'KYC Approved & Active'; }
+          else if (t.kycStatus === 'Rejected') { badgeColor = '#ef4444'; badgeText = 'KYC Rejected'; }
+
+          return `
+            <div style="padding: 14px; background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h4 style="font-size: 0.85rem; margin: 0; font-weight: 700; color: var(--text-main);">${t.school_name}</h4>
+                <p style="font-size: 0.72rem; color: var(--text-secondary); margin: 2px 0 6px 0;">Principal: ${t.principal_name} (${t.email}) • Code: ${t.id}</p>
+                <span style="background: ${badgeColor}15; color: ${badgeColor}; padding: 2px 8px; border-radius: 12px; font-size: 0.68rem; font-weight: 700;">${badgeText}</span>
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <button class="btn btn-secondary" onclick="viewTenantKycAndReceipt('${t.id}')" style="font-size: 0.7rem; padding: 6px 12px; font-weight: 600;">📜 Review KYC</button>
+                ${t.kycStatus !== 'Approved' ? `<button class="btn btn-primary" onclick="updateTenantKycStatus('${t.id}', 'approve')" style="font-size: 0.7rem; padding: 6px 12px; font-weight: 700;">Approve & Activate</button>` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+  } catch(err) {
+    console.warn("Failed to fetch superadmin tenants KYC:", err);
+  }
+}
+
+async function updateTenantKycStatus(tenantId, action) {
+  let rejectionReason = '';
+  if (action === 'reject') {
+    rejectionReason = prompt("Please enter the KYC Rejection Reason for this campus:", "Accreditation documentation incomplete.");
+    if (!rejectionReason) return;
+  }
+
+  try {
+    const res = await fetch(`/api/superadmin/tenants/${tenantId}/approve-kyc`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, rejectionReason })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      alert(`✨ Superadmin Action Complete:\n\n${data.message}`);
+      await fetchAndRenderSuperTenantsAndKyc();
+    } else {
+      alert(`⛔ Action Failed: ${data.message || 'Unable to update status.'}`);
+    }
+  } catch(err) {
+    alert("⛔ Network Error: Unable to communicate with server.");
+  }
+}
+
 function renderMasterAccountsTable() {
   const tbody = document.getElementById('master-accounts-tbody');
   if (!tbody) return;
@@ -4945,6 +5055,9 @@ async function initApp() {
     const initialSection = state.role === 'superadmin' ? 'super-overview' : (state.currentSection || 'home');
     showSection(initialSection);
     renderPrincipalUsersTable('all');
+    if (state.role === 'superadmin') {
+      fetchAndRenderSuperTenantsAndKyc();
+    }
   } catch(err) {
     console.error("Critical error during Eduflow App initialization:", err);
   }
