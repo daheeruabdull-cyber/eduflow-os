@@ -1020,14 +1020,9 @@ function quickFillLogin(identifier) {
   const passInput = document.getElementById('login-password');
   if (idInput) idInput.value = identifier;
   if (passInput) {
-    if (identifier.toLowerCase() === 'daheeru' || identifier.toLowerCase() === 'superadmin') {
-      passInput.value = 'Katagum99?';
-    } else {
-      passInput.value = '';
-    }
+    passInput.value = '';
+    passInput.focus();
   }
-  const form = document.getElementById('portal-login-form');
-  if (form) form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
 }
 
 async function handleContactInquirySubmit(e) {

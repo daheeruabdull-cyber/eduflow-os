@@ -119,7 +119,7 @@ app.post('/api/auth/login', (req, res) => {
   const school = schoolQuery.get(cleanId.toLowerCase(), cleanId, cleanId.toLowerCase());
   
   if (school) {
-    const isPasswordValid = bcrypt.compareSync(password || '', school.password) || password === 'admin123' || password === '123456';
+    const isPasswordValid = bcrypt.compareSync(password || '', school.password);
     if (isPasswordValid) {
       const token = jwt.sign({ id: school.id, role: 'admin', schoolId: school.id }, JWT_SECRET, { expiresIn: '8h' });
       return res.status(200).json({
@@ -139,7 +139,7 @@ app.post('/api/auth/login', (req, res) => {
   const parentQuery = db.prepare("SELECT * FROM parents WHERE LOWER(email) = ?");
   const parent = parentQuery.get(cleanId.toLowerCase());
   if (parent) {
-    const isParentPassValid = bcrypt.compareSync(password || '', parent.password) || password === '123456';
+    const isParentPassValid = bcrypt.compareSync(password || '', parent.password);
     if (isParentPassValid) {
       const childrenIds = JSON.parse(parent.children || '[]');
       const token = jwt.sign({ id: parent.email, role: 'parent', children: childrenIds }, JWT_SECRET, { expiresIn: '4h' });
@@ -158,7 +158,7 @@ app.post('/api/auth/login', (req, res) => {
   const teacherQuery = db.prepare("SELECT * FROM teachers WHERE LOWER(email) = ? OR id = ?");
   const teacher = teacherQuery.get(cleanId.toLowerCase(), cleanId.toLowerCase());
   if (teacher) {
-    const isTeacherPassValid = bcrypt.compareSync(password || '', teacher.password || '') || password === '123456';
+    const isTeacherPassValid = bcrypt.compareSync(password || '', teacher.password || '');
     if (isTeacherPassValid) {
       const token = jwt.sign({ id: teacher.id, role: 'teacher', schoolId: teacher.schoolId, email: teacher.email }, JWT_SECRET, { expiresIn: '4h' });
       return res.status(200).json({
