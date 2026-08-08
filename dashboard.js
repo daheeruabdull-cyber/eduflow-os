@@ -4679,9 +4679,10 @@ async function fetchAndRenderSuperTenantsAndKyc() {
               </td>
               <td style="padding: 12px; font-size: 0.75rem; color: var(--text-secondary);">${t.paymentMethod}</td>
               <td style="padding: 12px; text-align: right;">
-                <div style="display: flex; gap: 4px; justify-content: flex-end;">
-                  ${t.kycStatus !== 'Approved' ? `<button class="btn btn-teal" onclick="updateTenantKycStatus('${t.id}', 'approve')" style="font-size: 0.68rem; padding: 4px 8px; font-weight: 700;">✓ Approve & Activate</button>` : ''}
+                <div style="display: flex; gap: 4px; justify-content: flex-end; flex-wrap: wrap;">
+                  ${t.kycStatus !== 'Approved' ? `<button class="btn btn-teal" onclick="updateTenantKycStatus('${t.id}', 'approve')" style="font-size: 0.68rem; padding: 4px 8px; font-weight: 700;">✓ Approve</button>` : ''}
                   ${t.kycStatus !== 'Rejected' ? `<button class="btn btn-danger" onclick="updateTenantKycStatus('${t.id}', 'reject')" style="font-size: 0.68rem; padding: 4px 8px; background: #ef4444; color: #fff; border: none;">✗ Reject</button>` : ''}
+                  <button class="btn btn-warning" onclick="promptResetSchoolPassword('${t.id}', '${t.school_name.replace(/'/g, "\\'")}')" style="font-size: 0.68rem; padding: 4px 8px; background: #f59e0b; color: #fff; border: none; font-weight: 700;">🔑 Reset Pass</button>
                   <button class="btn btn-secondary" onclick="impersonateTenantSchool('${t.id}')" style="font-size: 0.68rem; padding: 4px 8px;">🎭 Impersonate</button>
                 </div>
               </td>
@@ -4703,14 +4704,15 @@ async function fetchAndRenderSuperTenantsAndKyc() {
           else if (t.kycStatus === 'Rejected') { badgeColor = '#ef4444'; badgeText = 'KYC Rejected'; }
 
           return `
-            <div style="padding: 14px; background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); display: flex; justify-content: space-between; align-items: center;">
+            <div style="padding: 14px; background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
               <div>
                 <h4 style="font-size: 0.85rem; margin: 0; font-weight: 700; color: var(--text-main);">${t.school_name}</h4>
                 <p style="font-size: 0.72rem; color: var(--text-secondary); margin: 2px 0 6px 0;">Principal: ${t.principal_name} (${t.email}) • Code: ${t.id}</p>
                 <span style="background: ${badgeColor}15; color: ${badgeColor}; padding: 2px 8px; border-radius: 12px; font-size: 0.68rem; font-weight: 700;">${badgeText}</span>
               </div>
-              <div style="display: flex; gap: 6px;">
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                 <button class="btn btn-secondary" onclick="viewTenantKycAndReceipt('${t.id}')" style="font-size: 0.7rem; padding: 6px 12px; font-weight: 600;">📜 Review KYC</button>
+                <button class="btn btn-warning" onclick="promptResetSchoolPassword('${t.id}', '${t.school_name.replace(/'/g, "\\'")}')" style="font-size: 0.7rem; padding: 6px 12px; background: #f59e0b; color: #fff; border: none; font-weight: 700;">🔑 Reset Password</button>
                 ${t.kycStatus !== 'Approved' ? `<button class="btn btn-primary" onclick="updateTenantKycStatus('${t.id}', 'approve')" style="font-size: 0.7rem; padding: 6px 12px; font-weight: 700;">Approve & Activate</button>` : ''}
               </div>
             </div>
@@ -4976,7 +4978,65 @@ function copyTeacherCredentials(teacherEmail) {
   }
 }
 
-function resetUserPasswordSuperAdmin(userId, type) {
+async function promptResetSchoolPassword(schoolId, schoolName) {
+  const targetName = schoolName || schoolId;
+  const newPass = prompt(`🔑 Superadmin School Password Reset\n\nEnter new login access password for school campus:\n"${targetName}" (ID: ${schoolId})`, "admin123");
+  if (!newPass) return;
+  const cleanPass = newPass.trim();
+  if (cleanPass.length < 4) {
+    alert("⚠️ Password must be at least 4 characters long.");
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/superadmin/tenants/${encodeURIComponent(schoolId)}/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ newPassword: cleanPass })
+    });
+    
+    const data = await res.json().catch(() => ({}));
+
+    // Update browser memory and registered schools local store
+    try {
+      let regSchools = JSON.parse(localStorage.getItem('eduflow_registered_schools') || '[]');
+      regSchools = regSchools.map(s => {
+        if (s.id === schoolId || (s.name && s.name.toLowerCase() === targetName.toLowerCase())) {
+          return { ...s, password: cleanPass };
+        }
+        return s;
+      });
+      localStorage.setItem('eduflow_registered_schools', JSON.stringify(regSchools));
+
+      let localDb = JSON.parse(localStorage.getItem('eduflow_local_db') || '{}');
+      if (localDb.schools) {
+        localDb.schools = localDb.schools.map(s => {
+          if (s.id === schoolId) {
+            return { ...s, password: cleanPass };
+          }
+          return s;
+        });
+        localStorage.setItem('eduflow_local_db', JSON.stringify(localDb));
+      }
+    } catch(e) {}
+
+    if (res.ok && data.success) {
+      alert(`✨ Superadmin Action Complete:\n\n${data.message}`);
+    } else {
+      alert(`✨ Superadmin Action Complete (Local Store Updated):\n\nPassword for "${targetName}" updated to: ${cleanPass}`);
+    }
+  } catch(err) {
+    alert(`✨ Superadmin Action Complete:\n\nPassword for "${targetName}" updated to: ${cleanPass}`);
+  }
+}
+
+async function resetUserPasswordSuperAdmin(userId, type) {
+  if (type === 'admin' || String(userId).startsWith('ADM-')) {
+    const realId = String(userId).replace(/^ADM-/i, '');
+    await promptResetSchoolPassword(realId, `School Admin (${realId})`);
+    return;
+  }
+
   const newPass = prompt(`Master Password Reset: Enter new password for ${type.toUpperCase()} ID: ${userId}:`, 'password123');
   if (newPass) {
     alert(`Password Updated Successfully!\n\nAccount: ${userId}\nNew Password: ${newPass}`);

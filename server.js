@@ -533,6 +533,46 @@ app.patch('/api/superadmin/tenants/:id/approve-kyc', (req, res) => {
   return res.status(404).json({ success: false, message: 'Campus tenant record not found in database.' });
 });
 
+// 3. POST /api/superadmin/tenants/:id/reset-password: Superadmin Reset School Admin Password
+app.post('/api/superadmin/tenants/:id/reset-password', (req, res) => {
+  const { id } = req.params;
+  const { newPassword } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ success: false, message: 'Tenant ID is required.' });
+  }
+
+  const cleanPassword = String(newPassword || '').trim();
+  if (!cleanPassword || cleanPassword.length < 4) {
+    return res.status(400).json({ success: false, message: 'Password must be at least 4 characters long.' });
+  }
+
+  const cleanId = String(id).trim();
+  const cleanIdLower = cleanId.toLowerCase();
+
+  let school = db.prepare("SELECT * FROM schools WHERE LOWER(id) = ? OR LOWER(email) = ?").get(cleanIdLower, cleanIdLower);
+
+  if (!school) {
+    return res.status(404).json({ success: false, message: 'Campus tenant record not found in database.' });
+  }
+
+  try {
+    const hashedPassword = bcrypt.hashSync(cleanPassword, 10);
+    const updateStmt = db.prepare("UPDATE schools SET password = ? WHERE LOWER(id) = ? OR LOWER(email) = ?");
+    updateStmt.run(hashedPassword, school.id.toLowerCase(), (school.email || '').toLowerCase());
+
+    console.log(`[SUPERADMIN RESET PASSWORD] Password for campus "${school.name}" (${school.id}) reset successfully.`);
+
+    return res.status(200).json({
+      success: true,
+      message: `Password for "${school.name}" (Email: ${school.email}) updated successfully to: ${cleanPassword}`
+    });
+  } catch(err) {
+    console.error("Error resetting school password:", err);
+    return res.status(500).json({ success: false, message: 'Database error resetting password: ' + err.message });
+  }
+});
+
 // ==================== 4-STAGE NIGERIAN ONBOARDING ENGINE ENDPOINTS ====================
 
 // Step 1: Provision Campus Tenant Endpoint
