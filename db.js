@@ -21,7 +21,7 @@ try {
           }
           if (sqlLower.includes('from schools')) {
             const arg = String(args[0] || '').toLowerCase();
-            return store.schools.find(s => s.id === args[0] || (s.email || '').toLowerCase() === arg);
+            return store.schools.find(s => (s.id || '').toLowerCase() === arg || (s.email || '').toLowerCase() === arg || (s.phone || '').toLowerCase() === arg);
           }
           if (sqlLower.includes('from parents')) {
             const arg = String(args[0] || '').toLowerCase();

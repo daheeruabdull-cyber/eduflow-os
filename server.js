@@ -115,8 +115,9 @@ app.post('/api/auth/login', (req, res) => {
   }
 
   // 2. School Admin (Principal) Authentication against DB
-  const schoolQuery = db.prepare("SELECT * FROM schools WHERE LOWER(email) = ? OR id = ? OR LOWER(phone) = ?");
-  const school = schoolQuery.get(cleanId.toLowerCase(), cleanId, cleanId.toLowerCase());
+  const cleanIdLower = cleanId.toLowerCase();
+  const schoolQuery = db.prepare("SELECT * FROM schools WHERE LOWER(email) = ? OR LOWER(id) = ? OR LOWER(phone) = ?");
+  const school = schoolQuery.get(cleanIdLower, cleanIdLower, cleanIdLower);
   
   if (school) {
     const cleanInputPassword = String(password || '').trim();

@@ -859,6 +859,33 @@ async function handlePortalLoginUnified(event) {
       window.location.href = redirectUrl;
       return false;
     } else {
+      // 5. Offline / LocalStorage School Fallback Check
+      let localRegSchools = [];
+      try {
+        localRegSchools = JSON.parse(localStorage.getItem('eduflow_registered_schools') || '[]');
+      } catch(e) {}
+
+      const cleanTarget = identifier.toLowerCase();
+      const matchedLocalSchool = localRegSchools.find(s => 
+        (s.email && s.email.toLowerCase() === cleanTarget) || 
+        (s.id && s.id.toLowerCase() === cleanTarget) ||
+        (s.name && s.name.toLowerCase() === cleanTarget)
+      );
+
+      if (matchedLocalSchool && password.trim() === matchedLocalSchool.password.trim()) {
+        const fallbackToken = 'token_' + Date.now();
+        localStorage.setItem('authToken', fallbackToken);
+        localStorage.setItem('eduflow_jwt_token', fallbackToken);
+        localStorage.setItem('userRole', 'admin');
+        localStorage.setItem('eduflow_role', 'admin');
+        localStorage.setItem('eduflow_school_id', matchedLocalSchool.id);
+        localStorage.setItem('eduflow_school_name', matchedLocalSchool.name);
+
+        closePortalLoginModal();
+        window.location.href = `dashboard.html?role=admin&schoolId=${matchedLocalSchool.id}`;
+        return false;
+      }
+
       // Clear any previous token and display error alert
       localStorage.removeItem('authToken');
       localStorage.removeItem('eduflow_jwt_token');
@@ -874,6 +901,34 @@ async function handlePortalLoginUnified(event) {
     }
   } catch (err) {
     console.error("Login API network error:", err);
+    
+    // Offline Network Fallback Check
+    let localRegSchools = [];
+    try {
+      localRegSchools = JSON.parse(localStorage.getItem('eduflow_registered_schools') || '[]');
+    } catch(e) {}
+
+    const cleanTarget = identifier.toLowerCase();
+    const matchedLocalSchool = localRegSchools.find(s => 
+      (s.email && s.email.toLowerCase() === cleanTarget) || 
+      (s.id && s.id.toLowerCase() === cleanTarget) ||
+      (s.name && s.name.toLowerCase() === cleanTarget)
+    );
+
+    if (matchedLocalSchool && password.trim() === matchedLocalSchool.password.trim()) {
+      const fallbackToken = 'token_' + Date.now();
+      localStorage.setItem('authToken', fallbackToken);
+      localStorage.setItem('eduflow_jwt_token', fallbackToken);
+      localStorage.setItem('userRole', 'admin');
+      localStorage.setItem('eduflow_role', 'admin');
+      localStorage.setItem('eduflow_school_id', matchedLocalSchool.id);
+      localStorage.setItem('eduflow_school_name', matchedLocalSchool.name);
+
+      closePortalLoginModal();
+      window.location.href = `dashboard.html?role=admin&schoolId=${matchedLocalSchool.id}`;
+      return false;
+    }
+
     localStorage.removeItem('authToken');
     localStorage.removeItem('eduflow_jwt_token');
     
