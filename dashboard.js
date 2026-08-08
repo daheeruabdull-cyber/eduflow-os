@@ -34,6 +34,10 @@ let state = {
 };
 
 async function loadDBFromLocalStorage() {
+  if (localStorage.getItem('eduflow_school_name') && localStorage.getItem('eduflow_school_name').includes('Islamic Orientation')) {
+    localStorage.removeItem('eduflow_school_name');
+  }
+
   const urlParams = new URLSearchParams(window.location.search);
   state.schoolId = urlParams.get('schoolId') || localStorage.getItem('eduflow_school_id') || 'school_demo';
 
@@ -4639,6 +4643,16 @@ async function fetchAndRenderSuperTenantsAndKyc() {
     if (elActive) elActive.textContent = activeSubCount;
     if (elMrr) elMrr.textContent = `₦${(activeSubCount * 7500).toLocaleString()}`;
     if (elArr) elArr.textContent = `₦${(activeSubCount * 90000).toLocaleString()}`;
+
+    // Populate top header Superadmin Campus Selector (#super-school-select)
+    const superSchoolSelect = document.getElementById('super-school-select');
+    if (superSchoolSelect) {
+      if (tenants.length === 0) {
+        superSchoolSelect.innerHTML = `<option value="">No Campuses Registered</option>`;
+      } else {
+        superSchoolSelect.innerHTML = tenants.map(t => `<option value="${t.id}">${t.school_name} (${t.id})</option>`).join('');
+      }
+    }
 
     // 1. Render Tenant Campuses Directory Table (#super-schools-directory-tbody)
     if (directoryTbody) {
