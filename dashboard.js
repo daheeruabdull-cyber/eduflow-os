@@ -4710,6 +4710,14 @@ async function fetchAndRenderSuperTenantsAndKyc() {
   }
 }
 
+function renderSuperSchoolsDirectory() {
+  fetchAndRenderSuperTenantsAndKyc();
+}
+
+function renderSuperKycVault() {
+  fetchAndRenderSuperTenantsAndKyc();
+}
+
 async function updateTenantKycStatus(tenantId, action) {
   let rejectionReason = '';
   if (action === 'reject') {
