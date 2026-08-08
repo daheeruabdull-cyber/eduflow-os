@@ -1052,19 +1052,20 @@ button, input, select, textarea {
   color: var(--text-main);
 }
 
-/* PAYMENT GATEWAY DIALOG/MODAL */
+/* MASTER DIALOG/MODAL CENTERING & REDUCED SIZING SYSTEM */
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px);
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(15, 23, 42, 0.65) !important;
+  backdrop-filter: blur(6px) !important;
   z-index: -9999 !important;
   display: none !important;
-  justify-content: center;
-  align-items: center;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px !important;
+  box-sizing: border-box !important;
   opacity: 0;
   visibility: hidden !important;
   pointer-events: none !important;
@@ -1077,26 +1078,35 @@ button, input, select, textarea {
   visibility: visible !important;
   pointer-events: auto !important;
   z-index: 9999 !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .modal-overlay.active * {
   pointer-events: auto !important;
 }
 
-.payment-modal {
+.payment-modal,
+.modal-card {
   background: white;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
-  width: 440px;
-  max-width: 90%;
-  padding: 28px;
+  width: 100% !important;
+  max-width: 420px !important;
+  max-height: 85vh !important;
+  overflow-y: auto !important;
+  margin: auto !important;
+  padding: 22px 18px !important;
   box-shadow: var(--shadow-xl);
-  transform: scale(0.9) translateY(20px);
+  transform: scale(0.95);
   transition: var(--transition-smooth);
+  box-sizing: border-box !important;
+  -webkit-overflow-scrolling: touch !important;
 }
 
-.modal-overlay.active .payment-modal {
-  transform: scale(1) translateY(0);
+.modal-overlay.active .payment-modal,
+.modal-overlay.active .modal-card {
+  transform: scale(1);
 }
 
 .modal-header {
@@ -2329,6 +2339,43 @@ table {
   .glass-card, .card {
     padding: 16px 14px !important;
     border-radius: 14px !important;
+  }
+
+  /* Compact Centered Mobile Modals */
+  .payment-modal,
+  .modal-card {
+    max-width: min(370px, 92vw) !important;
+    padding: 18px 14px !important;
+    border-radius: 14px !important;
+    margin: auto !important;
+  }
+
+  .payment-modal .modal-header,
+  .modal-card .modal-header {
+    margin-bottom: 10px !important;
+  }
+
+  .payment-modal .input-group,
+  .modal-card .input-group {
+    margin-bottom: 8px !important;
+  }
+
+  .payment-modal .form-input,
+  .payment-modal .form-select,
+  .modal-card .form-input,
+  .modal-card .form-select {
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 4px 10px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .payment-modal .btn,
+  .modal-card .btn {
+    height: 38px !important;
+    min-height: 38px !important;
+    font-size: 0.8rem !important;
+    padding: 0 12px !important;
   }
 }
 
