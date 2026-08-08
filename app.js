@@ -345,86 +345,98 @@ function setOnboardingStepActive(stepNum) {
   }
 }
 
-function sendOnboardingConfirmationEmail() {
+// ==================== STRICT 3-STEP ONBOARDING WIZARD CONTROLLER ====================
+
+// STEP 1 VALIDATION & NAVIGATION (Strict user input check; zero dummy auto-fill!)
+function validateAndGoToStep2(e) {
+  if (e && typeof e.preventDefault === 'function') e.preventDefault();
+
   const nameInput = document.getElementById('reg-school-name');
   const emailInput = document.getElementById('reg-school-email');
-  
-  const schoolName = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : 'Eduflow Academy';
-  const schoolEmail = (emailInput && emailInput.value.trim()) ? emailInput.value.trim() : 'admin@eduflow.com';
 
-  if (nameInput && !nameInput.value.trim()) nameInput.value = schoolName;
-  if (emailInput && !emailInput.value.trim()) emailInput.value = schoolEmail;
+  const schoolName = nameInput ? nameInput.value.trim() : '';
+  const schoolEmail = emailInput ? emailInput.value.trim() : '';
 
-  // Sync to verified admin email input field
+  if (!schoolName) {
+    alert("⚠️ REQUIRED FIELD MISSING: Please enter your official School / Campus Name.");
+    if (nameInput) nameInput.focus();
+    return false;
+  }
+
+  if (!schoolEmail || !schoolEmail.includes('@')) {
+    alert("⚠️ REQUIRED FIELD MISSING: Please enter a valid School Login Email Address.");
+    if (emailInput) emailInput.focus();
+    return false;
+  }
+
+  // Pre-fill Step 3 Registrar Email field cleanly from user's verified Step 1 email
   const adminEmailField = document.getElementById('reg-school-admin-email');
-  if (adminEmailField) {
+  if (adminEmailField && !adminEmailField.value.trim()) {
     adminEmailField.value = schoolEmail;
   }
 
-  // Pre-fill target email on simulator screen if needed
-  const targetEmail = document.getElementById('verify-email-target');
-  if (targetEmail) targetEmail.textContent = schoolEmail;
-
-  // Advance straight to Step 2 (Campus Details)
   setOnboardingStepActive(2);
+  return false;
 }
 
-function simulateConfirmOnboardingEmail() {
-  const schoolEmailInput = document.getElementById('reg-school-email');
-  const schoolEmail = (schoolEmailInput && schoolEmailInput.value.trim()) ? schoolEmailInput.value.trim() : 'admin@eduflow.com';
-  const adminEmailField = document.getElementById('reg-school-admin-email');
-  if (adminEmailField) {
-    adminEmailField.value = schoolEmail;
-  }
-  setOnboardingStepActive(2);
+function backToOnboardingStep1() {
+  setOnboardingStepActive(1);
 }
 
-function goToOnboardingStep3() {
+// STEP 2 VALIDATION & NAVIGATION (Strict user input check; zero dummy auto-fill!)
+function validateAndGoToStep3(e) {
+  if (e && typeof e.preventDefault === 'function') e.preventDefault();
+
   const addressInput = document.getElementById('reg-school-address');
-  if (addressInput && !addressInput.value.trim()) {
-    addressInput.value = '12 Campus Boulevard, Victoria Island, Lagos';
-  }
-
   const stateSelect = document.getElementById('reg-school-state');
   const lgaSelect = document.getElementById('reg-school-lga');
-  if (stateSelect && (!stateSelect.value || stateSelect.value === '')) {
-    stateSelect.value = 'Lagos';
-    populateLgas('Lagos');
-    if (lgaSelect) lgaSelect.value = 'Ikeja';
+
+  const schoolAddress = addressInput ? addressInput.value.trim() : '';
+  const schoolState = stateSelect ? stateSelect.value : '';
+  const schoolLga = lgaSelect ? lgaSelect.value : '';
+
+  if (!schoolAddress) {
+    alert("⚠️ REQUIRED FIELD MISSING: Please enter your official Campus Physical Address.");
+    if (addressInput) addressInput.focus();
+    return false;
   }
 
-  // Auto-populate Step 3 Admin Email from Step 1 School Email if blank
-  const emailStep1 = document.getElementById('reg-school-email');
-  const adminEmail = document.getElementById('reg-school-admin-email');
-  if (emailStep1 && adminEmail && (!adminEmail.value.trim() || adminEmail.value === 'admin@school.com')) {
-    if (emailStep1.value.trim()) {
-      adminEmail.value = emailStep1.value.trim();
-    }
+  if (!schoolState) {
+    alert("⚠️ REQUIRED FIELD MISSING: Please select your School State.");
+    if (stateSelect) stateSelect.focus();
+    return false;
   }
 
-  const schoolName = document.getElementById('reg-school-name');
-  const adminName = document.getElementById('reg-admin-name');
-  if (schoolName && adminName && !adminName.value.trim()) {
-    adminName.value = (schoolName.value.trim() ? schoolName.value.trim() + ' Registrar' : 'Principal Admin');
+  if (!schoolLga) {
+    alert("⚠️ REQUIRED FIELD MISSING: Please select your School Local Government Area (LGA).");
+    if (lgaSelect) lgaSelect.focus();
+    return false;
   }
 
-  // Ensure active class checkboxes are checked
-  let checkedBoxes = document.querySelectorAll('#onboarding-classes-checklist input[type="checkbox"]:checked');
+  const checkedBoxes = document.querySelectorAll('#onboarding-classes-checklist input[type="checkbox"]:checked');
   if (checkedBoxes.length === 0) {
-    const allBoxes = document.querySelectorAll('#onboarding-classes-checklist input[type="checkbox"]');
-    allBoxes.forEach(cb => cb.checked = true);
+    alert("⚠️ ACADEMIC SETUP INCOMPLETE: Please select at least one active class/level to activate.");
+    return false;
   }
 
-  // Advance smoothly to Step 3 (Admin Setup)
   setOnboardingStepActive(3);
   setTimeout(() => {
     const nameEl = document.getElementById('reg-admin-name');
     if (nameEl) nameEl.focus();
   }, 100);
+  return false;
 }
 
 function backToOnboardingStep2() {
   setOnboardingStepActive(2);
+}
+
+// Global Window Exports for Inline Event Handlers
+if (typeof window !== 'undefined') {
+  window.validateAndGoToStep2 = validateAndGoToStep2;
+  window.validateAndGoToStep3 = validateAndGoToStep3;
+  window.backToOnboardingStep1 = backToOnboardingStep1;
+  window.backToOnboardingStep2 = backToOnboardingStep2;
 }
 
 // Image uploader handler
