@@ -840,6 +840,79 @@ app.get('/api/finance/overview-stats', (req, res) => {
   }
 });
 
+// 6. Student ID Cards Data Fetch API
+app.get('/api/students/id-cards', (req, res) => {
+  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.query.schoolId || 'school_demo';
+  const filterClass = req.query.class;
+  const rawStudentIds = req.query.studentIds;
+
+  try {
+    let sql = "SELECT * FROM students WHERE schoolId = ?";
+    const params = [activeSchoolId];
+
+    if (filterClass) {
+      sql += " AND class LIKE ?";
+      params.push(`%${filterClass}%`);
+    }
+
+    let rows = db.prepare(sql).all(...params);
+
+    if (rawStudentIds) {
+      const idSet = new Set(rawStudentIds.split(',').map(s => s.trim().toLowerCase()));
+      rows = rows.filter(r => idSet.has(String(r.roll).toLowerCase()) || idSet.has(String(r.id).toLowerCase()));
+    }
+
+    // Fetch School Info
+    let schoolName = 'Eduflow International Academy';
+    let schoolAddress = 'Azare Campus, Bauchi State, Nigeria';
+    let schoolPhone = '+234 803 123 4567';
+
+    try {
+      const sch = db.prepare("SELECT name, address, phone FROM schools WHERE id = ?").get(activeSchoolId);
+      if (sch) {
+        if (sch.name) schoolName = sch.name;
+        if (sch.address) schoolAddress = sch.address;
+        if (sch.phone) schoolPhone = sch.phone;
+      }
+    } catch(e) {}
+
+    const mappedStudents = rows.map(r => {
+      const parts = (r.class || 'JSS 1 Gold').split(' ');
+      const armName = parts.length > 1 ? parts.slice(1).join(' ') : 'Gold';
+      const className = parts[0] || 'JSS 1';
+
+      return {
+        id: r.id,
+        full_name: r.name,
+        admission_no: r.roll || `SCH-2026-${String(r.id).padStart(4, '0')}`,
+        class_name: className,
+        arm_name: armName,
+        dob: '2012-05-14',
+        blood_group: 'O+',
+        session: '2025/2026',
+        expiry_date: '31-AUG-2026',
+        emergency_phone: schoolPhone,
+        passport_url: r.passport_url || ''
+      };
+    });
+
+    return res.json({
+      success: true,
+      school: {
+        name: schoolName,
+        address: schoolAddress,
+        phone: schoolPhone,
+        motto: 'Excellence & Discipline',
+        primary_color: '#5B4FE0'
+      },
+      students: mappedStudents
+    });
+
+  } catch(err) {
+    return res.status(500).json({ success: false, message: 'Database error fetching ID card records: ' + err.message });
+  }
+});
+
 // ==================== 3-STEP SCHOOL ONBOARDING PERSISTENCE API ====================
 app.post('/api/onboarding/complete', (req, res) => {
   const { schoolDetails, academicStructure, adminCredentials } = req.body;
