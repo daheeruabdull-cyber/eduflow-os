@@ -2483,23 +2483,28 @@ select optgroup,
 }
 
 .printable-report-sheet {
-  width: 210mm !important;
-  min-width: 210mm !important;
-  max-width: 210mm !important;
-  height: 297mm !important;
-  max-height: 297mm !important;
+  width: 100% !important;
+  max-width: 860px !important;
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
   box-sizing: border-box !important;
-  padding: 6mm 8mm !important;
+  padding: 14px 18px !important;
   margin: 0 auto !important;
   background: #ffffff !important;
   color: #0f172a !important;
   font-family: Arial, Helvetica, sans-serif !important;
   border: 2px solid #0f172a !important;
-  border-radius: 4px !important;
+  border-radius: 6px !important;
   box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
-  overflow: hidden !important;
-  page-break-after: avoid !important;
-  page-break-inside: avoid !important;
+  overflow: visible !important;
+}
+
+@media screen and (max-width: 850px) {
+  .printable-report-sheet {
+    min-width: 680px !important;
+    width: 680px !important;
+  }
 }
 
 .domain-rating-row {

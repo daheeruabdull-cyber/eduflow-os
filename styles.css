@@ -1603,11 +1603,10 @@ button, input, select, textarea {
     padding: 8px 4px 16px 4px;
   }
   .printable-report-sheet {
-    width: 210mm !important;
-    min-width: 210mm !important;
-    max-width: 210mm !important;
-    height: 297mm !important;
-    max-height: 297mm !important;
+    min-width: 680px !important;
+    width: 680px !important;
+    height: auto !important;
+    max-height: none !important;
     box-sizing: border-box !important;
   }
 }
