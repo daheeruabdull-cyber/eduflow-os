@@ -978,17 +978,31 @@ app.post('/api/db', (req, res) => {
 
     // Sync Students
     if (Array.isArray(newDB.students)) {
-      // Clear students to match the payload list
       db.exec("DELETE FROM students");
       const insertStudent = db.prepare(`
-        INSERT INTO students (id, schoolId, name, class, roll, grades, fees)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO students (id, schoolId, name, class, roll, grades, fees, password)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `);
       newDB.students.forEach(st => {
+        let pwd = st.password || 'student123';
+        if (pwd && !pwd.startsWith('$2a$')) {
+          pwd = bcrypt.hashSync(pwd, 10);
+        }
+        const sRoll = (st.roll || `STU-${st.id}`).toLowerCase();
         insertStudent.run(
-          st.id, st.schoolId, st.name, st.class, st.roll,
-          JSON.stringify(st.grades || {}), JSON.stringify(st.fees || {})
+          st.id, st.schoolId || 'school_demo', st.name, st.class, st.roll || `STU-${st.id}`,
+          JSON.stringify(st.grades || {}), JSON.stringify(st.fees || {}), pwd
         );
+
+        // Synchronize into unified `users` table
+        try {
+          const stmtUser = db.prepare(`
+            INSERT INTO users (id, school_id, full_name, username, email, password_hash, role, status, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, 'student', 'active', ?)
+            ON CONFLICT(id) DO UPDATE SET full_name=excluded.full_name, password_hash=excluded.password_hash
+          `);
+          stmtUser.run(sRoll, st.schoolId || 'school_demo', st.name, sRoll, `${sRoll}@eduflow.ng`, pwd, new Date().toISOString());
+        } catch(e) {}
       });
     }
 
@@ -1000,7 +1014,6 @@ app.post('/api/db', (req, res) => {
         VALUES (?, ?, ?)
       `);
       Object.keys(newDB.attendance).forEach(date => {
-        // Assume default schoolId matching first student or standard school
         insertAttendance.run("school_demo", date, JSON.stringify(newDB.attendance[date]));
       });
     }
@@ -1045,11 +1058,55 @@ app.post('/api/db', (req, res) => {
     if (Array.isArray(newDB.teachers)) {
       db.exec("DELETE FROM teachers");
       const insertTeacher = db.prepare(`
-        INSERT INTO teachers (id, schoolId, name, email, subject, assignedClass, role)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO teachers (id, schoolId, name, email, subject, assignedClass, role, password)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `);
       newDB.teachers.forEach(t => {
-        insertTeacher.run(t.id, t.schoolId || 'school_demo', t.name, t.email, t.subject || 'General', t.assignedClass || 'SSS 1 Science', t.role || 'Form Master');
+        let pwd = t.password || 'password123';
+        if (pwd && !pwd.startsWith('$2a$')) {
+          pwd = bcrypt.hashSync(pwd, 10);
+        }
+        const tEmail = (t.email || `${t.id}@eduflow.ng`).toLowerCase();
+        const tRole = (t.role === 'Form Master' || t.role === 'form_master') ? 'Form Master' : 'Teacher';
+        insertTeacher.run(t.id, t.schoolId || 'school_demo', t.name, tEmail, t.subject || 'General', t.assignedClass || 'SSS 1 Science', tRole, pwd);
+
+        // Synchronize into unified `users` table
+        try {
+          const normRole = (t.role === 'Form Master' || t.role === 'form_master') ? 'form_master' : 'teacher';
+          const stmtUser = db.prepare(`
+            INSERT INTO users (id, school_id, full_name, username, email, password_hash, role, status, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?)
+            ON CONFLICT(id) DO UPDATE SET full_name=excluded.full_name, password_hash=excluded.password_hash
+          `);
+          stmtUser.run(tEmail, t.schoolId || 'school_demo', t.name, tEmail, tEmail, pwd, normRole, new Date().toISOString());
+        } catch(e) {}
+      });
+    }
+
+    // Sync Parents
+    if (Array.isArray(newDB.parents)) {
+      const upsertParent = db.prepare(`
+        INSERT INTO parents (email, password, children)
+        VALUES (?, ?, ?)
+        ON CONFLICT(email) DO UPDATE SET password=excluded.password, children=excluded.children
+      `);
+      newDB.parents.forEach(p => {
+        let pwd = p.password || 'parent123';
+        if (pwd && !pwd.startsWith('$2a$')) {
+          pwd = bcrypt.hashSync(pwd, 10);
+        }
+        const pEmail = (p.email || p.id).toLowerCase();
+        upsertParent.run(pEmail, pwd, typeof p.children === 'string' ? p.children : JSON.stringify(p.children || []));
+
+        // Synchronize into unified `users` table
+        try {
+          const stmtUser = db.prepare(`
+            INSERT INTO users (id, school_id, full_name, username, email, password_hash, role, status, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, 'parent', 'active', ?)
+            ON CONFLICT(id) DO UPDATE SET full_name=excluded.full_name, password_hash=excluded.password_hash
+          `);
+          stmtUser.run(pEmail, p.schoolId || 'school_demo', p.name || `Parent (${pEmail})`, pEmail, pEmail, pwd, new Date().toISOString());
+        } catch(e) {}
       });
     }
 

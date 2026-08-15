@@ -4964,7 +4964,8 @@ function openAddTeacherModal() {
     email: tEmail,
     subject: tSubj || 'General Science',
     assignedClass: tClass || 'SSS 1 Science',
-    role: 'Form Master'
+    role: 'Form Master',
+    password: 'password123'
   };
 
   state.db.teachers.push(newTeacher);
@@ -4974,6 +4975,21 @@ function openAddTeacherModal() {
   
   saveDBToLocalStorage();
   renderMasterAccountsTable();
+
+  // Async server persistence call to create-account API
+  fetch('/api/principal/create-account', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      fullName: tName,
+      role: 'form_master',
+      classAssigned: tClass || 'SSS 1 Science',
+      subjectsAssigned: tSubj || 'General Science',
+      username: tEmail,
+      password: 'password123',
+      schoolId: currentSchoolId
+    })
+  }).catch(e => console.warn("Background teacher account API registration sync:", e));
   
   const baseUrl = (window.location && window.location.origin) ? window.location.origin : 'http://localhost:8000';
   const creds = `======================================\n    FORM MASTER PROVISIONED SUCCESSFULLY  \n======================================\nID          : ${nextId}\nName        : ${tName}\nEmail/User  : ${tEmail}\nPassword    : password123\nForm Master : ${tClass || 'SSS 1 Science'}\nSubject     : ${tSubj}\nLogin URL   : ${baseUrl}/dashboard.html?role=teacher&schoolId=${currentSchoolId}\n======================================`;
@@ -5114,6 +5130,7 @@ function openStudentRegistrationModal() {
     roll: sRoll,
     class: sClass,
     parentEmail: parentEmail || '',
+    password: 'student123',
     attendanceRate: '100.0%',
     grades: {
       'Mathematics': { ca: 25, exam: 55 },
@@ -5128,22 +5145,51 @@ function openStudentRegistrationModal() {
   if (!state.db.students) state.db.students = [];
   state.db.students.push(newStudent);
 
+  // Async server API call to register student account
+  fetch('/api/principal/create-account', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      fullName: sName,
+      role: 'student',
+      classAssigned: sClass,
+      username: sRoll,
+      password: 'student123',
+      schoolId: currentSchoolId
+    })
+  }).catch(e => console.warn("Background student account registration sync:", e));
+
   // Auto-provision associated parent account if parent email provided
   if (parentEmail) {
     if (!state.rawDB) state.rawDB = {};
     if (!state.rawDB.parents) state.rawDB.parents = [];
     
-    const existingParent = state.rawDB.parents.find(p => p.email && p.email.toLowerCase() === parentEmail.toLowerCase());
+    const cleanPEmail = parentEmail.toLowerCase().trim();
+    const existingParent = state.rawDB.parents.find(p => p.email && p.email.toLowerCase() === cleanPEmail);
     if (!existingParent) {
       state.rawDB.parents.push({
-        id: parentEmail,
+        id: cleanPEmail,
         name: `Parent of ${sName}`,
-        email: parentEmail.toLowerCase(),
+        email: cleanPEmail,
         password: 'parent123',
         children: JSON.stringify([nextId]),
         schoolId: currentSchoolId
       });
     }
+
+    // Async server API call to register parent account
+    fetch('/api/principal/create-account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName: `Parent of ${sName}`,
+        role: 'parent',
+        username: cleanPEmail,
+        password: 'parent123',
+        schoolId: currentSchoolId,
+        parent_id: sRoll
+      })
+    }).catch(e => console.warn("Background parent account registration sync:", e));
   }
 
   saveDBToLocalStorage();
@@ -5165,22 +5211,38 @@ function openAddParentModal() {
   const pPass = prompt(`Set Access Passcode for ${pName}:`, 'parent123');
 
   const currentSchoolId = state.schoolId || localStorage.getItem('eduflow_school_id') || 'school_demo';
+  const cleanPEmail = pEmail.toLowerCase().trim();
 
   if (!state.rawDB) state.rawDB = {};
   if (!state.rawDB.parents) state.rawDB.parents = [];
 
   state.rawDB.parents.push({
-    id: pEmail.toLowerCase(),
+    id: cleanPEmail,
     name: pName,
-    email: pEmail.toLowerCase(),
+    email: cleanPEmail,
     password: pPass || 'parent123',
     children: JSON.stringify([childRef || 1]),
     schoolId: currentSchoolId
   });
 
   saveDBToLocalStorage();
+
+  // Async server API call to register parent account
+  fetch('/api/principal/create-account', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      fullName: pName,
+      role: 'parent',
+      username: cleanPEmail,
+      password: pPass || 'parent123',
+      schoolId: currentSchoolId,
+      parent_id: childRef
+    })
+  }).catch(e => console.warn("Background parent account registration sync:", e));
+
   const baseUrl = (window.location && window.location.origin) ? window.location.origin : 'http://localhost:8000';
-  alert(`✅ PARENT ACCOUNT CREATED SUCCESSFULLY!\n\n======================================\nParent Name  : ${pName}\nLogin Email  : ${pEmail}\nPasscode     : ${pPass || 'parent123'}\nWard Student : ${childRef}\nLogin URL    : ${baseUrl}/dashboard.html?role=parent\n======================================`);
+  alert(`✅ PARENT ACCOUNT CREATED SUCCESSFULLY!\n\n======================================\nParent Name  : ${pName}\nLogin Email  : ${cleanPEmail}\nPasscode     : ${pPass || 'parent123'}\nWard Student : ${childRef}\nLogin URL    : ${baseUrl}/dashboard.html?role=parent\n======================================`);
 }
 
 window.openStudentRegistrationModal = openStudentRegistrationModal;
