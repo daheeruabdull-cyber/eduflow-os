@@ -2662,3 +2662,151 @@ table.super-table thead th {
   box-sizing: border-box !important;
 }
 
+/* ==========================================================================
+   6-MODULE MOBILE & TABLET RESPONSIVE LOCKDOWN SYSTEM (V61.0.0)
+   ========================================================================== */
+
+/* A. School Control Panel (#sect-settings) */
+@media (max-width: 767px) {
+  #sect-settings div[style*="grid-template-columns"],
+  #sect-settings form div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .class-arm-tag-wrapper,
+  .tag-container {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    max-width: 100% !important;
+  }
+
+  #sect-settings button {
+    width: 100% !important;
+    min-height: 44px !important;
+    margin-bottom: 6px !important;
+  }
+}
+
+/* B. Debtor Fee Broadcast (#sect-debtor-broadcast) */
+@media (max-width: 767px) {
+  #sect-debtor-broadcast div[style*="grid-template-columns: 1.2fr 1fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  #bcast-live-preview-box {
+    max-height: 180px !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* C. Student ID Card Studio (#sect-id-cards) */
+@media (max-width: 767px) {
+  #sect-id-cards div[style*="grid-template-columns: 1fr 1.3fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  /* Scale down CR80 preview cards on mobile screens */
+  .cr80-landscape {
+    width: 280px !important;
+    height: 176px !important;
+    margin: 0 auto !important;
+  }
+
+  .cr80-portrait {
+    width: 190px !important;
+    height: 300px !important;
+    margin: 0 auto !important;
+  }
+
+  .cr80-card svg {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
+
+/* D. Bulk CSV Import (#sect-bulk-import) */
+@media (max-width: 767px) {
+  #bulk-dropzone {
+    max-height: 140px !important;
+    padding: 12px !important;
+  }
+
+  #bulk-preview-container {
+    max-height: 220px !important;
+    overflow: auto !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 8px !important;
+  }
+}
+
+/* E. Schedule & Timetable Planner */
+.timetable-scroll-wrapper {
+  width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  display: block !important;
+}
+
+.timetable-grid-table {
+  min-width: 680px !important;
+}
+
+.timetable-grid-table td,
+.timetable-grid-table th {
+  min-width: 120px !important;
+}
+
+/* F. Terminal Result & Broadsheet Engine (#sect-results) */
+.broadsheet-scroll-container {
+  width: 100% !important;
+  overflow-x: auto !important;
+  max-height: 70vh !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* Sticky First Column for Student Names on Broadsheet */
+table.broadsheet-table td:first-child,
+table.broadsheet-table th:first-child,
+.sticky-col-first {
+  position: sticky !important;
+  left: 0 !important;
+  background: var(--bg-surface, #ffffff) !important;
+  z-index: 15 !important;
+  border-right: 2px solid var(--border-color) !important;
+  box-shadow: 2px 0 4px rgba(0,0,0,0.06) !important;
+}
+
+/* Report Card Mobile Preview Zoom */
+@media screen and (max-width: 768px) {
+  .printable-report-sheet {
+    transform: scale(0.88) !important;
+    transform-origin: top center !important;
+    margin: 0 auto !important;
+  }
+}
+
+/* Touch Target Sizing & iOS Auto-Zoom Prevention */
+@media (max-width: 767px) {
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  select,
+  textarea {
+    font-size: 16px !important; /* Prevents auto-zoom on mobile safari/chrome */
+  }
+
+  button,
+  .btn,
+  .form-select,
+  input[type="checkbox"] {
+    min-height: 44px !important;
+  }
+}
+
+
