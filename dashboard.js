@@ -47,6 +47,15 @@
   }
 })();
 
+// Global Mobile Sidebar Auto-Close Helper
+function closeSidebarMobile() {
+  const sidebar = document.getElementById('sidebar');
+  const backdrop = document.getElementById('sidebar-mobile-backdrop');
+  if (sidebar) sidebar.classList.remove('active');
+  if (backdrop) backdrop.style.display = 'none';
+}
+window.closeSidebarMobile = closeSidebarMobile;
+
 // 1. DATABASE SCHEMA & CONSTANTS (Clean Production Defaults - Zero Demo Students)
 const DEFAULT_STUDENTS = [];
 const DEFAULT_ATTENDANCE = {};
