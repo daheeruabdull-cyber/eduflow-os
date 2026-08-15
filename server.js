@@ -443,6 +443,7 @@ function handlePrincipalCreateUser(req, res) {
 
 app.post('/api/principal/create-user', authenticateToken, requireRole(['principal', 'admin', 'superadmin']), handlePrincipalCreateUser);
 app.post('/api/principal/create-account', handlePrincipalCreateUser);
+app.post('/api/users/create', handlePrincipalCreateUser);
 
 // ==================== 3-STEP SCHOOL ONBOARDING PERSISTENCE API ====================
 app.post('/api/onboarding/complete', (req, res) => {
