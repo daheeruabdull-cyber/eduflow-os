@@ -500,8 +500,10 @@ function saveAndApplyDigitalSignature() {
     if (idCardActiveStudents.length > 0) {
       renderLiveIdCardPreview(idCardActiveStudents[0]);
     }
-    alert("✍️ Digital signature saved and applied to student ID cards!");
     closeSignaturePadModal();
+    setTimeout(() => {
+      alert("✍️ Digital signature saved and applied to student ID cards!");
+    }, 100);
   } else if (idCardActiveSignatureUrl) {
     if (idCardActiveStudents.length > 0) {
       renderLiveIdCardPreview(idCardActiveStudents[0]);
@@ -514,7 +516,13 @@ function saveAndApplyDigitalSignature() {
 
 function closeSignaturePadModal() {
   const modal = document.getElementById('idcard-signature-modal');
-  if (modal) modal.style.display = 'none';
+  if (modal) {
+    modal.style.display = 'none';
+    modal.style.setProperty('display', 'none', 'important');
+    modal.classList.remove('active');
+    modal.classList.remove('flex');
+    modal.classList.add('hidden');
+  }
 }
 
 // Global exports
