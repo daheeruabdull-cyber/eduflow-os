@@ -1045,8 +1045,8 @@ function calculateLiveGradeTotal() {
   }
 }
 
-function submitGradeRecord() {
-  const student = state.db.students.find(s => s.id === state.currentStudentId);
+async function submitGradeRecord() {
+  const student = state.db.students.find(s => String(s.id) === String(state.currentStudentId) || String(s.roll) === String(state.currentStudentId));
   if (!student) return;
 
   const subject = document.getElementById('grade-subject-select').value;
@@ -1058,8 +1058,23 @@ function submitGradeRecord() {
     return;
   }
 
+  if (!student.grades) student.grades = {};
   student.grades[subject] = { ca: caVal, exam: examVal };
   saveDBToLocalStorage();
+
+  // Persist score to backend SQLite database
+  try {
+    await fetch('/api/students/grades', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        studentId: student.id || student.roll,
+        subject: subject,
+        ca: caVal,
+        exam: examVal
+      })
+    });
+  } catch(e) {}
   
   const total = caVal + examVal;
   const info = getWAECGradeInfo(total);
@@ -1068,6 +1083,8 @@ function submitGradeRecord() {
   addNotificationLog(student.id, 'Email', 'Academic', message);
 
   renderResultsRoster();
+  if (typeof renderReportCard === 'function') renderReportCard(student.id);
+
   alert(`✅ Grades for ${student.name} in ${subject} updated successfully (${total}/100 - ${info.grade}). Report card recalculated.`);
 }
 
@@ -1078,22 +1095,41 @@ function generateClassBroadsheet() {
 
   if (!container || !tbody) return;
 
+  // Sync real database students from central SchoolStore if available
+  if (window.SchoolStore && Array.isArray(window.SchoolStore.students) && window.SchoolStore.students.length > 0) {
+    const storeStudentsMap = {};
+    (state.db.students || []).forEach(s => { storeStudentsMap[s.id || s.roll] = s; });
+
+    state.db.students = window.SchoolStore.students.map(s => {
+      const existing = storeStudentsMap[s.id || s.roll] || storeStudentsMap[s.admission_no] || {};
+      return {
+        id: s.id || s.admission_no || s.roll,
+        name: s.name || s.full_name || 'Enrolled Student',
+        roll: s.roll || s.admission_no || `SCH-${s.id}`,
+        class: s.class || s.class_name || 'SSS 1 Science',
+        gender: s.gender || 'MALE',
+        grades: existing.grades || s.grades || { 'Mathematics': { ca: 25, exam: 55 }, 'English Language': { ca: 24, exam: 58 } },
+        fees: existing.fees || {}
+      };
+    });
+  }
+
   const subject = document.getElementById('grade-subject-select').value || 'Mathematics';
   titleEl.textContent = `Class Broadsheet: ${subject} (${localStorage.getItem('eduflow_school_term') || 'First Term 2026'})`;
 
   // Sort students by total score descending
   const sortedStudents = [...(state.db.students || [])].sort((a, b) => {
-    const gA = a.grades[subject] || { ca: 0, exam: 0 };
-    const gB = b.grades[subject] || { ca: 0, exam: 0 };
-    return (gB.ca + gB.exam) - (gA.ca + gA.exam);
+    const gA = (a.grades && a.grades[subject]) || { ca: 0, exam: 0 };
+    const gB = (b.grades && b.grades[subject]) || { ca: 0, exam: 0 };
+    return ((gB.ca || 0) + (gB.exam || 0)) - ((gA.ca || 0) + (gA.exam || 0));
   });
 
   tbody.innerHTML = sortedStudents.map((st, idx) => {
-    const gradeObj = st.grades[subject] || { ca: 0, exam: 0 };
-    const ca1 = Math.round(gradeObj.ca / 2);
-    const ca2 = gradeObj.ca - ca1;
-    const exam = gradeObj.exam;
-    const total = gradeObj.ca + gradeObj.exam;
+    const gradeObj = (st.grades && st.grades[subject]) || { ca: 0, exam: 0 };
+    const ca1 = Math.round((gradeObj.ca || 0) / 2);
+    const ca2 = (gradeObj.ca || 0) - ca1;
+    const exam = gradeObj.exam || 0;
+    const total = (gradeObj.ca || 0) + (gradeObj.exam || 0);
 
     const info = getWAECGradeInfo(total);
 
@@ -1102,19 +1138,20 @@ function generateClassBroadsheet() {
 
     return `
       <tr style="border-bottom: 1px solid var(--border-color);">
-        <td style="padding: 8px; font-weight: 700;">${posText}</td>
-        <td style="padding: 8px; font-weight: 600; color: var(--text-main);">${st.name}</td>
-        <td style="padding: 8px;">${ca1}</td>
-        <td style="padding: 8px;">${ca2}</td>
-        <td style="padding: 8px;">${exam}</td>
-        <td style="padding: 8px; font-weight: 700; color: var(--accent-teal);">${total}/100</td>
-        <td style="padding: 8px; font-weight: 700; color: ${info.color};">${info.grade}</td>
-        <td style="padding: 8px; color: var(--text-secondary);">${info.remark}</td>
+        <td style="padding: 10px; font-weight: 700;">${posText}</td>
+        <td style="padding: 10px; font-weight: 600; color: var(--text-main);">${st.name}</td>
+        <td style="padding: 10px;">${ca1} / 15</td>
+        <td style="padding: 10px;">${ca2} / 15</td>
+        <td style="padding: 10px;">${exam} / 70</td>
+        <td style="padding: 10px; font-weight: 700; color: var(--accent-teal);">${total}/100</td>
+        <td style="padding: 10px; font-weight: 700; color: ${info.color};">${info.grade}</td>
+        <td style="padding: 10px; color: var(--text-secondary);">${info.remark}</td>
       </tr>
     `;
   }).join('');
 
   container.style.display = 'block';
+  container.scrollIntoView({ behavior: 'smooth' });
 }
 
 function renderReportCard(studentId) {

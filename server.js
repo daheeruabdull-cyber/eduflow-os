@@ -1236,6 +1236,41 @@ app.get('/api/principal/students', (req, res) => {
   }
 });
 
+// 12d. STUDENT SCORE & GRADE PERSISTENCE API
+app.post('/api/students/grades', (req, res) => {
+  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.body.schoolId || 'school_demo';
+  const { studentId, subject, ca, exam } = req.body;
+
+  if (!studentId || !subject) {
+    return res.status(400).json({ success: false, message: 'Missing required studentId or subject field.' });
+  }
+
+  try {
+    const student = db.prepare("SELECT * FROM students WHERE id = ? OR roll = ? OR LOWER(name) = LOWER(?)").get(studentId, studentId, studentId);
+    if (!student) {
+      return res.status(404).json({ success: false, message: 'Student record not found.' });
+    }
+
+    let existingGrades = {};
+    try {
+      existingGrades = JSON.parse(student.grades || '{}');
+    } catch(e) {}
+
+    existingGrades[subject] = {
+      ca: Number(ca) || 0,
+      exam: Number(exam) || 0
+    };
+
+    db.prepare("UPDATE students SET grades = ? WHERE id = ?").run(JSON.stringify(existingGrades), student.id);
+
+    console.log(`[GRADE UPDATED] Saved score for ${student.name} in ${subject}: CA=${ca}, Exam=${exam}`);
+    return res.json({ success: true, message: 'Grades successfully saved into database.', grades: existingGrades });
+  } catch(err) {
+    console.error("[GRADE UPDATE ERROR]", err);
+    return res.status(500).json({ success: false, message: 'Database grade update failed: ' + err.message });
+  }
+});
+
 // ==================== 3-STEP SCHOOL ONBOARDING PERSISTENCE API ====================
 app.post('/api/onboarding/complete', (req, res) => {
   const { schoolDetails, academicStructure, adminCredentials } = req.body;
