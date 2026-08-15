@@ -1129,7 +1129,8 @@ async function handleContactInquirySubmit(e) {
   }
 
   try {
-    await fetch('/api/inquiries', {
+    const apiUrl = typeof API_BASE_URL !== 'undefined' ? `${API_BASE_URL}/inquiries` : '/api/inquiries';
+    await fetch(apiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, school, phone, purpose, message })
@@ -1138,7 +1139,7 @@ async function handleContactInquirySubmit(e) {
     console.warn("Failed to POST inquiry to server API:", err);
   }
 
-  alert(`✨ Inquiry Received Successfully!\n\nThank you, ${name}!\nYour request for ${school} (${phone}) has been logged at our Azare Headquarters.\nOur technical support team will contact you directly via call or WhatsApp.`);
+  alert(`✨ Inquiry Dispatched to SuperAdmin!\n\nThank you, ${name}!\nYour request for ${school} (${phone}) has been logged in the SuperAdmin Portal.\nOur technical support team will contact you directly via call or WhatsApp.`);
   
   const form = document.getElementById('contact-inquiry-form');
   if (form) form.reset();

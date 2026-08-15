@@ -4293,7 +4293,8 @@ async function renderOfficialInquiriesTable() {
   if (!tableBody) return;
 
   try {
-    const res = await fetch('/api/inquiries');
+    const apiUrl = typeof API_BASE_URL !== 'undefined' ? `${API_BASE_URL}/inquiries` : '/api/inquiries';
+    const res = await fetch(apiUrl);
     const data = await res.json();
     const inquiries = data.inquiries || [];
 
@@ -4302,7 +4303,7 @@ async function renderOfficialInquiriesTable() {
     if (inquiries.length === 0) {
       tableBody.innerHTML = `
         <tr>
-          <td colspan="6" style="padding: 24px; text-align: center; color: var(--text-muted);">
+          <td colspan="7" style="padding: 24px; text-align: center; color: var(--text-muted);">
             📬 No official inquiries received yet. Requests submitted from the website contact form will appear here in real time.
           </td>
         </tr>
@@ -4310,22 +4311,45 @@ async function renderOfficialInquiriesTable() {
       return;
     }
 
-    tableBody.innerHTML = inquiries.map(iq => `
-      <tr style="border-bottom: 1px solid var(--border-color);">
-        <td style="padding: 12px; font-weight: 700; color: var(--text-main);">${iq.name}</td>
-        <td style="padding: 12px; color: var(--text-main);">${iq.school}</td>
-        <td style="padding: 12px;">
-          <a href="tel:${iq.phone}" style="color: var(--primary); font-weight: 700; text-decoration: none;">📞 ${iq.phone}</a>
-        </td>
-        <td style="padding: 12px;"><span class="badge badge-primary">${iq.purpose}</span></td>
-        <td style="padding: 12px; max-width: 250px; font-size: 0.8rem; color: var(--text-secondary);">${iq.message || 'No notes provided'}</td>
-        <td style="padding: 12px; font-size: 0.75rem; color: var(--text-muted);">${iq.date}</td>
-      </tr>
-    `).join('');
+    tableBody.innerHTML = inquiries.map(iq => {
+      let rawPhone = (iq.phone || '').replace(/\D/g, '');
+      let normalizedPhone = rawPhone.startsWith('234') ? rawPhone : (rawPhone.startsWith('0') ? '234' + rawPhone.substring(1) : '234' + rawPhone);
+      const waText = encodeURIComponent(`Hello ${iq.name}, thank you for your official inquiry regarding ${iq.school}. We are reaching out from Eduflow OS Headquarters.`);
+      const waUrl = `https://wa.me/${normalizedPhone}?text=${waText}`;
+
+      return `
+        <tr style="border-bottom: 1px solid var(--border-color);">
+          <td style="padding: 12px; font-weight: 700; color: var(--text-main);">${iq.name}</td>
+          <td style="padding: 12px; color: var(--text-main); font-weight: 600;">${iq.school}</td>
+          <td style="padding: 12px;">
+            <a href="tel:${iq.phone}" style="color: var(--primary); font-weight: 700; text-decoration: none;">📞 ${iq.phone}</a>
+          </td>
+          <td style="padding: 12px;"><span class="badge badge-primary" style="font-size: 0.7rem;">${iq.purpose}</span></td>
+          <td style="padding: 12px; max-width: 250px; font-size: 0.8rem; color: var(--text-secondary);">${iq.message || 'No additional details'}</td>
+          <td style="padding: 12px; font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-family-mono);">${iq.date || 'Recent'}</td>
+          <td style="padding: 12px; text-align: right; white-space: nowrap;">
+            <a href="${waUrl}" target="_blank" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.72rem; font-weight: 700; color: #10B981; border-color: #10B981; text-decoration: none; margin-right: 4px;">💬 WhatsApp</a>
+            <button class="btn btn-secondary" onclick="deleteSuperInquiry('${iq.id}')" style="padding: 4px 8px; font-size: 0.72rem; color: #EF4444; border-color: #EF4444;">🗑️ Delete</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
   } catch(e) {
     console.warn("Failed to render inquiries table:", e);
   }
 }
+
+async function deleteSuperInquiry(id) {
+  if (!confirm("Are you sure you want to delete this inquiry record?")) return;
+  try {
+    const apiUrl = typeof API_BASE_URL !== 'undefined' ? `${API_BASE_URL}/inquiries/${id}` : `/api/inquiries/${id}`;
+    await fetch(apiUrl, { method: 'DELETE' });
+    renderOfficialInquiriesTable();
+  } catch(e) {
+    alert("Failed to delete inquiry: " + e.message);
+  }
+}
+window.deleteSuperInquiry = deleteSuperInquiry;
 
 function handleSuperGlobalBroadcast(event) {
   event.preventDefault();
