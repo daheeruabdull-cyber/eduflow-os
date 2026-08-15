@@ -226,9 +226,14 @@ async function loadIdCardStudentRoster() {
 
       renderIdCardStudentTable(idCardActiveStudents);
 
-      // Auto-preview first student
+      // Auto-preview first student or clear if empty
       if (idCardActiveStudents.length > 0) {
         renderLiveIdCardPreview(idCardActiveStudents[0]);
+      } else {
+        const front = document.getElementById('idcard-live-preview-front');
+        const back = document.getElementById('idcard-live-preview-back');
+        if (front) front.innerHTML = `<div style="padding: 24px; color: #94A3B8; text-align: center; font-size: 0.8rem;">🎓 Select a student to preview ID card</div>`;
+        if (back) back.innerHTML = `<div style="padding: 24px; color: #94A3B8; text-align: center; font-size: 0.8rem;">🎓 Select a student to preview ID card</div>`;
       }
     }
   } catch(err) {

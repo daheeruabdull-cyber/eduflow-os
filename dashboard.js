@@ -5705,16 +5705,6 @@ function renderPrincipalUsersTable(filterRole = 'all') {
   let teachers = (state.db && state.db.teachers && state.db.teachers.length > 0) ? state.db.teachers : (window.SchoolStore && window.SchoolStore.staff && window.SchoolStore.staff.length > 0 ? window.SchoolStore.staff : []);
   let students = (state.db && state.db.students && state.db.students.length > 0) ? state.db.students : (window.SchoolStore && window.SchoolStore.students && window.SchoolStore.students.length > 0 ? window.SchoolStore.students : []);
 
-  if (teachers.length === 0) {
-    teachers = [
-      { id: 'TCH-001', name: 'Dr. Adamu Usman', role: 'Form Master', assignedClass: 'JSS 1 Gold', email: 'a.usman@eduflow.com' },
-      { id: 'TCH-002', name: 'Mrs. Victoria Nkechi Okon', role: 'Teacher', assignedClass: 'SSS 1 Science', email: 'v.okon@eduflow.com' },
-      { id: 'TCH-003', name: 'Mal. Ibrahim Katagum', role: 'Bursar', assignedClass: 'Bursary Office', email: 'bursar@eduflow.com' },
-      { id: 'TCH-004', name: 'Mrs. Aisha Mohammed', role: 'Teacher', assignedClass: 'JSS 2 Silver', email: 'a.mohammed@eduflow.com' },
-      { id: 'TCH-005', name: 'Mr. Babatunde Ogunleye', role: 'Teacher', assignedClass: 'SSS 2 Science', email: 'b.ogunleye@eduflow.com' }
-    ];
-  }
-
   let combinedUsers = [];
 
   teachers.forEach(t => {

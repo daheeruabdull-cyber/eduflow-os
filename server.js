@@ -860,24 +860,6 @@ app.get('/api/students/id-cards', (req, res) => {
 
     let rows = db.prepare(sql).all(...params);
 
-    if (rows.length === 0) {
-      rows = [
-        { id: '101', name: 'Fatima Ibrahim Adamu', roll: 'SCH-2026-0001', class: 'JSS 1 Gold' },
-        { id: '102', name: 'Chinedu Emmanuel Okonkwo', roll: 'SCH-2026-0002', class: 'JSS 1 Silver' },
-        { id: '103', name: 'Amina Danjuma Bello', roll: 'SCH-2026-0003', class: 'JSS 1 Diamond' },
-        { id: '104', name: 'Babatunde Olawale Adeleke', roll: 'SCH-2026-0004', class: 'JSS 2 Gold' },
-        { id: '105', name: 'Grace Kwaghtser Danjuma', roll: 'SCH-2026-0005', class: 'SSS 1 Science' },
-        { id: '106', name: 'Mustapha Kabir Usman', roll: 'SCH-2026-0006', class: 'SSS 3 Arts' }
-      ];
-
-      if (filterClass) {
-        rows = rows.filter(r => r.class.toLowerCase().includes(filterClass.toLowerCase()));
-        if (rows.length === 0) {
-          rows = [{ id: '101', name: 'Fatima Ibrahim Adamu', roll: 'SCH-2026-0001', class: `${filterClass} Gold` }];
-        }
-      }
-    }
-
     if (rawStudentIds) {
       const idSet = new Set(rawStudentIds.split(',').map(s => s.trim().toLowerCase()));
       rows = rows.filter(r => idSet.has(String(r.roll).toLowerCase()) || idSet.has(String(r.id).toLowerCase()));
@@ -1212,16 +1194,7 @@ app.get('/api/classes', (req, res) => {
 app.get('/api/staff', (req, res) => {
   const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.query.schoolId || 'school_demo';
   try {
-    let staff = db.prepare("SELECT * FROM teachers WHERE schoolId = ?").all(activeSchoolId);
-    if (!staff || staff.length === 0) {
-      staff = [
-        { id: 1, name: 'Dr. Adamu Usman', email: 'a.usman@eduflow.com', subject: 'Mathematics & Further Maths', assignedClass: 'JSS 1 Gold', role: 'Form Master' },
-        { id: 2, name: 'Mrs. Victoria Nkechi Okon', email: 'v.okon@eduflow.com', subject: 'English Language & Literature', assignedClass: 'SSS 1 Science', role: 'Teacher' },
-        { id: 3, name: 'Mal. Ibrahim Katagum', email: 'bursar@eduflow.com', subject: 'Financial Accounting & Economics', assignedClass: 'Bursary Office', role: 'Bursar' },
-        { id: 4, name: 'Mrs. Aisha Mohammed', email: 'a.mohammed@eduflow.com', subject: 'Basic Science & Biology', assignedClass: 'JSS 2 Silver', role: 'Teacher' },
-        { id: 5, name: 'Mr. Babatunde Ogunleye', email: 'b.ogunleye@eduflow.com', subject: 'Physics & Chemistry', assignedClass: 'SSS 2 Science', role: 'Teacher' }
-      ];
-    }
+    const staff = db.prepare("SELECT * FROM teachers WHERE schoolId = ?").all(activeSchoolId);
     return res.json({ success: true, staff });
   } catch(err) {
     return res.status(500).json({ success: false, message: err.message });
@@ -1236,6 +1209,40 @@ app.get('/api/students', (req, res) => {
     return res.json({ success: true, students });
   } catch(err) {
     return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// 12b. Strict Backend Principal Students Endpoint
+app.get('/api/principal/students', (req, res) => {
+  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.query.schoolId || 'school_demo';
+  const filterClass = req.query.class_id || req.query.class;
+
+  try {
+    let sql = `
+      SELECT 
+        s.id, 
+        s.roll as admission_no, 
+        s.name as full_name, 
+        s.class as class_name,
+        COALESCE(i.balance_due, 0) AS balance_due,
+        COALESCE(i.payment_status, 'unpaid') AS payment_status
+      FROM students s
+      LEFT JOIN student_invoices i ON i.student_id = s.id
+      WHERE s.schoolId = ?
+    `;
+    const params = [activeSchoolId];
+
+    if (filterClass) {
+      sql += " AND s.class LIKE ?";
+      params.push(`%${filterClass}%`);
+    }
+
+    sql += " ORDER BY s.name ASC";
+
+    const students = db.prepare(sql).all(...params);
+    return res.json({ success: true, students });
+  } catch(err) {
+    return res.status(500).json({ success: false, message: 'Database query error: ' + err.message });
   }
 });
 
@@ -1681,14 +1688,7 @@ app.post('/api/inquiries', (req, res) => {
 
 app.get('/api/inquiries', (req, res) => {
   try {
-    let rows = db.prepare("SELECT * FROM inquiries ORDER BY id DESC").all();
-    if (!rows || rows.length === 0) {
-      const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
-      rows = [
-        { id: 101, name: 'Dr. Aminu Bello', school: 'Azare Model Academy', phone: '08031234567', purpose: 'Request Live Campus Demo', message: 'Interested in Eduflow OS for 450 students and termly report card automation.', date: now },
-        { id: 102, name: 'Hajiya Zainab Katagum', school: 'Al-Qalam International School', phone: '08098765432', purpose: 'Pricing & Subscription Plans', message: 'Please send official licensing cost for nursery, primary, and secondary arms.', date: now }
-      ];
-    }
+    const rows = db.prepare("SELECT * FROM inquiries ORDER BY id DESC").all();
     return res.status(200).json({ status: 'success', inquiries: rows });
   } catch (err) {
     return res.status(500).json({ error: 'Failed to fetch inquiries: ' + err.message });
