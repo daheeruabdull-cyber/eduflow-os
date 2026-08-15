@@ -13,6 +13,8 @@ let idCardSchoolInfo = {
 };
 let idCardSelectedIds = new Set();
 let idCardOrientation = 'portrait'; // 'portrait' | 'landscape'
+let idCardActiveSignatureUrl = '';
+let signaturePadInstance = null;
 
 /**
  * 1. Pure SVG Code128 Barcode Generator
@@ -72,6 +74,16 @@ function generateCode128Svg(text) {
 function renderSingleIdCardHTML(student, school, orientation = 'portrait', side = 'front') {
   const primaryColor = school.primary_color || '#5B4FE0';
   const barcodeSvg = generateCode128Svg(student.admission_no);
+  const activeSig = student.signature_url || idCardActiveSignatureUrl || '';
+
+  const sigBlock = `
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-end;">
+      <div style="height: 24px; width: 85px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #94A3B8; margin-bottom: 2px; background: rgba(0,0,0,0.02); overflow: hidden;">
+        ${activeSig ? `<img id="idCardStudentSig" src="${activeSig}" alt="Signature" style="max-height: 22px; max-width: 100%; object-fit: contain;" />` : `<span id="idCardSigPlaceholder" style="font-size: 0.45rem; color: #94A3B8; font-style: italic;">No Signature</span>`}
+      </div>
+      <span style="font-size: 0.44rem; font-weight: 700; color: #475569; text-transform: uppercase;">Student Signature</span>
+    </div>
+  `;
 
   if (orientation === 'landscape') {
     if (side === 'front') {
@@ -124,7 +136,7 @@ function renderSingleIdCardHTML(student, school, orientation = 'portrait', side 
             <div><strong>EMERGENCY CONTACT:</strong> ${school.phone}</div>
           </div>
           <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px dashed #CBD5E1; padding-top: 6px;">
-            <div style="font-size: 0.5rem; color: #64748B;">AUTHORIZATION SIGNATURE</div>
+            ${sigBlock}
             <div style="border: 1px dashed ${primaryColor}; padding: 2px 6px; border-radius: 4px; color: ${primaryColor}; font-size: 0.48rem; font-weight: 900;">
               ✓ OFFICIAL STAMP SEAL
             </div>
@@ -181,7 +193,8 @@ function renderSingleIdCardHTML(student, school, orientation = 'portrait', side 
           <div style="font-size: 0.55rem; color: #0F172A; margin-bottom: 10px; text-align: left;">
             <div><strong>EMERGENCY:</strong> ${school.phone}</div>
           </div>
-          <div style="margin-top: auto; border-top: 1px dashed #CBD5E1; padding-top: 8px;">
+          <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px dashed #CBD5E1; padding-top: 6px;">
+            ${sigBlock}
             <div style="border: 1.5px dashed ${primaryColor}; padding: 4px; border-radius: 4px; color: ${primaryColor}; font-size: 0.48rem; font-weight: 900; text-transform: uppercase;">
               ✓ OFFICIAL CAMPUS STAMP
             </div>
@@ -318,6 +331,73 @@ function closeBatchIdCardModal() {
   if (modal) modal.style.display = 'none';
 }
 
+/**
+ * 6. Digital Signature Pad Controller & File Uploader
+ */
+function openSignaturePadModal() {
+  const modal = document.getElementById('idcard-signature-modal');
+  const canvas = document.getElementById('signatureCanvas');
+
+  if (!modal || !canvas) return;
+
+  modal.style.display = 'flex';
+
+  if (window.SignaturePad && !signaturePadInstance) {
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    canvas.getContext("2d").scale(ratio, ratio);
+
+    signaturePadInstance = new window.SignaturePad(canvas, {
+      penColor: "#0F172A",
+      backgroundColor: "rgba(255, 255, 255, 0)",
+      minWidth: 1.2,
+      maxWidth: 3.0
+    });
+  }
+}
+
+function clearSignaturePad() {
+  if (signaturePadInstance) {
+    signaturePadInstance.clear();
+  }
+}
+
+function handleSignatureFileUpload(file) {
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    idCardActiveSignatureUrl = e.target.result;
+    if (idCardActiveStudents.length > 0) {
+      renderLiveIdCardPreview(idCardActiveStudents[0]);
+    }
+    alert("✅ Transparent signature image uploaded and applied to ID card!");
+    closeSignaturePadModal();
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveAndApplyDigitalSignature() {
+  if (signaturePadInstance && !signaturePadInstance.isEmpty()) {
+    idCardActiveSignatureUrl = signaturePadInstance.toDataURL("image/png");
+    if (idCardActiveStudents.length > 0) {
+      renderLiveIdCardPreview(idCardActiveStudents[0]);
+    }
+    alert("✍️ Digital signature saved and applied to student ID cards!");
+  } else if (!idCardActiveSignatureUrl) {
+    alert("⚠️ Please draw a signature on the pad or upload a transparent PNG signature file first.");
+    return;
+  }
+
+  closeSignaturePadModal();
+}
+
+function closeSignaturePadModal() {
+  const modal = document.getElementById('idcard-signature-modal');
+  if (modal) modal.style.display = 'none';
+}
+
 // Global exports
 window.generateCode128Svg = generateCode128Svg;
 window.renderSingleIdCardHTML = renderSingleIdCardHTML;
@@ -328,6 +408,11 @@ window.previewStudentIdCard = previewStudentIdCard;
 window.setIdCardOrientation = setIdCardOrientation;
 window.printBatchIdCardsA4 = printBatchIdCardsA4;
 window.closeBatchIdCardModal = closeBatchIdCardModal;
+window.openSignaturePadModal = openSignaturePadModal;
+window.clearSignaturePad = clearSignaturePad;
+window.handleSignatureFileUpload = handleSignatureFileUpload;
+window.saveAndApplyDigitalSignature = saveAndApplyDigitalSignature;
+window.closeSignaturePadModal = closeSignaturePadModal;
 
 document.addEventListener('DOMContentLoaded', () => {
   loadIdCardStudentRoster();
