@@ -1062,6 +1062,84 @@ app.post('/api/finance/debtors/send-broadcast', (req, res) => {
   }
 });
 
+// 9. Centralized School Dashboard Summary API
+app.get('/api/principal/dashboard-summary', (req, res) => {
+  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.query.schoolId || 'school_demo';
+  try {
+    const studentCount = db.prepare("SELECT COUNT(*) as cnt FROM students WHERE schoolId = ?").get(activeSchoolId).cnt || 0;
+    const staffCount = db.prepare("SELECT COUNT(*) as cnt FROM teachers WHERE schoolId = ?").get(activeSchoolId).cnt || 0;
+    
+    let stats = { total_expected: 0, total_collected: 0, total_outstanding: 0, debtors_count: 0 };
+    try {
+      const s = db.prepare(`
+        SELECT 
+          COALESCE(SUM(total_billed), 0.0) as total_expected,
+          COALESCE(SUM(amount_paid), 0.0) as total_collected,
+          COALESCE(SUM(balance_due), 0.0) as total_outstanding,
+          COUNT(CASE WHEN balance_due > 0 THEN 1 END) as debtors_count
+        FROM student_invoices
+        WHERE school_id = ?
+      `).get(activeSchoolId);
+      if (s) stats = s;
+    } catch(e) {}
+
+    return res.json({
+      success: true,
+      summary: {
+        students_count: studentCount,
+        staff_count: staffCount,
+        classes_count: 12,
+        finance: stats
+      }
+    });
+  } catch(err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// 10. Fetch Centralized Classes Roster
+app.get('/api/classes', (req, res) => {
+  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.query.schoolId || 'school_demo';
+  const defaultClasses = [
+    { id: 'JSS 1', name: 'JSS 1', arms: ['Gold', 'Silver', 'Diamond'] },
+    { id: 'JSS 2', name: 'JSS 2', arms: ['Gold', 'Silver', 'Diamond'] },
+    { id: 'JSS 3', name: 'JSS 3', arms: ['Gold', 'Silver', 'Diamond'] },
+    { id: 'SSS 1', name: 'SSS 1', arms: ['Science', 'Arts', 'Commercial'] },
+    { id: 'SSS 2', name: 'SSS 2', arms: ['Science', 'Arts', 'Commercial'] },
+    { id: 'SSS 3', name: 'SSS 3', arms: ['Science', 'Arts', 'Commercial'] },
+    { id: 'Primary 1', name: 'Primary 1', arms: ['Gold', 'Silver'] },
+    { id: 'Primary 2', name: 'Primary 2', arms: ['Gold', 'Silver'] },
+    { id: 'Primary 3', name: 'Primary 3', arms: ['Gold', 'Silver'] },
+    { id: 'Primary 4', name: 'Primary 4', arms: ['Gold', 'Silver'] },
+    { id: 'Primary 5', name: 'Primary 5', arms: ['Gold', 'Silver'] },
+    { id: 'Primary 6', name: 'Primary 6', arms: ['Gold', 'Silver'] }
+  ];
+
+  return res.json({ success: true, classes: defaultClasses });
+});
+
+// 11. Fetch Centralized Staff Directory
+app.get('/api/staff', (req, res) => {
+  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.query.schoolId || 'school_demo';
+  try {
+    const staff = db.prepare("SELECT * FROM teachers WHERE schoolId = ?").all(activeSchoolId);
+    return res.json({ success: true, staff });
+  } catch(err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// 12. Fetch Centralized Student Roster
+app.get('/api/students', (req, res) => {
+  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.query.schoolId || 'school_demo';
+  try {
+    const students = db.prepare("SELECT * FROM students WHERE schoolId = ?").all(activeSchoolId);
+    return res.json({ success: true, students });
+  } catch(err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // ==================== 3-STEP SCHOOL ONBOARDING PERSISTENCE API ====================
 app.post('/api/onboarding/complete', (req, res) => {
   const { schoolDetails, academicStructure, adminCredentials } = req.body;
