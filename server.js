@@ -883,17 +883,33 @@ app.get('/api/students/id-cards', (req, res) => {
       rows = rows.filter(r => idSet.has(String(r.roll).toLowerCase()) || idSet.has(String(r.id).toLowerCase()));
     }
 
-    // Fetch School Info
+    // Fetch Full School Branding Profile
     let schoolName = 'Eduflow International Academy';
     let schoolAddress = 'Azare Campus, Bauchi State, Nigeria';
     let schoolPhone = '+234 803 123 4567';
+    let schoolEmail = 'admin@eduflow.com';
+    let schoolLogo = '/assets/default-school-logo.png';
+    let schoolMotto = 'Knowledge, Discipline & Excellence';
+    let primaryColor = '#5B4FE0';
+    let secondaryColor = '#10B981';
 
     try {
-      const sch = db.prepare("SELECT name, address, phone FROM schools WHERE id = ?").get(activeSchoolId);
+      const sch = db.prepare("SELECT * FROM schools WHERE id = ?").get(activeSchoolId);
       if (sch) {
         if (sch.name) schoolName = sch.name;
         if (sch.address) schoolAddress = sch.address;
         if (sch.phone) schoolPhone = sch.phone;
+        if (sch.email) schoolEmail = sch.email;
+        if (sch.logo) schoolLogo = sch.logo;
+
+        if (sch.config) {
+          try {
+            const cfg = JSON.parse(sch.config);
+            if (cfg.motto) schoolMotto = cfg.motto;
+            if (cfg.primary_color) primaryColor = cfg.primary_color;
+            if (cfg.secondary_color) secondaryColor = cfg.secondary_color;
+          } catch(e) {}
+        }
       }
     } catch(e) {}
 
@@ -923,14 +939,67 @@ app.get('/api/students/id-cards', (req, res) => {
         name: schoolName,
         address: schoolAddress,
         phone: schoolPhone,
-        motto: 'Excellence & Discipline',
-        primary_color: '#5B4FE0'
+        email: schoolEmail,
+        logo_url: schoolLogo,
+        motto: schoolMotto,
+        primary_color: primaryColor,
+        secondary_color: secondaryColor
       },
       students: mappedStudents
     });
 
   } catch(err) {
     return res.status(500).json({ success: false, message: 'Database error fetching ID card records: ' + err.message });
+  }
+});
+
+// 6b. Principal School Profile Endpoint
+app.get('/api/principal/school-profile', (req, res) => {
+  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.query.schoolId || 'school_demo';
+  try {
+    const sch = db.prepare("SELECT * FROM schools WHERE id = ?").get(activeSchoolId);
+    let school_name = 'Eduflow International Academy';
+    let address = 'Azare Campus, Bauchi State, Nigeria';
+    let phone_number = '+234 803 123 4567';
+    let email = 'admin@eduflow.com';
+    let logo_url = '/assets/default-school-logo.png';
+    let motto = 'Knowledge, Discipline & Excellence';
+    let primary_color = '#5B4FE0';
+    let secondary_color = '#10B981';
+
+    if (sch) {
+      if (sch.name) school_name = sch.name;
+      if (sch.address) address = sch.address;
+      if (sch.phone) phone_number = sch.phone;
+      if (sch.email) email = sch.email;
+      if (sch.logo) logo_url = sch.logo;
+
+      if (sch.config) {
+        try {
+          const cfg = JSON.parse(sch.config);
+          if (cfg.motto) motto = cfg.motto;
+          if (cfg.primary_color) primary_color = cfg.primary_color;
+          if (cfg.secondary_color) secondary_color = cfg.secondary_color;
+        } catch(e) {}
+      }
+    }
+
+    return res.json({
+      success: true,
+      school_profile: {
+        school_id: activeSchoolId,
+        school_name,
+        motto,
+        logo_url,
+        primary_color,
+        secondary_color,
+        address,
+        phone_number,
+        email
+      }
+    });
+  } catch(err) {
+    return res.status(500).json({ success: false, message: err.message });
   }
 });
 

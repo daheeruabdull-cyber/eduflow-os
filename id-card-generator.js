@@ -91,11 +91,14 @@ function renderSingleIdCardHTML(student, school, orientation = 'portrait', side 
         <div class="cr80-card cr80-landscape cr80-front" style="width: 336px; height: 212px; background: #ffffff; color: #0F172A; border-radius: 10px; overflow: hidden; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 1px solid #CBD5E1; box-sizing: border-box; display: flex; flex-direction: column; font-family: system-ui, sans-serif;">
           <!-- Top Accent Color Bar -->
           <div style="background: ${primaryColor}; color: #ffffff; padding: 6px 12px; display: flex; align-items: center; justify-content: space-between;">
-            <div>
-              <div style="font-size: 0.72rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.1;">${school.name}</div>
-              <div style="font-size: 0.52rem; opacity: 0.9; font-style: italic;">${school.motto}</div>
+            <div style="display: flex; align-items: center; gap: 8px; overflow: hidden;">
+              <img id="idCardSchoolLogo" src="${school.logo_url || school.logo || '/assets/default-school-logo.png'}" alt="School Logo" style="width: 26px; height: 26px; object-fit: contain; border-radius: 50%; background: #ffffff; padding: 1.5px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); flex-shrink: 0;" />
+              <div style="overflow: hidden;">
+                <div id="idCardSchoolName" style="font-size: 0.7rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.4px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${school.name}</div>
+                <div id="idCardSchoolMotto" style="font-size: 0.48rem; opacity: 0.9; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${school.motto}</div>
+              </div>
             </div>
-            <span style="background: #ffffff; color: ${primaryColor}; font-size: 0.5rem; font-weight: 900; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">STUDENT</span>
+            <span style="background: #ffffff; color: ${primaryColor}; font-size: 0.48rem; font-weight: 900; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; flex-shrink: 0;">STUDENT</span>
           </div>
 
           <!-- Body Grid -->
@@ -103,15 +106,15 @@ function renderSingleIdCardHTML(student, school, orientation = 'portrait', side 
             <!-- Passport Photo -->
             <div style="text-align: center;">
               <div style="width: 74px; height: 84px; border-radius: 6px; border: 2px solid ${primaryColor}; overflow: hidden; background: #F1F5F9; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
-                <svg width="42" height="42" fill="none" stroke="#94A3B8" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+                ${student.passport_url ? `<img id="idCardStudentPhoto" src="${student.passport_url}" style="width: 100%; height: 100%; object-fit: cover;" />` : `<svg width="42" height="42" fill="none" stroke="#94A3B8" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>`}
               </div>
             </div>
 
             <!-- Student Bio Details -->
             <div style="font-size: 0.68rem; line-height: 1.35;">
-              <div style="font-size: 0.85rem; font-weight: 800; color: #0F172A; margin-bottom: 3px;">${student.full_name}</div>
-              <div><span style="color: #64748B;">ADM NO:</span> <strong style="font-family: monospace; color: ${primaryColor};">${student.admission_no}</strong></div>
-              <div><span style="color: #64748B;">CLASS & ARM:</span> <strong>${student.class_name} (${student.arm_name})</strong></div>
+              <div id="idCardStudentName" style="font-size: 0.85rem; font-weight: 800; color: #0F172A; margin-bottom: 3px;">${student.full_name}</div>
+              <div><span style="color: #64748B;">ADM NO:</span> <strong id="idCardAdmissionNo" style="font-family: monospace; color: ${primaryColor};">${student.admission_no}</strong></div>
+              <div><span style="color: #64748B;">CLASS & ARM:</span> <strong id="idCardClassName">${student.class_name} (${student.arm_name})</strong></div>
               <div><span style="color: #64748B;">BLOOD / DOB:</span> <strong>${student.blood_group} | ${student.dob}</strong></div>
               <div><span style="color: #64748B;">SESSION / EXP:</span> <strong>${student.session} | ${student.expiry_date}</strong></div>
             </div>
@@ -150,28 +153,29 @@ function renderSingleIdCardHTML(student, school, orientation = 'portrait', side 
       return `
         <div class="cr80-card cr80-portrait cr80-front" style="width: 212px; height: 336px; background: #ffffff; color: #0F172A; border-radius: 10px; overflow: hidden; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 1px solid #CBD5E1; box-sizing: border-box; display: flex; flex-direction: column; text-align: center; font-family: system-ui, sans-serif;">
           <!-- Top Accent Header -->
-          <div style="background: ${primaryColor}; color: #ffffff; padding: 10px 8px 14px 8px; clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);">
-            <div style="font-size: 0.68rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.1;">${school.name}</div>
-            <div style="font-size: 0.48rem; opacity: 0.9; font-style: italic; margin-top: 2px;">${school.motto}</div>
+          <div style="background: ${primaryColor}; color: #ffffff; padding: 8px 8px 12px 8px; clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%); display: flex; flex-direction: column; align-items: center;">
+            <img id="idCardSchoolLogo" src="${school.logo_url || school.logo || '/assets/default-school-logo.png'}" alt="School Logo" style="width: 24px; height: 24px; object-fit: contain; border-radius: 50%; background: #ffffff; padding: 1.5px; margin-bottom: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);" />
+            <div id="idCardSchoolName" style="font-size: 0.68rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.4px; line-height: 1.1;">${school.name}</div>
+            <div id="idCardSchoolMotto" style="font-size: 0.48rem; opacity: 0.9; font-style: italic; margin-top: 1px;">${school.motto}</div>
           </div>
 
           <!-- Photo Avatar -->
-          <div style="margin-top: -14px; margin-bottom: 6px; z-index: 2;">
+          <div style="margin-top: -12px; margin-bottom: 6px; z-index: 2;">
             <div style="width: 72px; height: 82px; border-radius: 6px; border: 2.5px solid #ffffff; overflow: hidden; background: #F1F5F9; margin: 0 auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
-              <svg width="40" height="40" fill="none" stroke="#94A3B8" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+              ${student.passport_url ? `<img id="idCardStudentPhoto" src="${student.passport_url}" style="width: 100%; height: 100%; object-fit: cover;" />` : `<svg width="40" height="40" fill="none" stroke="#94A3B8" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>`}
             </div>
           </div>
 
           <!-- Student Name & Category Badge -->
           <div style="padding: 0 10px;">
-            <div style="font-size: 0.8rem; font-weight: 800; color: #0F172A; margin-bottom: 2px;">${student.full_name}</div>
+            <div id="idCardStudentName" style="font-size: 0.8rem; font-weight: 800; color: #0F172A; margin-bottom: 2px;">${student.full_name}</div>
             <span style="background: ${primaryColor}; color: #ffffff; font-size: 0.48rem; font-weight: 900; padding: 1.5px 8px; border-radius: 10px; text-transform: uppercase;">STUDENT</span>
           </div>
 
           <!-- Bio Grid -->
           <div style="font-size: 0.58rem; line-height: 1.35; padding: 6px 10px; text-align: left; margin-top: 4px;">
-            <div><span style="color: #64748B;">ADM NO:</span> <strong style="font-family: monospace; color: ${primaryColor};">${student.admission_no}</strong></div>
-            <div><span style="color: #64748B;">CLASS & ARM:</span> <strong>${student.class_name} (${student.arm_name})</strong></div>
+            <div><span style="color: #64748B;">ADM NO:</span> <strong id="idCardAdmissionNo" style="font-family: monospace; color: ${primaryColor};">${student.admission_no}</strong></div>
+            <div><span style="color: #64748B;">CLASS & ARM:</span> <strong id="idCardClassName">${student.class_name} (${student.arm_name})</strong></div>
             <div><span style="color: #64748B;">SESSION / EXP:</span> <strong>${student.session} | ${student.expiry_date}</strong></div>
           </div>
 
