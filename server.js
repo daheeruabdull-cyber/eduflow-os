@@ -445,6 +445,173 @@ app.post('/api/principal/create-user', authenticateToken, requireRole(['principa
 app.post('/api/principal/create-account', handlePrincipalCreateUser);
 app.post('/api/users/create', handlePrincipalCreateUser);
 
+// ==================== BULK STUDENT CSV IMPORT ENGINE ====================
+function handleBulkStudentImport(req, res) {
+  const rawStudents = req.body.students || req.body.rows || (Array.isArray(req.body) ? req.body : []);
+
+  if (!Array.isArray(rawStudents) || rawStudents.length === 0) {
+    return res.status(400).json({ success: false, message: 'Validation Failed: Payload must contain a non-empty array of student records.' });
+  }
+
+  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.body.schoolId || 'school_demo';
+  const now = new Date().toISOString();
+  const year = new Date().getFullYear();
+
+  // Get current max student count to sequence admission numbers
+  let maxSeq = 1;
+  try {
+    const maxRow = db.prepare("SELECT COUNT(*) as cnt FROM students WHERE schoolId = ?").get(activeSchoolId);
+    if (maxRow && maxRow.cnt) maxSeq = maxRow.cnt + 1;
+  } catch(e) {}
+
+  const credentialsPreview = [];
+  const errors = [];
+  let importedCount = 0;
+
+  try {
+    db.exec('BEGIN TRANSACTION');
+
+    rawStudents.forEach((st, idx) => {
+      const rowNum = idx + 1;
+      const firstName = (st.first_name || st.firstName || st.name || '').trim();
+      const lastName = (st.last_name || st.lastName || '').trim();
+      const otherName = (st.other_name || st.otherName || '').trim();
+      const rawGender = (st.gender || 'Unspecified').trim();
+      const dob = (st.dob || '').trim();
+      
+      const className = (st.class_name || st.className || st.class || 'JSS 1').trim();
+      const armName = (st.arm_name || st.armName || st.arm || 'Gold').trim();
+      const fullClass = `${className} ${armName}`.trim();
+
+      // Required Field Validation
+      if (!firstName || !lastName) {
+        errors.push({ row: rowNum, error: `Row ${rowNum}: Missing student first_name or last_name.` });
+        return;
+      }
+
+      const fullName = `${firstName} ${lastName}${otherName ? ' ' + otherName : ''}`.trim();
+
+      // Normalize Admission Number
+      let admissionNo = (st.admission_no || st.admissionNo || st.roll || '').trim();
+      if (!admissionNo) {
+        admissionNo = `SCH-${year}-${String(maxSeq++).padStart(4, '0')}`;
+      }
+
+      // Check duplicate admission number in DB
+      try {
+        const existing = db.prepare("SELECT * FROM users WHERE LOWER(username) = ? OR LOWER(id) = ?").get(admissionNo.toLowerCase(), admissionNo.toLowerCase());
+        if (existing) {
+          admissionNo = `${admissionNo}-${Math.floor(1000 + Math.random() * 9000)}`;
+        }
+      } catch(e) {}
+
+      // Normalize Gender
+      let gender = 'Male';
+      if (/^f/i.test(rawGender) || rawGender.toLowerCase() === 'female') gender = 'Female';
+
+      // Default Passcode
+      const tempPassword = `Welcome@${year}`;
+      const hashedPassword = bcrypt.hashSync(tempPassword, 10);
+      const userEmail = `${admissionNo.toLowerCase().replace(/[^\w]/g, '')}@eduflow.ng`;
+
+      // 1. Insert into `users` Table
+      try {
+        const stmtUser = db.prepare(`
+          INSERT INTO users (id, school_id, full_name, username, email, password_hash, role, status, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, 'student', 'active', ?)
+          ON CONFLICT(id) DO UPDATE SET full_name=excluded.full_name, password_hash=excluded.password_hash
+        `);
+        stmtUser.run(admissionNo, activeSchoolId, fullName, admissionNo, userEmail, hashedPassword, now);
+      } catch(e) {
+        console.warn(`[BULK IMPORT] Skipping users insert warning for row ${rowNum}:`, e.message);
+      }
+
+      // 2. Insert into `assignments` Table
+      try {
+        const stmtAssign = db.prepare(`
+          INSERT INTO assignments (user_id, school_id, role, assigned_class_id, assigned_arm_id, assigned_subjects, assigned_classes, admission_no, parent_id, metadata, created_at)
+          VALUES (?, ?, 'student', ?, ?, ?, ?, ?, ?, ?, ?)
+        `);
+        stmtAssign.run(
+          admissionNo,
+          activeSchoolId,
+          className,
+          armName,
+          JSON.stringify(["Mathematics", "English Language"]),
+          JSON.stringify([fullClass]),
+          admissionNo,
+          st.parent_email || st.parent_phone || null,
+          JSON.stringify({ class_name: className, arm_name: armName, parent_name: st.parent_name || '' }),
+          now
+        );
+      } catch(e) {}
+
+      // 3. Insert into `students` Table
+      const studentNumericId = Number(admissionNo.replace(/\D/g, '')) || Math.floor(100000 + Math.random() * 900000);
+      try {
+        const stmtStudent = db.prepare(`
+          INSERT INTO students (id, schoolId, name, class, roll, grades, fees, password)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `);
+        stmtStudent.run(
+          studentNumericId,
+          activeSchoolId,
+          fullName,
+          fullClass,
+          admissionNo,
+          JSON.stringify({}),
+          JSON.stringify({ tuition: { amount: 150000, paid: false, due: `${year}-09-30` } }),
+          hashedPassword
+        );
+      } catch(e) {}
+
+      // 4. Insert/Link Parent Record if present
+      const parentPhone = (st.parent_phone || st.parentPhone || '').trim();
+      const parentEmail = (st.parent_email || st.parentEmail || '').trim().toLowerCase();
+      const parentName = (st.parent_name || st.parentName || `Parent of ${fullName}`).trim();
+
+      if (parentEmail || parentPhone) {
+        const parentKey = parentEmail || parentPhone;
+        try {
+          const stmtParent = db.prepare(`
+            INSERT INTO parents (email, password, children)
+            VALUES (?, ?, ?)
+            ON CONFLICT(email) DO UPDATE SET children=excluded.children
+          `);
+          stmtParent.run(parentKey, bcrypt.hashSync('parent123', 10), JSON.stringify([studentNumericId]));
+        } catch(e) {}
+      }
+
+      importedCount++;
+      credentialsPreview.push({
+        name: fullName,
+        admission_no: admissionNo,
+        class: fullClass,
+        temp_password: tempPassword
+      });
+    });
+
+    db.exec('COMMIT');
+
+    console.log(`[BULK IMPORT ATOMIC SUCCESS] Successfully imported ${importedCount} student records into database for school: ${activeSchoolId}`);
+
+    return res.status(201).json({
+      success: true,
+      imported_count: importedCount,
+      errors,
+      credentials_preview: credentialsPreview
+    });
+
+  } catch (err) {
+    try { db.exec('ROLLBACK'); } catch(e) {}
+    console.error("Bulk student import atomic transaction failed:", err);
+    return res.status(500).json({ success: false, message: 'Bulk student import transaction error: ' + err.message });
+  }
+}
+
+app.post('/api/principal/students/bulk-import', authenticateToken, requireRole(['principal', 'admin', 'superadmin']), handleBulkStudentImport);
+app.post('/api/principal/students/bulk-import-public', handleBulkStudentImport);
+
 // ==================== 3-STEP SCHOOL ONBOARDING PERSISTENCE API ====================
 app.post('/api/onboarding/complete', (req, res) => {
   const { schoolDetails, academicStructure, adminCredentials } = req.body;

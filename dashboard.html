@@ -86,6 +86,12 @@
             User & Staff Management
           </a>
         </li>
+        <li class="menu-item" id="nav-bulk-import">
+          <a href="javascript:void(0)" onclick="showSection('bulk-import')">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"/></svg>
+            Bulk Student Import
+          </a>
+        </li>
         <li class="menu-item" id="nav-settings">
           <a href="javascript:void(0)" onclick="showSection('settings')">
             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -2342,6 +2348,148 @@
         </div>
       </section>
 
+      <!-- SECTION: BULK STUDENT ENROLLMENT & CSV IMPORT -->
+      <section id="sect-bulk-import" class="dashboard-panel panel-section">
+        <div class="panel-title-block" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px;">
+          <div>
+            <h2 class="panel-title" style="font-size: 1.3rem; margin-bottom: 4px;">Bulk Student Enrollment</h2>
+            <span class="panel-subtitle">Upload CSV/Excel spreadsheets to enroll hundreds of students, assign classes/arms, and auto-generate login credentials in a single operation.</span>
+          </div>
+          <button class="btn btn-secondary" onclick="downloadSampleCsvTemplate()" style="padding: 8px 16px; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; gap: 8px; border-color: var(--primary); color: var(--primary);">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+            📥 Download Sample CSV Template
+          </button>
+        </div>
+
+        <!-- 1. Instruction & Drag-and-Drop Zone -->
+        <div class="glass-card" style="padding: 28px; margin-bottom: 24px;">
+          <h3 style="font-size: 1rem; color: var(--text-main); margin-bottom: 12px; font-family: var(--font-family-title);">Step 1: Upload CSV/Excel Roster File</h3>
+          
+          <!-- Optional Class/Arm Override Selector -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; background: rgba(91,79,224,0.04); padding: 16px; border-radius: 8px; border: 1px dashed rgba(91,79,224,0.2);">
+            <div>
+              <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 6px;">Force-Assign Class (Optional Override)</label>
+              <select class="form-select" id="bulk-class-override" style="width: 100%; font-size: 0.8rem;">
+                <option value="">Use Class Specified in CSV</option>
+                <option value="JSS 1">JSS 1</option>
+                <option value="JSS 2">JSS 2</option>
+                <option value="JSS 3">JSS 3</option>
+                <option value="SSS 1">SSS 1</option>
+                <option value="SSS 2">SSS 2</option>
+                <option value="SSS 3">SSS 3</option>
+                <option value="Primary 1">Primary 1</option>
+                <option value="Primary 2">Primary 2</option>
+                <option value="Primary 3">Primary 3</option>
+                <option value="Primary 4">Primary 4</option>
+                <option value="Primary 5">Primary 5</option>
+                <option value="Primary 6">Primary 6</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 6px;">Force-Assign Arm (Optional Override)</label>
+              <select class="form-select" id="bulk-arm-override" style="width: 100%; font-size: 0.8rem;">
+                <option value="">Use Arm Specified in CSV</option>
+                <option value="Gold">Gold</option>
+                <option value="Silver">Silver</option>
+                <option value="Diamond">Diamond</option>
+                <option value="Science">Science</option>
+                <option value="Arts">Arts</option>
+                <option value="Commercial">Commercial</option>
+                <option value="Arm A">Arm A</option>
+                <option value="Arm B">Arm B</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Drag and Drop Dropzone -->
+          <div id="bulk-dropzone" style="border: 2px dashed var(--primary); border-radius: 12px; padding: 36px 20px; text-align: center; background: rgba(91,79,224,0.02); cursor: pointer; transition: all 0.2s;" onclick="document.getElementById('bulk-file-input').click()">
+            <input type="file" id="bulk-file-input" accept=".csv,.xlsx,.xls" style="display: none;" onchange="handleBulkFileInput(this.files[0])">
+            <div style="background: rgba(91,79,224,0.1); width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; color: var(--primary);">
+              <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"/></svg>
+            </div>
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Click to select or Drag & Drop student CSV file</h4>
+            <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0;">Supports <code>.csv</code> files up to 10MB (hundreds of student rows per file).</p>
+          </div>
+        </div>
+
+        <!-- 2. Client-Side Data Preview & Validation Table -->
+        <div id="bulk-preview-container" class="glass-card" style="padding: 28px; display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <h3 style="font-size: 1rem; color: var(--text-main); font-family: var(--font-family-title); margin: 0;">Step 2: Preview & Validate Roster Data</h3>
+              <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">Review student fields before committing bulk enrollment into database.</p>
+            </div>
+            <div id="bulk-summary-bar"></div>
+          </div>
+
+          <div style="overflow-x: auto; margin-bottom: 20px; max-height: 400px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px;">
+            <table class="super-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.8rem; min-width: 800px;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--primary); font-family: var(--font-family-mono); color: var(--text-secondary); background: rgba(0,0,0,0.02);">
+                  <th style="padding: 10px;">#</th>
+                  <th style="padding: 10px;">Student Name</th>
+                  <th style="padding: 10px;">Gender</th>
+                  <th style="padding: 10px;">Class & Arm</th>
+                  <th style="padding: 10px;">Admission No</th>
+                  <th style="padding: 10px;">Parent Contact</th>
+                  <th style="padding: 10px; text-align: right;">Status</th>
+                </tr>
+              </thead>
+              <tbody id="bulk-preview-tbody">
+                <!-- Javascript Populated -->
+              </tbody>
+            </table>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <button type="button" class="btn btn-secondary" onclick="clearBulkImportFile()" style="font-size: 0.8rem;">✕ Clear File</button>
+            <button type="button" id="bulk-confirm-btn" class="btn btn-primary" onclick="executeBulkStudentImport()" style="padding: 10px 24px; font-weight: 700; font-size: 0.85rem;" disabled>
+              🚀 Confirm & Bulk Import Students
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. POST-IMPORT CREDENTIAL EXPORT MODAL -->
+      <div class="modal-overlay" id="bulk-credential-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.8); z-index: 99999; justify-content: center; align-items: center;">
+        <div class="modal-card glass-card" style="max-width: 680px; width: 90%; max-height: 85vh; display: flex; flex-direction: column; padding: 28px; border: 1px solid var(--border-color); background: var(--bg-card, #ffffff);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="font-size: 1.1rem; font-family: var(--font-family-title); color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 8px;">
+              <span>🎉 Bulk Student Enrollment Complete!</span>
+            </h3>
+            <button class="modal-close-btn" onclick="closeCredentialExportModal()" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem;">✕</button>
+          </div>
+
+          <div style="background: rgba(23,184,166,0.1); border: 1px solid rgba(23,184,166,0.25); border-radius: 8px; padding: 14px; margin-bottom: 16px; font-size: 0.82rem; color: var(--text-main);">
+            Successfully enrolled <strong id="bulk-success-count" style="color: var(--accent-teal);">0</strong> students with auto-generated login credentials into the database.
+          </div>
+
+          <div style="flex: 1; overflow-y: auto; margin-bottom: 20px; border: 1px solid var(--border-color); border-radius: 8px;">
+            <table class="super-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.78rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--primary); font-family: var(--font-family-mono); background: rgba(0,0,0,0.02);">
+                  <th style="padding: 8px;">#</th>
+                  <th style="padding: 8px;">Student Name</th>
+                  <th style="padding: 8px;">Class</th>
+                  <th style="padding: 8px;">Admission Number</th>
+                  <th style="padding: 8px;">Default Password</th>
+                </tr>
+              </thead>
+              <tbody id="bulk-credentials-tbody">
+                <!-- Javascript Populated -->
+              </tbody>
+            </table>
+          </div>
+
+          <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button type="button" class="btn btn-secondary" onclick="closeCredentialExportModal()" style="font-size: 0.8rem;">Close</button>
+            <button type="button" class="btn btn-primary" onclick="downloadCredentialsCsv()" style="font-size: 0.8rem; font-weight: 700; background: var(--accent-teal); border-color: var(--accent-teal);">
+              📥 Download Student Login Slips (CSV)
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- VISUAL CONFIRMATION CREDENTIAL SLIP MODAL -->
       <div class="modal-overlay" id="credential-slip-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 16px;">
         <div class="payment-modal responsive-modal" style="max-width: 480px; width: 100%; background: #ffffff; border-radius: 16px; padding: 24px; color: #1B1F3B; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
@@ -2859,7 +3007,8 @@
     </div>
   </div>
 
-  <script src="user-management.js?v=55.0.0"></script>
-  <script src="dashboard.js?v=55.0.0"></script>
+  <script src="user-management.js?v=56.0.0"></script>
+  <script src="bulk-import.js?v=56.0.0"></script>
+  <script src="dashboard.js?v=56.0.0"></script>
 </body>
 </html>
