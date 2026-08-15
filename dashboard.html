@@ -42,81 +42,86 @@
         <button id="sidebarCloseBtn" class="mobile-close-btn" style="background: none; border: none; color: #94a3b8; font-size: 1.5rem; font-weight: 700; cursor: pointer; padding: 0 4px;">&times;</button>
       </div>
       
-      <!-- Standard School Menu -->
-      <ul class="sidebar-menu" id="sidebar-school-menu">
-        <li class="menu-item active" id="nav-home">
-          <a href="javascript:void(0)" onclick="showSection('home')">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-            Dashboard
-          </a>
-        </li>
-        <li class="menu-item" id="nav-attendance">
-          <a href="javascript:void(0)" onclick="showSection('attendance')">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            Attendance
-          </a>
-        </li>
-        <li class="menu-item" id="nav-results">
-          <a href="javascript:void(0)" onclick="showSection('results')">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            Result Sheets
-          </a>
-        </li>
-        <li class="menu-item" id="nav-fees">
-          <a href="javascript:void(0)" onclick="showSection('fees')">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            School Fees
-          </a>
-        </li>
-        <li class="menu-item" id="nav-schedules">
-          <a href="javascript:void(0)" onclick="showSection('schedules')">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            Schedules
-          </a>
-        </li>
-        <li class="menu-item" id="nav-notifications">
-          <a href="javascript:void(0)" onclick="showSection('notifications')">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-            Notifications
-          </a>
-        </li>
-        <li class="menu-item" id="nav-users">
-          <a href="javascript:void(0)" onclick="showSection('users')">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
-            User & Staff Management
-          </a>
-        </li>
-        <li class="menu-item" id="nav-bulk-import">
-          <a href="javascript:void(0)" onclick="showSection('bulk-import')">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"/></svg>
-            Bulk Student Import
-          </a>
-        </li>
-        <li class="menu-item" id="nav-id-cards">
-          <a href="javascript:void(0)" onclick="showSection('id-cards'); loadIdCardStudentRoster();">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zM6.75 7.5h3.75a.75.75 0 01.75.75v3.75a.75.75 0 01-.75.75H6.75a.75.75 0 01-.75-.75V8.25a.75.75 0 01.75-.75z"/></svg>
-            Student ID Cards Studio
-          </a>
-        </li>
-        <li class="menu-item" id="nav-debtor-broadcast">
-          <a href="javascript:void(0)" onclick="showSection('debtor-broadcast'); fetchDebtorBroadcastTargets();">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.598.598 0 01-.743-.811l1.196-2.392A8.132 8.132 0 013 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg>
-            Debtor Fee Broadcasts
-          </a>
-        </li>
-        <li class="menu-item" id="nav-settings">
-          <a href="javascript:void(0)" onclick="showSection('settings')">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            School Control
-          </a>
-        </li>
-        <li class="menu-item" id="nav-analytics">
-          <a href="javascript:void(0)" onclick="showSection('analytics')">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z"/></svg>
-            SaaS Analytics
-          </a>
-        </li>
-      </ul>
+      <!-- Standard School Menu (Categorized) -->
+      <div class="sidebar-scroll-area" style="flex: 1; overflow-y: auto; padding: 12px 8px;">
+        <ul class="sidebar-menu" id="sidebar-school-menu" style="list-style: none; padding: 0; margin: 0;">
+          
+          <!-- CATEGORY 1: OVERVIEW -->
+          <li class="sidebar-heading" style="font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #94A3B8; padding: 12px 12px 4px 12px; margin-top: 4px;">OVERVIEW</li>
+          <li class="menu-item active" id="nav-home">
+            <a href="javascript:void(0)" onclick="showSection('home'); closeSidebarMobile();">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+              Dashboard Home
+            </a>
+          </li>
+          <li class="menu-item" id="nav-settings">
+            <a href="javascript:void(0)" onclick="showSection('settings'); closeSidebarMobile();">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              School Control & Setup
+            </a>
+          </li>
+
+          <!-- CATEGORY 2: ACADEMIC MANAGEMENT -->
+          <li class="sidebar-heading" style="font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #94A3B8; padding: 14px 12px 4px 12px; margin-top: 6px; border-top: 1px solid rgba(255,255,255,0.06);">ACADEMIC MANAGEMENT</li>
+          <li class="menu-item" id="nav-users">
+            <a href="javascript:void(0)" onclick="showSection('users'); closeSidebarMobile();">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+              Teacher & Staff Directory
+            </a>
+          </li>
+          <li class="menu-item" id="nav-attendance">
+            <a href="javascript:void(0)" onclick="showSection('attendance'); closeSidebarMobile();">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              Daily Attendance Register
+            </a>
+          </li>
+          <li class="menu-item" id="nav-schedules">
+            <a href="javascript:void(0)" onclick="showSection('schedules'); closeSidebarMobile();">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Timetable & Schedule Planner
+            </a>
+          </li>
+
+          <!-- CATEGORY 3: EXAMS & RESULTS -->
+          <li class="sidebar-heading" style="font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #94A3B8; padding: 14px 12px 4px 12px; margin-top: 6px; border-top: 1px solid rgba(255,255,255,0.06);">EXAMS & RESULTS</li>
+          <li class="menu-item" id="nav-results">
+            <a href="javascript:void(0)" onclick="showSection('results'); closeSidebarMobile();">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              Score Entry & Broadsheets
+            </a>
+          </li>
+
+          <!-- CATEGORY 4: STUDENT RECORDS & STUDIO -->
+          <li class="sidebar-heading" style="font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #94A3B8; padding: 14px 12px 4px 12px; margin-top: 6px; border-top: 1px solid rgba(255,255,255,0.06);">STUDENT RECORDS & STUDIO</li>
+          <li class="menu-item" id="nav-bulk-import">
+            <a href="javascript:void(0)" onclick="showSection('bulk-import'); closeSidebarMobile();">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"/></svg>
+              Bulk CSV Student Import
+            </a>
+          </li>
+          <li class="menu-item" id="nav-id-cards">
+            <a href="javascript:void(0)" onclick="showSection('id-cards'); loadIdCardStudentRoster(); closeSidebarMobile();">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zM6.75 7.5h3.75a.75.75 0 01.75.75v3.75a.75.75 0 01-.75.75H6.75a.75.75 0 01-.75-.75V8.25a.75.75 0 01.75-.75z"/></svg>
+              Student ID Cards Studio
+            </a>
+          </li>
+
+          <!-- CATEGORY 5: FINANCE & BURSARY -->
+          <li class="sidebar-heading" style="font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #94A3B8; padding: 14px 12px 4px 12px; margin-top: 6px; border-top: 1px solid rgba(255,255,255,0.06);">FINANCE & BURSARY</li>
+          <li class="menu-item" id="nav-fees">
+            <a href="javascript:void(0)" onclick="showSection('fees'); closeSidebarMobile();">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Fee Setup & Ledger
+            </a>
+          </li>
+          <li class="menu-item" id="nav-debtor-broadcast">
+            <a href="javascript:void(0)" onclick="showSection('debtor-broadcast'); fetchDebtorBroadcastTargets(); closeSidebarMobile();">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.598.598 0 01-.743-.811l1.196-2.392A8.132 8.132 0 013 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg>
+              Debtor WhatsApp Broadcasts
+            </a>
+          </li>
+        </ul>
+      </div>
 
       <!-- Parent Portal Menu -->
       <ul class="sidebar-menu" id="sidebar-parent-menu" style="display: none; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px;">
