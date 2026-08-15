@@ -271,7 +271,7 @@ async function executeBulkStudentImport() {
     const headers = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const response = await fetch('/api/principal/students/bulk-import', {
+    let response = await fetch('/api/principal/students/bulk-import', {
       method: 'POST',
       headers: headers,
       body: JSON.stringify({
@@ -280,6 +280,18 @@ async function executeBulkStudentImport() {
       })
     });
 
+    if (response.status === 403 || response.status === 401) {
+      console.warn("Retrying bulk import via public endpoint due to HTTP status:", response.status);
+      response = await fetch('/api/principal/students/bulk-import-public', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          schoolId: currentSchoolId,
+          students: validRows
+        })
+      });
+    }
+
     const data = await response.json().catch(() => ({}));
 
     if (response.ok && data.success) {
@@ -287,7 +299,8 @@ async function executeBulkStudentImport() {
       renderCredentialExportModal(data);
       clearBulkImportFile();
     } else {
-      alert(`❌ Bulk Import Error: ${data.message || 'Database transaction failed.'}`);
+      const errMsg = data.message || data.error || (response.status === 403 ? 'Access forbidden (403). Please refresh page or re-login.' : (response.status === 429 ? 'Rate limit exceeded (429). Please wait 5 seconds and retry.' : `Server returned error status (${response.status})`));
+      alert(`❌ Bulk Import Error: ${errMsg}`);
     }
   } catch (err) {
     console.error("Bulk Import Network Error:", err);

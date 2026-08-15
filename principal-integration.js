@@ -30,24 +30,28 @@ const SchoolStore = {
     });
   },
 
-  async refreshAll() {
-    this.schoolId = localStorage.getItem('eduflow_school_id') || 'school_demo';
-    console.log(`[SCHOOL STORE] Refreshing central state for tenant: ${this.schoolId}...`);
+  _refreshTimer: null,
+  refreshAll() {
+    if (this._refreshTimer) clearTimeout(this._refreshTimer);
+    this._refreshTimer = setTimeout(async () => {
+      this.schoolId = localStorage.getItem('eduflow_school_id') || 'school_demo';
+      console.log(`[SCHOOL STORE] Refreshing central state for tenant: ${this.schoolId}...`);
 
-    try {
-      await Promise.all([
-        this.fetchSummary(),
-        this.fetchClasses(),
-        this.fetchStudents(),
-        this.fetchStaff()
-      ]);
+      try {
+        await Promise.all([
+          this.fetchSummary(),
+          this.fetchClasses(),
+          this.fetchStudents(),
+          this.fetchStaff()
+        ]);
 
-      this.syncViews();
-      this.notify();
-      console.log(`[SCHOOL STORE] State sync complete. Students: ${this.students.length}, Staff: ${this.staff.length}`);
-    } catch(err) {
-      console.error("[SCHOOL STORE] Sync error:", err);
-    }
+        this.syncViews();
+        this.notify();
+        console.log(`[SCHOOL STORE] State sync complete. Students: ${this.students.length}, Staff: ${this.staff.length}`);
+      } catch(err) {
+        console.error("[SCHOOL STORE] Sync error:", err);
+      }
+    }, 300);
   },
 
   async fetchSummary() {
