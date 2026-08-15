@@ -3206,99 +3206,23 @@
   </div>
 
   <!-- OFFICIAL PRINTABLE REPORT CARD MODAL WITH CREST & PRINCIPAL SEAL -->
-  <div class="modal-overlay" id="official-report-card-modal" style="align-items: flex-start; padding: 24px 16px; overflow-y: auto;">
-    <div class="modal-card glass-card" style="max-width: 840px; width: 94%; padding: 28px 32px; border: 2px solid var(--primary); background: #ffffff; color: #0f172a; max-height: calc(100vh - 48px); overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35); position: relative; margin-top: 10px;">
+  <div class="modal-overlay" id="official-report-card-modal" style="display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.85); z-index: 999999; justify-content: center; align-items: flex-start; padding: 20px; overflow-y: auto;">
+    <div class="modal-card glass-card" style="max-width: 900px; width: 100%; padding: 20px; background: #ffffff; color: #0f172a; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35); position: relative; margin: 10px auto;">
       
-      <!-- Close Button -->
-      <button onclick="closeOfficialReportCardModal()" style="position: absolute; top: 16px; right: 16px; background: #f1f5f9; border: 1px solid #cbd5e1; width: 32px; height: 32px; border-radius: 50%; font-size: 1.1rem; font-weight: 700; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10;" title="Close Report Card">&times;</button>
-
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 2px solid #5B4FE0; padding-bottom: 16px; padding-right: 40px;">
-        <div style="display: flex; align-items: center; gap: 16px;">
-          <div style="width: 56px; height: 56px; border-radius: 12px; background: linear-gradient(135deg, #17B8A6, #5B4FE0); display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 1.5rem; flex-shrink: 0;">
-            🏫
-          </div>
-          <div>
-            <h2 style="font-size: 1.35rem; font-family: var(--font-family-title); color: #0f172a; margin: 0; font-weight: 800;" id="rc-school-name">EDULITE ACADEMY, LAGOS</h2>
-            <p style="font-size: 0.78rem; color: #475569; margin-top: 2px; margin-bottom: 0;" id="rc-school-sub">Official Terminal Continuous Assessment & Examination Report</p>
-            <p style="font-size: 0.72rem; color: #5B4FE0; font-family: var(--font-family-mono); margin: 0; font-weight: 700;">ACADEMIC SESSION: 2025/2026 • FIRST TERM</p>
-          </div>
-        </div>
-        <div style="text-align: right; flex-shrink: 0;">
-          <span class="badge" style="background: #10b981; color: white; font-weight: 800; font-size: 0.72rem; padding: 5px 10px; border-radius: 20px;">OFFICIAL CREST CERTIFIED</span>
-          <p style="font-size: 0.7rem; color: #64748b; font-family: var(--font-family-mono); margin-top: 6px;" id="rc-date">Date: 22/07/2026</p>
+      <!-- Top Action Toolbar -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 2px solid #1E293B; padding-bottom: 12px; gap: 12px; flex-wrap: wrap;">
+        <h3 style="font-size: 1.1rem; font-family: var(--font-family-title); color: #0F172A; margin: 0; display: flex; align-items: center; gap: 8px;">
+          <span>📜 Official Student Terminal Performance Report Sheet</span>
+        </h3>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <button type="button" class="btn btn-primary" onclick="window.print()" style="font-size: 0.8rem; font-weight: 700; background: #1E3A8A; padding: 8px 16px;">🖨️ Print / Download A4 PDF</button>
+          <button type="button" class="modal-close-btn" onclick="closeOfficialReportCardModal()" style="background: transparent; border: none; color: #64748B; cursor: pointer; font-size: 1.4rem; padding: 4px 8px; line-height: 1;">✕</button>
         </div>
       </div>
 
-      <!-- Student Bio Summary Grid -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px; font-size: 0.8rem;">
-        <div><strong>Student Name:</strong> <span id="rc-student-name">Adebayo Tobi</span></div>
-        <div><strong>Admission No:</strong> <span id="rc-student-roll">2026/G10A/001</span></div>
-        <div><strong>Class Arm:</strong> <span id="rc-student-class">Grade 10A (SSS 1)</span></div>
-        <div><strong>Term Average:</strong> <span id="rc-student-avg" style="color: #5B4FE0; font-weight: 800;">78.5%</span></div>
-        <div><strong>Class Position:</strong> <span id="rc-student-pos" style="color: #10b981; font-weight: 800;">🥇 1st of 32</span></div>
-        <div><strong>Attendance:</strong> <span id="rc-student-att">98.5%</span></div>
-      </div>
-
-      <!-- Academic Subject Scores Matrix -->
-      <div style="margin-bottom: 20px; overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.78rem;">
-          <thead>
-            <tr style="background: #5B4FE0; color: white; font-family: var(--font-family-mono);">
-              <th style="padding: 8px 10px;">Subject Title</th>
-              <th style="padding: 8px 10px;">1st CA (15%)</th>
-              <th style="padding: 8px 10px;">2nd CA (15%)</th>
-              <th style="padding: 8px 10px;">Exam (70%)</th>
-              <th style="padding: 8px 10px;">Total (/100)</th>
-              <th style="padding: 8px 10px;">Grade</th>
-              <th style="padding: 8px 10px;">Teacher Remarks</th>
-            </tr>
-          </thead>
-          <tbody id="rc-scores-tbody">
-            <!-- JavaScript Populated -->
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Psychomotor & Affective Domain 1-5 Scale -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
-        <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; background: #f8fafc;">
-          <h4 style="font-size: 0.78rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; text-transform: uppercase; font-family: var(--font-family-mono);">🧠 Affective Domain (Rating 1 - 5)</h4>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.75rem; color: #334155;">
-            <div>Punctuality: <strong>5 / 5</strong></div>
-            <div>Neatness: <strong>5 / 5</strong></div>
-            <div>Politeness: <strong>5 / 5</strong></div>
-            <div>Honesty: <strong>5 / 5</strong></div>
-          </div>
-        </div>
-
-        <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; background: #f8fafc;">
-          <h4 style="font-size: 0.78rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; text-transform: uppercase; font-family: var(--font-family-mono);">🎨 Psychomotor Skills (Rating 1 - 5)</h4>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.75rem; color: #334155;">
-            <div>Handwriting: <strong>4 / 5</strong></div>
-            <div>Sports & Games: <strong>5 / 5</strong></div>
-            <div>Crafts & Tools: <strong>4 / 5</strong></div>
-            <div>Verbal Fluency: <strong>5 / 5</strong></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Principal Signature & Official Stamp Seal -->
-      <div style="display: flex; justify-content: space-between; align-items: flex-end; padding-top: 14px; border-top: 1px dashed #cbd5e1;">
-        <div style="max-width: 480px;">
-          <p style="font-size: 0.78rem; font-weight: 700; color: #0f172a; margin-bottom: 2px;">Principal's Official Recommendation:</p>
-          <p style="font-size: 0.75rem; color: #475569; font-style: italic; margin: 0;" id="rc-principal-remark">"An exceptional academic performance. Demonstrates outstanding leadership and STEM aptitude."</p>
-        </div>
-        <div style="text-align: center;">
-          <div style="border: 2px dashed #10b981; padding: 8px 16px; border-radius: 8px; color: #10b981; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">
-            ✓ SIGNED & CERTIFIED<br>
-            <span style="font-size: 0.65rem; color: #475569;">OFFICIAL DIGITAL SEAL</span>
-          </div>
-        </div>
-      </div>
-
-      <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
-        <button class="btn btn-secondary" onclick="closeOfficialReportCardModal()" style="font-size: 0.8rem;">Close</button>
-        <button class="btn btn-primary" onclick="window.print()" style="font-size: 0.8rem; font-weight: 700; background: #5B4FE0;">🖨️ Print / Download PDF</button>
+      <!-- Single-Page Responsive Container -->
+      <div class="report-card-responsive-wrapper" id="modal-report-card-wrapper">
+        <!-- Rendered dynamically or mirrored from master template -->
       </div>
     </div>
   </div>

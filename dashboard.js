@@ -5358,65 +5358,41 @@ function openOfficialReportCardModal(studentId = 1) {
     alert("🛡️ ACCESS RESTRICTED: Official Report Card generation is disabled until SuperAdmin approves your KYC and Identity Documents.");
     return;
   }
-  const student = state.db.students.find(s => s.id === parseInt(studentId)) || state.db.students[0];
+  const targetId = studentId || state.currentStudentId;
+  const student = state.db.students.find(s => 
+    String(s.id) === String(targetId) || 
+    String(s.roll) === String(targetId) || 
+    String(s.admission_no) === String(targetId)
+  ) || state.db.students[0];
+
   const modal = document.getElementById('official-report-card-modal');
+  const wrapper = document.getElementById('modal-report-card-wrapper');
   if (!student || !modal) return;
 
-  document.getElementById('rc-student-name').textContent = student.name;
-  document.getElementById('rc-student-roll').textContent = student.roll || '2026/G10A/001';
-  document.getElementById('rc-student-class').textContent = `Grade ${student.class || '10A'}`;
-  document.getElementById('rc-student-att').textContent = student.attendanceRate || '98.5%';
+  renderReportCard(student.id);
 
-  const tbody = document.getElementById('rc-scores-tbody');
-  if (tbody && student.grades) {
-    let rows = '';
-    let totalScoreSum = 0;
-    let count = 0;
-
-    Object.keys(student.grades).forEach(subj => {
-      const g = student.grades[subj];
-      const ca1 = g.ca1 !== undefined ? g.ca1 : Math.round((g.ca || 0) / 2);
-      const ca2 = g.ca2 !== undefined ? g.ca2 : Math.round((g.ca || 0) / 2);
-      const exam = g.exam || 0;
-      const total = ca1 + ca2 + exam;
-      totalScoreSum += total;
-      count++;
-
-      let letter = 'A1';
-      let remark = 'Excellent';
-      if (total < 40) { letter = 'F9'; remark = 'Fail'; }
-      else if (total < 45) { letter = 'E8'; remark = 'Pass'; }
-      else if (total < 50) { letter = 'D7'; remark = 'Pass'; }
-      else if (total < 55) { letter = 'C6'; remark = 'Credit'; }
-      else if (total < 60) { letter = 'C5'; remark = 'Credit'; }
-      else if (total < 65) { letter = 'C4'; remark = 'Credit'; }
-      else if (total < 70) { letter = 'B3'; remark = 'Good'; }
-      else if (total < 75) { letter = 'B2'; remark = 'Very Good'; }
-
-      rows += `
-        <tr style="border-bottom: 1px solid #e2e8f0;">
-          <td style="padding: 8px 10px; font-weight: 700; color: #0f172a;">${subj}</td>
-          <td style="padding: 8px 10px;">${ca1} / 15</td>
-          <td style="padding: 8px 10px;">${ca2} / 15</td>
-          <td style="padding: 8px 10px;">${exam} / 70</td>
-          <td style="padding: 8px 10px; font-weight: 700; color: #5B4FE0;">${total} / 100</td>
-          <td style="padding: 8px 10px; font-weight: 800; color: ${letter.startsWith('A') || letter.startsWith('B') ? '#10b981' : '#f59e0b'};">${letter}</td>
-          <td style="padding: 8px 10px; font-style: italic; color: #475569;">${remark}</td>
-        </tr>
-      `;
-    });
-
-    tbody.innerHTML = rows;
-    const avg = count > 0 ? (totalScoreSum / count).toFixed(1) : '78.5';
-    document.getElementById('rc-student-avg').textContent = `${avg}%`;
+  const masterSheet = document.getElementById('official-printable-sheet');
+  if (masterSheet && wrapper) {
+    wrapper.innerHTML = '';
+    const clonedSheet = masterSheet.cloneNode(true);
+    clonedSheet.id = 'official-printable-sheet-modal';
+    wrapper.appendChild(clonedSheet);
   }
 
+  modal.style.display = 'flex';
   modal.classList.add('active');
+  modal.classList.remove('hidden');
 }
 
 function closeOfficialReportCardModal() {
   const modal = document.getElementById('official-report-card-modal');
-  if (modal) modal.classList.remove('active');
+  if (modal) {
+    modal.style.display = 'none';
+    modal.style.setProperty('display', 'none', 'important');
+    modal.classList.remove('active');
+    modal.classList.remove('flex');
+    modal.classList.add('hidden');
+  }
 }
 
 // ==================== CLEAN PRODUCTION MODE & DATA WIPER ====================
