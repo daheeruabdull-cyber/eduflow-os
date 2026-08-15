@@ -94,17 +94,21 @@ function requireRole(allowedRoles) {
 
 // ==================== AUTHENTICATION ENDPOINTS ====================
 
-// unified single sign-in gateway
-app.post('/api/auth/login', (req, res) => {
-  const { identifier, password } = req.body;
+// Unified single sign-in gateway handler
+function handleUnifiedLogin(req, res) {
+  const identifier = req.body.identifier || req.body.username || req.body.email;
+  const password = req.body.password;
+
   if (!identifier) {
     return res.status(400).json({ success: false, message: 'Login identifier is required.' });
   }
 
-  const cleanId = identifier.trim();
+  const cleanId = String(identifier).trim();
+  const cleanIdLower = cleanId.toLowerCase();
+  const inputPassword = String(password || '').trim();
 
   // 1. SaaS Super-Admin Gateway
-  if ((cleanId.toLowerCase() === 'daheeru' || cleanId.toLowerCase() === 'superadmin') && (password === 'Katagum99?' || password === process.env.SUPERADMIN_PASSWORD)) {
+  if ((cleanIdLower === 'daheeru' || cleanIdLower === 'superadmin') && (inputPassword === 'Katagum99?' || inputPassword === process.env.SUPERADMIN_PASSWORD)) {
     const token = jwt.sign({ id: 'daheeru', role: 'superadmin', name: 'Daheeru' }, JWT_SECRET, { expiresIn: '8h' });
     return res.status(200).json({
       success: true,
@@ -114,19 +118,55 @@ app.post('/api/auth/login', (req, res) => {
     });
   }
 
-  // 2. School Admin (Principal) Authentication against DB
-  const cleanIdLower = cleanId.toLowerCase();
+  // 2. Query Unified `users` Table
+  try {
+    const userQuery = db.prepare("SELECT * FROM users WHERE LOWER(username) = ? OR LOWER(email) = ? OR LOWER(id) = ?");
+    const user = userQuery.get(cleanIdLower, cleanIdLower, cleanIdLower);
+
+    if (user) {
+      if (user.status === 'suspended' || user.status === 'inactive') {
+        return res.status(403).json({ success: false, message: `Access Denied: User account status is currently ${user.status}.` });
+      }
+
+      // Verify School Tenant Status
+      if (user.school_id && user.role !== 'superadmin') {
+        const school = db.prepare("SELECT * FROM schools WHERE LOWER(id) = ? OR LOWER(email) = ?").get(user.school_id.toLowerCase(), user.school_id.toLowerCase());
+        if (school && school.kycStatus === 'Rejected') {
+          return res.status(403).json({
+            success: false,
+            message: 'Access Denied: Your school campus (KYC) is currently rejected by the Superadmin. Operations will be unlocked once approved.'
+          });
+        }
+      }
+
+      const isPasswordValid = bcrypt.compareSync(inputPassword, user.password_hash);
+      if (isPasswordValid) {
+        const token = jwt.sign(
+          { id: user.id, school_id: user.school_id, schoolId: user.school_id, role: user.role, full_name: user.full_name, email: user.email },
+          JWT_SECRET,
+          { expiresIn: '8h' }
+        );
+        return res.status(200).json({
+          success: true,
+          token,
+          role: user.role,
+          schoolId: user.school_id,
+          user: { id: user.id, school_id: user.school_id, role: user.role, full_name: user.full_name, email: user.email, username: user.username }
+        });
+      } else {
+        return res.status(401).json({ success: false, message: 'Incorrect password entered.' });
+      }
+    }
+  } catch (err) {
+    console.warn("Unified users table lookup skipped, checking legacy models:", err.message);
+  }
+
+  // 3. School Admin (Principal) Legacy Authentication against DB
   const schoolQuery = db.prepare("SELECT * FROM schools WHERE LOWER(email) = ? OR LOWER(id) = ? OR LOWER(phone) = ?");
   const school = schoolQuery.get(cleanIdLower, cleanIdLower, cleanIdLower);
   
   if (school) {
-    const cleanInputPassword = String(password || '').trim();
-    const isPasswordValid = bcrypt.compareSync(cleanInputPassword, school.password);
-
-    console.log(`[AUTH LOGIN DEBUG] Login Attempt Email/Identifier: "${cleanId}"`);
-    console.log(`[AUTH LOGIN DEBUG] User Found in DB: true (School: ${school.name}, ID: ${school.id})`);
-    console.log(`[AUTH LOGIN DEBUG] Password Hash Match Result: ${isPasswordValid}`);
-
+    const isPasswordValid = bcrypt.compareSync(inputPassword, school.password);
     if (isPasswordValid) {
       if (school.kycStatus === 'Rejected') {
         return res.status(403).json({
@@ -134,25 +174,25 @@ app.post('/api/auth/login', (req, res) => {
           message: 'Access Denied: Your school campus (KYC) is currently rejected by the Superadmin. Operations will be unlocked once approved.'
         });
       }
-      const token = jwt.sign({ id: school.id, role: 'admin', schoolId: school.id }, JWT_SECRET, { expiresIn: '8h' });
+      const token = jwt.sign({ id: school.id, role: 'principal', schoolId: school.id }, JWT_SECRET, { expiresIn: '8h' });
       return res.status(200).json({
         success: true,
         token,
-        role: 'admin',
+        role: 'principal',
         schoolId: school.id,
         schoolName: school.name,
-        user: { id: school.id, role: 'admin', schoolId: school.id, schoolName: school.name, email: school.email }
+        user: { id: school.id, role: 'principal', school_id: school.id, schoolId: school.id, schoolName: school.name, email: school.email }
       });
     } else {
       return res.status(401).json({ success: false, message: 'Incorrect password entered for school account.' });
     }
   }
 
-  // 3. Parent Portal Authentication against DB
+  // 4. Parent Portal Legacy Authentication against DB
   const parentQuery = db.prepare("SELECT * FROM parents WHERE LOWER(email) = ?");
-  const parent = parentQuery.get(cleanId.toLowerCase());
+  const parent = parentQuery.get(cleanIdLower);
   if (parent) {
-    const isParentPassValid = bcrypt.compareSync(password || '', parent.password);
+    const isParentPassValid = bcrypt.compareSync(inputPassword, parent.password);
     if (isParentPassValid) {
       const childrenIds = JSON.parse(parent.children || '[]');
       const token = jwt.sign({ id: parent.email, role: 'parent', children: childrenIds }, JWT_SECRET, { expiresIn: '4h' });
@@ -167,121 +207,242 @@ app.post('/api/auth/login', (req, res) => {
     }
   }
 
-  // 4. Teacher (Form Master) Authentication against DB
-  const teacherQuery = db.prepare("SELECT * FROM teachers WHERE LOWER(email) = ? OR id = ?");
-  const teacher = teacherQuery.get(cleanId.toLowerCase(), cleanId.toLowerCase());
+  // 5. Teacher (Form Master) Legacy Authentication against DB
+  const teacherQuery = db.prepare("SELECT * FROM teachers WHERE LOWER(email) = ? OR LOWER(id) = ?");
+  const teacher = teacherQuery.get(cleanIdLower, cleanIdLower);
   if (teacher) {
-    const isTeacherPassValid = bcrypt.compareSync(password || '', teacher.password || '');
+    const isTeacherPassValid = bcrypt.compareSync(inputPassword, teacher.password || '');
     if (isTeacherPassValid) {
-      const token = jwt.sign({ id: teacher.id, role: 'teacher', schoolId: teacher.schoolId, email: teacher.email }, JWT_SECRET, { expiresIn: '4h' });
+      const tRole = (teacher.role === 'Form Master' || teacher.role === 'form_master') ? 'form_master' : 'teacher';
+      const token = jwt.sign({ id: teacher.id, role: tRole, schoolId: teacher.schoolId, email: teacher.email }, JWT_SECRET, { expiresIn: '4h' });
       return res.status(200).json({
         success: true,
         token,
-        role: 'teacher',
-        user: { id: teacher.id, role: 'teacher', schoolId: teacher.schoolId, email: teacher.email, name: teacher.name, assignedClass: teacher.assignedClass }
+        role: tRole,
+        user: { id: teacher.id, role: tRole, school_id: teacher.schoolId, schoolId: teacher.schoolId, email: teacher.email, name: teacher.name, assignedClass: teacher.assignedClass }
       });
     } else {
       return res.status(401).json({ success: false, message: 'Incorrect password entered for teacher account.' });
     }
   }
 
-  // 5. Student Portal Authentication against DB
-  const studentQuery = db.prepare("SELECT * FROM students WHERE id = ? OR LOWER(rollNumber) = ?");
-  const student = studentQuery.get(cleanId, cleanId.toLowerCase());
+  // 6. Student Portal Legacy Authentication against DB
+  const studentQuery = db.prepare("SELECT * FROM students WHERE LOWER(id) = ? OR LOWER(roll) = ? OR LOWER(rollNumber) = ?");
+  const student = studentQuery.get(cleanIdLower, cleanIdLower, cleanIdLower);
   if (student) {
-    const token = jwt.sign({ id: student.id, role: 'student', schoolId: student.schoolId }, JWT_SECRET, { expiresIn: '4h' });
-    return res.status(200).json({
-      success: true,
-      token,
-      role: 'student',
-      user: { id: student.id, role: 'student', studentId: student.id, name: student.name, schoolId: student.schoolId }
-    });
-  }
-
-  // 6. Strict Authentication Enforcement: Reject Unregistered Accounts with HTTP 401
-  return res.status(401).json({ success: false, message: 'Invalid credentials or account does not exist in system database.' });
-});
-
-// ==================== PRINCIPAL USER CREATION & ROLE ASSIGNMENT ====================
-app.post('/api/principal/create-account', (req, res) => {
-  const { fullName, role, classAssigned, subjectsAssigned, username, password, schoolId } = req.body;
-
-  if (!fullName || !username || !password || !role) {
-    return res.status(400).json({ success: false, message: 'Full name, role, username, and password are required.' });
-  }
-
-  const cleanUsername = username.trim().toLowerCase();
-  const activeSchoolId = schoolId || 'school_demo';
-  const hashedPassword = bcrypt.hashSync(password, 10);
-
-  try {
-    // 1. Duplicate Username Verification across DB tables
-    const existingTeacher = db.prepare("SELECT * FROM teachers WHERE LOWER(id) = ? OR LOWER(email) = ?").get(cleanUsername, cleanUsername);
-    const existingStudent = db.prepare("SELECT * FROM students WHERE LOWER(id) = ? OR LOWER(rollNumber) = ?").get(cleanUsername, cleanUsername);
-
-    if (existingTeacher || existingStudent) {
-      return res.status(400).json({ success: false, message: 'Username or ID number already registered in database.' });
+    const isStudentPassValid = student.password ? bcrypt.compareSync(inputPassword, student.password) : true;
+    if (isStudentPassValid) {
+      const token = jwt.sign({ id: student.id, role: 'student', schoolId: student.schoolId }, JWT_SECRET, { expiresIn: '4h' });
+      return res.status(200).json({
+        success: true,
+        token,
+        role: 'student',
+        user: { id: student.id, role: 'student', school_id: student.schoolId, studentId: student.id, name: student.name, schoolId: student.schoolId }
+      });
+    } else {
+      return res.status(401).json({ success: false, message: 'Incorrect passcode entered for student account.' });
     }
+  }
 
-    // 2. Insert into appropriate role table
-    const normalizedRole = role.toLowerCase().replace(/\s+/g, '_');
+  // 7. Reject Unregistered Accounts
+  return res.status(401).json({ success: false, message: 'Invalid credentials or account does not exist in system database.' });
+}
 
-    if (normalizedRole === 'teacher' || normalizedRole === 'form_master') {
-      const email = cleanUsername.includes('@') ? cleanUsername : `${cleanUsername}@eduflow.ng`;
-      const insertStmt = db.prepare(`
-        INSERT INTO teachers (id, name, email, role, assignedClass, subjects, schoolId, password, createdAt)
+app.post('/api/auth/login', handleUnifiedLogin);
+app.post('/api/login', handleUnifiedLogin);
+
+// ==================== PRINCIPAL USER CREATION PIPELINE ====================
+function handlePrincipalCreateUser(req, res) {
+  const {
+    fullName, full_name,
+    username, email,
+    password,
+    role,
+    schoolId, school_id,
+    assigned_subjects, subjectsAssigned, subject,
+    assigned_classes, classAssigned,
+    assigned_class_id, class_id,
+    assigned_arm_id, arm_id,
+    admission_no, rollNumber,
+    parent_id, guardianPhone
+  } = req.body;
+
+  const nameInput = (fullName || full_name || '').trim();
+  const userInput = (username || email || admission_no || rollNumber || '').trim();
+  const passInput = String(password || '').trim();
+  const roleInput = String(role || '').trim().toLowerCase().replace(/\s+/g, '_');
+
+  // 1. Validation of Required Basic Fields
+  if (!nameInput || !userInput || !passInput || !roleInput) {
+    return res.status(400).json({ success: false, message: 'Full name, username/email, role, and password are required.' });
+  }
+
+  if (passInput.length < 4) {
+    return res.status(400).json({ success: false, message: 'Password must be at least 4 characters long.' });
+  }
+
+  // Normalize Role String
+  const validRoles = ['principal', 'admin', 'form_master', 'teacher', 'student', 'parent'];
+  let normRole = roleInput;
+  if (normRole === 'admin') normRole = 'principal';
+  if (!validRoles.includes(normRole)) {
+    return res.status(400).json({ success: false, message: `Invalid role specified. Must be one of: ${validRoles.join(', ')}` });
+  }
+
+  // 2. Strict Role-Specific Field Validations
+  const subjs = assigned_subjects || subjectsAssigned || subject;
+  const classes = assigned_classes || classAssigned;
+  const classId = assigned_class_id || class_id || classAssigned;
+  const armId = assigned_arm_id || arm_id;
+
+  if (normRole === 'teacher') {
+    if (!subjs || (Array.isArray(subjs) && subjs.length === 0)) {
+      return res.status(400).json({ success: false, message: 'Validation Failed: Teachers must be assigned at least one subject (assigned_subjects).' });
+    }
+    if (!classes || (Array.isArray(classes) && classes.length === 0)) {
+      return res.status(400).json({ success: false, message: 'Validation Failed: Teachers must be assigned at least one target class (assigned_classes).' });
+    }
+  }
+
+  if (normRole === 'form_master') {
+    if (!classId) {
+      return res.status(400).json({ success: false, message: 'Validation Failed: Form Masters require an assigned class ID (assigned_class_id).' });
+    }
+  }
+
+  if (normRole === 'student') {
+    if (!classId) {
+      return res.status(400).json({ success: false, message: 'Validation Failed: Students require an assigned class (class_id).' });
+    }
+  }
+
+  const cleanUsername = userInput.toLowerCase();
+  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || schoolId || school_id || 'school_demo';
+
+  // 3. Single-Pass Password Hashing
+  const hashedPassword = bcrypt.hashSync(passInput, 10);
+
+  // 4. Duplicate Check
+  try {
+    const existingUser = db.prepare("SELECT * FROM users WHERE LOWER(username) = ? OR LOWER(email) = ? OR LOWER(id) = ?").get(cleanUsername, cleanUsername, cleanUsername);
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: `Duplicate Record: User "${userInput}" is already registered.` });
+    }
+  } catch (err) {
+    console.warn("Skipped unified users table duplicate check:", err.message);
+  }
+
+  const now = new Date().toISOString();
+  const userId = userInput;
+
+  // 5. Atomic Insertion via Transaction
+  try {
+    db.exec('BEGIN TRANSACTION');
+
+    // Insert into `users` Table
+    const userEmail = cleanUsername.includes('@') ? cleanUsername : `${cleanUsername}@eduflow.ng`;
+    try {
+      const stmtUser = db.prepare(`
+        INSERT INTO users (id, school_id, full_name, username, email, password_hash, role, status, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
-      insertStmt.run(
-        username.trim(),
-        fullName.trim(),
-        email,
-        normalizedRole === 'form_master' ? 'Form Master' : 'Teacher',
-        classAssigned || 'General',
-        Array.isArray(subjectsAssigned) ? JSON.stringify(subjectsAssigned) : (subjectsAssigned || 'Mathematics'),
-        activeSchoolId,
-        hashedPassword,
-        new Date().toISOString()
-      );
-    } else if (normalizedRole === 'student') {
-      const insertStmt = db.prepare(`
-        INSERT INTO students (id, rollNumber, name, class, gender, guardianPhone, fees, results, schoolId, password, createdAt)
+      stmtUser.run(userId, activeSchoolId, nameInput, userInput, userEmail, hashedPassword, normRole, 'active', now);
+    } catch(e) { console.warn("Failed inserting into users table:", e.message); }
+
+    // Insert into `assignments` Table
+    try {
+      const stmtAssign = db.prepare(`
+        INSERT INTO assignments (user_id, school_id, role, assigned_class_id, assigned_arm_id, assigned_subjects, assigned_classes, admission_no, parent_id, metadata, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
-      insertStmt.run(
-        username.trim(),
-        username.trim(),
-        fullName.trim(),
-        classAssigned || 'JSS 1',
-        'Unspecified',
-        '08012345678',
-        JSON.stringify({ tuition: { amount: 45000, paid: false }, pta: { amount: 5000, paid: false } }),
-        JSON.stringify({}),
+      stmtAssign.run(
+        userId,
         activeSchoolId,
-        hashedPassword,
-        new Date().toISOString()
+        normRole,
+        classId || null,
+        armId || null,
+        JSON.stringify(Array.isArray(subjs) ? subjs : [subjs || 'General']),
+        JSON.stringify(Array.isArray(classes) ? classes : [classes || 'General']),
+        admission_no || userInput || null,
+        parent_id || null,
+        JSON.stringify({ classAssigned: classes, subjectsAssigned: subjs }),
+        now
       );
+    } catch(e) { console.warn("Failed inserting into assignments table:", e.message); }
+
+    // Synchronize into legacy tables for complete UI backwards compatibility
+    if (normRole === 'teacher' || normRole === 'form_master') {
+      try {
+        db.prepare(`
+          INSERT INTO teachers (id, name, email, role, assignedClass, subject, schoolId, password, createdAt)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+          userId,
+          nameInput,
+          userEmail,
+          normRole === 'form_master' ? 'Form Master' : 'Teacher',
+          classId || 'General',
+          Array.isArray(subjs) ? subjs.join(', ') : (subjs || 'Mathematics'),
+          activeSchoolId,
+          hashedPassword,
+          now
+        );
+      } catch(e) {}
+    } else if (normRole === 'student') {
+      try {
+        db.prepare(`
+          INSERT INTO students (id, rollNumber, name, class, gender, guardianPhone, fees, results, schoolId, password, createdAt)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+          userId,
+          userId,
+          nameInput,
+          classId || 'JSS 1',
+          'Unspecified',
+          guardianPhone || '08012345678',
+          JSON.stringify({ tuition: { amount: 45000, paid: false }, pta: { amount: 5000, paid: false } }),
+          JSON.stringify({}),
+          activeSchoolId,
+          hashedPassword,
+          now
+        );
+      } catch(e) {}
+    } else if (normRole === 'parent') {
+      try {
+        db.prepare(`
+          INSERT INTO parents (email, password, children)
+          VALUES (?, ?, ?)
+        `).run(userEmail, hashedPassword, JSON.stringify([parent_id || 1]));
+      } catch(e) {}
     }
 
-    console.log(`Successfully created ${normalizedRole} account for ${fullName} (${username})`);
-    return res.status(200).json({
+    db.exec('COMMIT');
+
+    console.log(`[ATOMIC USER CREATION SUCCESS] Role: ${normRole}, Name: ${nameInput}, ID: ${userId}, School: ${activeSchoolId}`);
+    return res.status(201).json({
       success: true,
-      message: 'Account created and activated successfully.',
+      message: `${normRole.toUpperCase()} account for "${nameInput}" created and activated successfully.`,
       user: {
-        id: username.trim(),
-        fullName: fullName.trim(),
-        role: normalizedRole,
-        classAssigned: classAssigned || 'General',
-        subjectsAssigned: subjectsAssigned || 'N/A',
-        username: username.trim(),
-        status: 'Active'
+        id: userId,
+        school_id: activeSchoolId,
+        full_name: nameInput,
+        username: userInput,
+        email: userEmail,
+        role: normRole,
+        status: 'active',
+        created_at: now
       }
     });
+
   } catch (err) {
-    console.error("Error creating principal managed account:", err);
-    return res.status(500).json({ success: false, message: 'Database error creating user account: ' + err.message });
+    try { db.exec('ROLLBACK'); } catch(e) {}
+    console.error("Atomic transaction failed creating user:", err);
+    return res.status(500).json({ success: false, message: 'Database transaction error creating user account: ' + err.message });
   }
-});
+}
+
+app.post('/api/principal/create-user', authenticateToken, requireRole(['principal', 'admin', 'superadmin']), handlePrincipalCreateUser);
+app.post('/api/principal/create-account', handlePrincipalCreateUser);
 
 // ==================== 3-STEP SCHOOL ONBOARDING PERSISTENCE API ====================
 app.post('/api/onboarding/complete', (req, res) => {

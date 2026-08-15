@@ -9,7 +9,7 @@ try {
   db = new DatabaseSync(DB_FILE);
 } catch (err) {
   console.warn("Native node:sqlite module unavailable on this Node version. Initializing in-memory DB fallback.");
-  const store = { schools: [], students: [], attendance: [], payments: [], timetable: [], notifications: [], parents: [], teachers: [] };
+  const store = { schools: [], students: [], attendance: [], payments: [], timetable: [], notifications: [], parents: [], teachers: [], users: [], assignments: [] };
   db = {
     exec: () => {},
     prepare: function(sql) {
@@ -18,6 +18,14 @@ try {
         get: function(...args) {
           if (sqlLower.includes('count(*)')) {
             return { count: store.schools.length };
+          }
+          if (sqlLower.includes('from users')) {
+            const arg = String(args[0] || '').toLowerCase();
+            return store.users.find(u => (u.id || '').toLowerCase() === arg || (u.username || '').toLowerCase() === arg || (u.email || '').toLowerCase() === arg);
+          }
+          if (sqlLower.includes('from assignments')) {
+            const arg = String(args[0] || '').toLowerCase();
+            return store.assignments.find(a => (a.user_id || '').toLowerCase() === arg || a.id === Number(args[0]));
           }
           if (sqlLower.includes('from schools')) {
             const arg = String(args[0] || '').toLowerCase();
@@ -34,6 +42,8 @@ try {
           return null;
         },
         all: function(...args) {
+          if (sqlLower.includes('from users')) return store.users;
+          if (sqlLower.includes('from assignments')) return store.assignments;
           if (sqlLower.includes('from schools')) return store.schools;
           if (sqlLower.includes('from students')) {
             if (args.length > 0) return store.students.filter(s => args.includes(s.id));
@@ -47,7 +57,17 @@ try {
           return [];
         },
         run: function(...args) {
-          if (sqlLower.includes('insert into schools')) {
+          if (sqlLower.includes('insert into users')) {
+            const [id, school_id, full_name, username, email, password_hash, role, status, created_at] = args;
+            const existingIdx = store.users.findIndex(u => u.id === id || (u.username && u.username.toLowerCase() === (username || '').toLowerCase()));
+            const obj = { id, school_id, full_name, username, email, password_hash, role, status: status || 'active', created_at };
+            if (existingIdx >= 0) store.users[existingIdx] = obj;
+            else store.users.push(obj);
+          } else if (sqlLower.includes('insert into assignments')) {
+            const [user_id, school_id, role, assigned_class_id, assigned_arm_id, assigned_subjects, assigned_classes, admission_no, parent_id, metadata, created_at] = args;
+            const id = store.assignments.length + 1;
+            store.assignments.push({ id, user_id, school_id, role, assigned_class_id, assigned_arm_id, assigned_subjects, assigned_classes, admission_no, parent_id, metadata, created_at });
+          } else if (sqlLower.includes('insert into schools')) {
             const [id, name, email, type, kycStatus, subscriptionStatus, plan, reportCardFormat, password, logo, classes, config] = args;
             const existingIdx = store.schools.findIndex(s => s.id === id);
             const obj = { id, name, email, type, kycStatus, subscriptionStatus, plan, reportCardFormat, password, logo, classes, config };
@@ -196,6 +216,37 @@ function initSchema() {
       purpose TEXT,
       message TEXT,
       date TEXT
+    )
+  `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      school_id TEXT,
+      full_name TEXT,
+      username TEXT,
+      email TEXT,
+      password_hash TEXT,
+      role TEXT,
+      status TEXT DEFAULT 'active',
+      created_at TEXT
+    )
+  `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS assignments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT,
+      school_id TEXT,
+      role TEXT,
+      assigned_class_id TEXT,
+      assigned_arm_id TEXT,
+      assigned_subjects TEXT,
+      assigned_classes TEXT,
+      admission_no TEXT,
+      parent_id TEXT,
+      metadata TEXT,
+      created_at TEXT
     )
   `);
 }

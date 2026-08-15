@@ -1,5 +1,52 @@
 // Eduflow School OS - Dashboard Logic Engine
 
+// ==================== DASHBOARD ROUTE GUARD & CONTEXT INTEGRITY ====================
+(function enforceDashboardSecurityGuard() {
+  const token = localStorage.getItem('eduflow_jwt_token') || localStorage.getItem('authToken');
+  const userRole = localStorage.getItem('eduflow_role') || localStorage.getItem('userRole');
+  const urlParams = new URLSearchParams(window.location.search);
+  const targetRole = urlParams.get('role');
+
+  // 1. Verify Active Session Token
+  if (!token && !sessionStorage.getItem('superadmin_authenticated')) {
+    console.warn("🛡️ Security Guard: Unauthenticated access attempt blocked. Redirecting to login.");
+    localStorage.clear();
+    window.location.replace('index.html');
+    return;
+  }
+
+  // 2. Enforce Role & Context Integrity Across Dashboard Views
+  if (targetRole && userRole) {
+    const normUserRole = userRole.toLowerCase().trim();
+    const normTargetRole = targetRole.toLowerCase().trim();
+
+    const mappedUserRole = (normUserRole === 'admin') ? 'principal' : normUserRole;
+    const mappedTargetRole = (normTargetRole === 'admin') ? 'principal' : normTargetRole;
+
+    if (mappedUserRole !== mappedTargetRole && mappedUserRole !== 'superadmin') {
+      console.error(`🛡️ Security Violation: Role mismatch detected. Token Role="${mappedUserRole}", Requested Role="${mappedTargetRole}". Access Denied.`);
+      alert(`⛔ Access Denied: You do not have permission to view the ${targetRole.toUpperCase()} dashboard section.`);
+      
+      if (mappedUserRole === 'superadmin') {
+        window.location.replace('dashboard.html?role=superadmin');
+      } else if (mappedUserRole === 'principal') {
+        window.location.replace('dashboard.html?role=admin');
+      } else if (mappedUserRole === 'form_master') {
+        window.location.replace('dashboard.html?role=form_master');
+      } else if (mappedUserRole === 'teacher') {
+        window.location.replace('dashboard.html?role=teacher');
+      } else if (mappedUserRole === 'student') {
+        window.location.replace('dashboard.html?role=student');
+      } else if (mappedUserRole === 'parent') {
+        window.location.replace('dashboard.html?role=parent');
+      } else {
+        localStorage.clear();
+        window.location.replace('index.html');
+      }
+    }
+  }
+})();
+
 // 1. DATABASE SCHEMA & CONSTANTS (Clean Production Defaults - Zero Demo Students)
 const DEFAULT_STUDENTS = [];
 const DEFAULT_ATTENDANCE = {};

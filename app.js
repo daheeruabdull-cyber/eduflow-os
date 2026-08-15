@@ -851,6 +851,8 @@ async function handlePortalLoginUnified(event) {
         redirectUrl = 'dashboard.html?role=superadmin';
       } else if (role === 'principal' || role === 'admin') {
         redirectUrl = `dashboard.html?role=admin&schoolId=${schoolId}`;
+      } else if (role === 'form_master') {
+        redirectUrl = `dashboard.html?role=form_master&schoolId=${schoolId}`;
       } else if (role === 'teacher') {
         redirectUrl = `dashboard.html?role=teacher&schoolId=${schoolId}`;
       } else if (role === 'parent') {
@@ -858,7 +860,8 @@ async function handlePortalLoginUnified(event) {
       } else if (role === 'student') {
         redirectUrl = `dashboard.html?role=student&schoolId=${schoolId}`;
       } else {
-        redirectUrl = 'dashboard.html?role=admin';
+        alert('Unknown role assigned. Please contact your school administrator.');
+        return false;
       }
       
       window.location.href = redirectUrl;
