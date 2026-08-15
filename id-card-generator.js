@@ -336,12 +336,12 @@ function closeBatchIdCardModal() {
 }
 
 /**
- * 6. Digital Signature Pad Controller & Touch/Mouse Engine
+ * 6. High-Precision HTML5 Canvas Signature Pad Engine
  */
-let isNativeDrawing = false;
-let lastNativeX = 0;
-let lastNativeY = 0;
-let nativeHasStrokes = false;
+let isSigDrawing = false;
+let sigLastX = 0;
+let sigLastY = 0;
+let sigHasStrokes = false;
 
 function openSignaturePadModal(studentId) {
   const modal = document.getElementById('idcard-signature-modal');
@@ -350,106 +350,105 @@ function openSignaturePadModal(studentId) {
   modal.style.display = 'flex';
   if (studentId) window.activeSignatureStudentId = studentId;
 
-  // Allow DOM 50ms to calculate actual element CSS box dimensions before calibrating canvas
+  // Allow DOM layout pass to compute display dimensions before initializing canvas
   setTimeout(() => {
-    initOrResizeSignaturePad();
-  }, 50);
+    initSignatureCanvas();
+  }, 60);
 }
 
-function initOrResizeSignaturePad() {
+function initSignatureCanvas() {
   const canvas = document.getElementById('signatureCanvas');
   if (!canvas) return;
 
-  const ratio = Math.max(window.devicePixelRatio || 1, 1);
-  const displayWidth = canvas.offsetWidth || 470;
-  const displayHeight = canvas.offsetHeight || 180;
+  const rect = canvas.getBoundingClientRect();
+  const displayW = rect.width > 0 ? rect.width : (canvas.offsetWidth || 470);
+  const displayH = rect.height > 0 ? rect.height : (canvas.offsetHeight || 180);
 
-  canvas.width = displayWidth * ratio;
-  canvas.height = displayHeight * ratio;
+  // Set internal resolution
+  canvas.width = displayW;
+  canvas.height = displayH;
 
   const ctx = canvas.getContext("2d");
-  ctx.scale(ratio, ratio);
+  ctx.clearRect(0, 0, displayW, displayH);
+  ctx.strokeStyle = "#0F172A";
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
 
-  nativeHasStrokes = false;
+  sigHasStrokes = false;
 
-  if (window.SignaturePad) {
-    if (!signaturePadInstance) {
-      signaturePadInstance = new window.SignaturePad(canvas, {
-        penColor: "#0F172A",
-        backgroundColor: "rgba(255, 255, 255, 0)",
-        minWidth: 1.5,
-        maxWidth: 3.5
-      });
-    } else {
-      signaturePadInstance.clear();
-    }
-  }
+  if (canvas.dataset.sigEngineBound === "true") return;
+  canvas.dataset.sigEngineBound = "true";
 
-  // Bind Native Touch & Mouse Pointer Fallback Engine
-  bindNativeCanvasEvents(canvas);
-}
-
-function bindNativeCanvasEvents(canvas) {
-  if (canvas.dataset.listenersBound === "true") return;
-  canvas.dataset.listenersBound = "true";
-
-  const getPos = (e) => {
-    const rect = canvas.getBoundingClientRect();
-    if (e.touches && e.touches[0]) {
-      return [e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top];
-    }
-    return [e.offsetX, e.offsetY];
+  const getCanvasCoordinates = (e) => {
+    const cRect = canvas.getBoundingClientRect();
+    const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+    const clientY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+    return [clientX - cRect.left, clientY - cRect.top];
   };
 
-  const startDraw = (e) => {
-    isNativeDrawing = true;
-    const [x, y] = getPos(e);
-    lastNativeX = x;
-    lastNativeY = y;
+  const startSignature = (e) => {
+    isSigDrawing = true;
+    const [x, y] = getCanvasCoordinates(e);
+    sigLastX = x;
+    sigLastY = y;
   };
 
-  const draw = (e) => {
-    if (!isNativeDrawing) return;
+  const drawSignature = (e) => {
+    if (!isSigDrawing) return;
     if (e.touches) e.preventDefault();
 
-    const [x, y] = getPos(e);
-    const ctx = canvas.getContext("2d");
-    ctx.beginPath();
-    ctx.moveTo(lastNativeX, lastNativeY);
-    ctx.lineTo(x, y);
-    ctx.strokeStyle = "#0F172A";
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.stroke();
+    const [x, y] = getCanvasCoordinates(e);
+    const cCtx = canvas.getContext("2d");
+    cCtx.beginPath();
+    cCtx.moveTo(sigLastX, sigLastY);
+    cCtx.lineTo(x, y);
+    cCtx.strokeStyle = "#0F172A";
+    cCtx.lineWidth = 2.5;
+    cCtx.lineCap = "round";
+    cCtx.lineJoin = "round";
+    cCtx.stroke();
 
-    lastNativeX = x;
-    lastNativeY = y;
-    nativeHasStrokes = true;
+    sigLastX = x;
+    sigLastY = y;
+    sigHasStrokes = true;
   };
 
-  const stopDraw = () => { isNativeDrawing = false; };
+  const stopSignature = () => {
+    isSigDrawing = false;
+  };
 
-  canvas.addEventListener("mousedown", startDraw);
-  canvas.addEventListener("mousemove", draw);
-  canvas.addEventListener("mouseup", stopDraw);
-  canvas.addEventListener("mouseleave", stopDraw);
+  // Mouse Listeners
+  canvas.addEventListener("mousedown", startSignature);
+  canvas.addEventListener("mousemove", drawSignature);
+  canvas.addEventListener("mouseup", stopSignature);
+  canvas.addEventListener("mouseleave", stopSignature);
 
-  canvas.addEventListener("touchstart", (e) => { e.preventDefault(); startDraw(e); }, { passive: false });
-  canvas.addEventListener("touchmove", (e) => { e.preventDefault(); draw(e); }, { passive: false });
-  canvas.addEventListener("touchend", stopDraw);
+  // Touch Listeners
+  canvas.addEventListener("touchstart", (e) => { e.preventDefault(); startSignature(e); }, { passive: false });
+  canvas.addEventListener("touchmove", (e) => { e.preventDefault(); drawSignature(e); }, { passive: false });
+  canvas.addEventListener("touchend", stopSignature);
 }
 
 function clearSignaturePad() {
   const canvas = document.getElementById('signatureCanvas');
-  if (signaturePadInstance) {
-    signaturePadInstance.clear();
-  }
   if (canvas) {
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
-  nativeHasStrokes = false;
+  sigHasStrokes = false;
+}
+
+function isCanvasImageDrawn(canvas) {
+  if (!canvas || canvas.width === 0 || canvas.height === 0) return false;
+  try {
+    const ctx = canvas.getContext('2d');
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    for (let i = 3; i < imgData.length; i += 4) {
+      if (imgData[i] > 0) return true;
+    }
+  } catch(e) {}
+  return false;
 }
 
 function handleSignatureFileUpload(file) {
@@ -469,26 +468,23 @@ function handleSignatureFileUpload(file) {
 
 function saveAndApplyDigitalSignature() {
   const canvas = document.getElementById('signatureCanvas');
-  let dataUrl = '';
+  if (!canvas) return;
 
-  if (signaturePadInstance && !signaturePadInstance.isEmpty()) {
-    dataUrl = signaturePadInstance.toDataURL("image/png");
-  } else if (nativeHasStrokes && canvas) {
-    dataUrl = canvas.toDataURL("image/png");
-  }
-
-  if (dataUrl) {
-    idCardActiveSignatureUrl = dataUrl;
+  if (sigHasStrokes || isCanvasImageDrawn(canvas)) {
+    idCardActiveSignatureUrl = canvas.toDataURL("image/png");
     if (idCardActiveStudents.length > 0) {
       renderLiveIdCardPreview(idCardActiveStudents[0]);
     }
     alert("✍️ Digital signature saved and applied to student ID cards!");
-  } else if (!idCardActiveSignatureUrl) {
-    alert("⚠️ Please draw a signature on the pad or upload a transparent PNG signature file first.");
-    return;
+    closeSignaturePadModal();
+  } else if (idCardActiveSignatureUrl) {
+    if (idCardActiveStudents.length > 0) {
+      renderLiveIdCardPreview(idCardActiveStudents[0]);
+    }
+    closeSignaturePadModal();
+  } else {
+    alert("⚠️ Please draw a signature on the canvas pad or upload a transparent PNG signature file first.");
   }
-
-  closeSignaturePadModal();
 }
 
 function closeSignaturePadModal() {
