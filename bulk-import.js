@@ -343,6 +343,18 @@ function renderCredentialExportModal(data) {
 function closeCredentialExportModal() {
   const modal = document.getElementById('bulk-credential-modal-overlay');
   if (modal) modal.style.display = 'none';
+
+  if (window.SchoolStore && typeof window.SchoolStore.refreshAll === 'function') {
+    window.SchoolStore.refreshAll();
+  }
+
+  if (typeof window.showSection === 'function') {
+    window.showSection('id-cards');
+  }
+
+  if (typeof loadIdCardStudentRoster === 'function') {
+    loadIdCardStudentRoster();
+  }
 }
 
 /**

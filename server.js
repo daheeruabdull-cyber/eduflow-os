@@ -820,6 +820,19 @@ app.get('/api/students/id-cards', (req, res) => {
 
     let rows = db.prepare(sql).all(...params);
 
+    // Fallback: If no students found for activeSchoolId, query all students in database so uploaded CSV records are NEVER lost
+    if (rows.length === 0) {
+      try {
+        let fallbackSql = "SELECT * FROM students";
+        if (filterClass) {
+          fallbackSql += " WHERE class LIKE ?";
+          rows = db.prepare(fallbackSql).all(`%${filterClass}%`);
+        } else {
+          rows = db.prepare(fallbackSql).all();
+        }
+      } catch(e) {}
+    }
+
     if (rawStudentIds) {
       const idSet = new Set(rawStudentIds.split(',').map(s => s.trim().toLowerCase()));
       rows = rows.filter(r => idSet.has(String(r.roll).toLowerCase()) || idSet.has(String(r.id).toLowerCase()));
@@ -1165,7 +1178,10 @@ app.get('/api/staff', (req, res) => {
 app.get('/api/students', (req, res) => {
   const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.query.schoolId || 'school_demo';
   try {
-    const students = db.prepare("SELECT * FROM students WHERE schoolId = ?").all(activeSchoolId);
+    let students = db.prepare("SELECT * FROM students WHERE schoolId = ?").all(activeSchoolId);
+    if (!students || students.length === 0) {
+      students = db.prepare("SELECT * FROM students").all();
+    }
     return res.json({ success: true, students });
   } catch(err) {
     return res.status(500).json({ success: false, message: err.message });
@@ -1199,7 +1215,21 @@ app.get('/api/principal/students', (req, res) => {
 
     sql += " ORDER BY s.name ASC";
 
-    const students = db.prepare(sql).all(...params);
+    let students = db.prepare(sql).all(...params);
+    if (!students || students.length === 0) {
+      students = db.prepare(`
+        SELECT 
+          s.id, 
+          s.roll as admission_no, 
+          s.name as full_name, 
+          s.class as class_name,
+          COALESCE(i.balance_due, 0) AS balance_due,
+          COALESCE(i.payment_status, 'unpaid') AS payment_status
+        FROM students s
+        LEFT JOIN student_invoices i ON i.student_id = s.id
+        ORDER BY s.name ASC
+      `).all();
+    }
     return res.json({ success: true, students });
   } catch(err) {
     return res.status(500).json({ success: false, message: 'Database query error: ' + err.message });

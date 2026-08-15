@@ -354,6 +354,7 @@ function showSection(sectionId, event) {
   try {
     if (sectionId === 'home') renderDashboardStats();
     if (sectionId === 'users') renderPrincipalUsersTable();
+    if (sectionId === 'id-cards') { if (typeof loadIdCardStudentRoster === 'function') loadIdCardStudentRoster(); }
     if (sectionId === 'attendance') renderAttendanceModule();
     if (sectionId === 'results') renderResultsModule();
     if (sectionId === 'fees') renderFeesModule();
