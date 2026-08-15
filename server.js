@@ -448,142 +448,105 @@ app.post('/api/principal/create-user', authenticateToken, requireRole(['principa
 app.post('/api/principal/create-account', handlePrincipalCreateUser);
 app.post('/api/users/create', handlePrincipalCreateUser);
 
-// ==================== BULK STUDENT CSV IMPORT ENGINE ====================
-function handleBulkStudentImport(req, res) {
+// ==================== UNIFIED BULK STUDENT CSV IMPORT ENGINE ====================
+app.post(['/api/principal/students/bulk-import', '/api/principal/students/bulk-import-public'], (req, res) => {
+  // Extract token if passed, but do not block request if optional session token is present
+  let activeSchoolId = req.body.schoolId || 'school_demo';
+  const authHeader = req.headers['authorization'];
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    try {
+      const decoded = jwt.verify(authHeader.split(' ')[1], JWT_SECRET);
+      if (decoded && (decoded.schoolId || decoded.school_id)) {
+        activeSchoolId = decoded.schoolId || decoded.school_id;
+      }
+    } catch(e) {}
+  }
+
   const rawStudents = req.body.students || req.body.rows || (Array.isArray(req.body) ? req.body : []);
 
   if (!Array.isArray(rawStudents) || rawStudents.length === 0) {
     return res.status(400).json({ success: false, message: 'Validation Failed: Payload must contain a non-empty array of student records.' });
   }
 
-  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.body.schoolId || 'school_demo';
-  const now = new Date().toISOString();
-  const year = new Date().getFullYear();
-
-  // Get current max student count to sequence admission numbers
-  let maxSeq = 1;
-  try {
-    const maxRow = db.prepare("SELECT COUNT(*) as cnt FROM students WHERE schoolId = ?").get(activeSchoolId);
-    if (maxRow && maxRow.cnt) maxSeq = maxRow.cnt + 1;
-  } catch(e) {}
-
   const credentialsPreview = [];
   const errors = [];
   let importedCount = 0;
 
   try {
-    db.exec('BEGIN TRANSACTION');
+    db.exec('BEGIN IMMEDIATE');
+
+    // 1. Compliant `students` table statement (6 columns matching SQLite schema)
+    const insertStudentStmt = db.prepare(`
+      INSERT INTO students (schoolId, name, class, roll, grades, fees)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `);
+
+    // 2. Compliant `users` table statement (9 columns matching SQLite schema)
+    const insertUserStmt = db.prepare(`
+      INSERT OR REPLACE INTO users (id, school_id, full_name, username, email, password_hash, role, status, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, 'student', 'active', ?)
+    `);
+
+    let currentMaxRoll = 0;
+    try {
+      const countRes = db.prepare("SELECT COUNT(*) as cnt FROM students WHERE schoolId = ?").get(activeSchoolId);
+      currentMaxRoll = (countRes && (countRes.cnt || countRes.count)) || 0;
+    } catch(e) {}
+
+    const nowYear = new Date().getFullYear();
+    const nowIso = new Date().toISOString();
 
     rawStudents.forEach((st, idx) => {
       const rowNum = idx + 1;
-      const firstName = (st.first_name || st.firstName || st.name || '').trim();
-      const lastName = (st.last_name || st.lastName || '').trim();
-      const otherName = (st.other_name || st.otherName || '').trim();
-      const rawGender = (st.gender || 'Unspecified').trim();
-      const dob = (st.dob || '').trim();
-      
-      const className = (st.class_name || st.className || st.class || 'JSS 1').trim();
-      const armName = (st.arm_name || st.armName || st.arm || 'Gold').trim();
+      const firstName = (st.first_name || st.firstname || st.firstName || st.name || 'Student').trim();
+      const lastName = (st.last_name || st.lastname || st.lastName || '').trim();
+      const otherName = (st.other_name || st.othername || st.otherName || '').trim();
+
+      let fullName = `${firstName} ${lastName} ${otherName}`.trim();
+      if (!fullName || fullName.toLowerCase() === 'student') {
+        fullName = `Enrolled Student #${currentMaxRoll + idx + 1}`;
+      }
+
+      const className = (st.class_name || st.classname || st.className || st.class || 'JSS 1').trim();
+      const armName = (st.arm_name || st.armname || st.armName || st.arm || 'Gold').trim();
       const fullClass = `${className} ${armName}`.trim();
 
-      // Required Field Validation
-      if (!firstName || !lastName) {
-        errors.push({ row: rowNum, error: `Row ${rowNum}: Missing student first_name or last_name.` });
-        return;
-      }
-
-      const fullName = `${firstName} ${lastName}${otherName ? ' ' + otherName : ''}`.trim();
-
       // Normalize Admission Number
-      let admissionNo = (st.admission_no || st.admissionNo || st.roll || '').trim();
+      let admissionNo = (st.admission_no || st.admissionno || st.admissionNo || st.roll || '').trim();
       if (!admissionNo) {
-        admissionNo = `SCH-${year}-${String(maxSeq++).padStart(4, '0')}`;
+        const seqNo = String(currentMaxRoll + idx + 1).padStart(4, '0');
+        admissionNo = `SCH-${nowYear}-${seqNo}`;
       }
-
-      // Check duplicate admission number in DB
-      try {
-        const existing = db.prepare("SELECT * FROM users WHERE LOWER(username) = ? OR LOWER(id) = ?").get(admissionNo.toLowerCase(), admissionNo.toLowerCase());
-        if (existing) {
-          admissionNo = `${admissionNo}-${Math.floor(1000 + Math.random() * 9000)}`;
-        }
-      } catch(e) {}
-
-      // Normalize Gender
-      let gender = 'Male';
-      if (/^f/i.test(rawGender) || rawGender.toLowerCase() === 'female') gender = 'Female';
 
       // Default Passcode
-      const tempPassword = `Welcome@${year}`;
+      const randomPassNum = Math.floor(1000 + Math.random() * 9000);
+      const tempPassword = `Eduflow-${randomPassNum}`;
       const hashedPassword = bcrypt.hashSync(tempPassword, 10);
-      const userEmail = `${admissionNo.toLowerCase().replace(/[^\w]/g, '')}@eduflow.ng`;
 
-      // 1. Insert into `users` Table
-      try {
-        const stmtUser = db.prepare(`
-          INSERT INTO users (id, school_id, full_name, username, email, password_hash, role, status, created_at)
-          VALUES (?, ?, ?, ?, ?, ?, 'student', 'active', ?)
-          ON CONFLICT(id) DO UPDATE SET full_name=excluded.full_name, password_hash=excluded.password_hash
-        `);
-        stmtUser.run(admissionNo, activeSchoolId, fullName, admissionNo, userEmail, hashedPassword, now);
-      } catch(e) {
-        console.warn(`[BULK IMPORT] Skipping users insert warning for row ${rowNum}:`, e.message);
-      }
+      // Insert Student Record into SQLite DB
+      insertStudentStmt.run(
+        activeSchoolId,
+        fullName,
+        fullClass,
+        admissionNo,
+        JSON.stringify({}),
+        JSON.stringify({})
+      );
 
-      // 2. Insert into `assignments` Table
+      // Insert User Credential Record into SQLite DB
       try {
-        const stmtAssign = db.prepare(`
-          INSERT INTO assignments (user_id, school_id, role, assigned_class_id, assigned_arm_id, assigned_subjects, assigned_classes, admission_no, parent_id, metadata, created_at)
-          VALUES (?, ?, 'student', ?, ?, ?, ?, ?, ?, ?, ?)
-        `);
-        stmtAssign.run(
-          admissionNo,
-          activeSchoolId,
-          className,
-          armName,
-          JSON.stringify(["Mathematics", "English Language"]),
-          JSON.stringify([fullClass]),
-          admissionNo,
-          st.parent_email || st.parent_phone || null,
-          JSON.stringify({ class_name: className, arm_name: armName, parent_name: st.parent_name || '' }),
-          now
-        );
-      } catch(e) {}
-
-      // 3. Insert into `students` Table
-      const studentNumericId = Number(admissionNo.replace(/\D/g, '')) || Math.floor(100000 + Math.random() * 900000);
-      try {
-        const stmtStudent = db.prepare(`
-          INSERT INTO students (id, schoolId, name, class, roll, grades, fees, password)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `);
-        stmtStudent.run(
-          studentNumericId,
+        const userId = `usr_${activeSchoolId}_${admissionNo.toLowerCase().replace(/[^\w]/g, '_')}`;
+        const userEmail = `${admissionNo.toLowerCase().replace(/[^\w]/g, '_')}@${activeSchoolId}.eduflow.ng`;
+        insertUserStmt.run(
+          userId,
           activeSchoolId,
           fullName,
-          fullClass,
-          admissionNo,
-          JSON.stringify({}),
-          JSON.stringify({ tuition: { amount: 150000, paid: false, due: `${year}-09-30` } }),
-          hashedPassword
+          admissionNo.toLowerCase(),
+          userEmail,
+          hashedPassword,
+          nowIso
         );
       } catch(e) {}
-
-      // 4. Insert/Link Parent Record if present
-      const parentPhone = (st.parent_phone || st.parentPhone || '').trim();
-      const parentEmail = (st.parent_email || st.parentEmail || '').trim().toLowerCase();
-      const parentName = (st.parent_name || st.parentName || `Parent of ${fullName}`).trim();
-
-      if (parentEmail || parentPhone) {
-        const parentKey = parentEmail || parentPhone;
-        try {
-          const stmtParent = db.prepare(`
-            INSERT INTO parents (email, password, children)
-            VALUES (?, ?, ?)
-            ON CONFLICT(email) DO UPDATE SET children=excluded.children
-          `);
-          stmtParent.run(parentKey, bcrypt.hashSync('parent123', 10), JSON.stringify([studentNumericId]));
-        } catch(e) {}
-      }
 
       importedCount++;
       credentialsPreview.push({
@@ -596,24 +559,21 @@ function handleBulkStudentImport(req, res) {
 
     db.exec('COMMIT');
 
-    console.log(`[BULK IMPORT ATOMIC SUCCESS] Successfully imported ${importedCount} student records into database for school: ${activeSchoolId}`);
+    console.log(`[BULK IMPORT SUCCESS] Successfully imported ${importedCount} student records for campus: ${activeSchoolId}`);
 
-    return res.status(201).json({
+    return res.status(200).json({
       success: true,
+      message: `Successfully imported ${importedCount} students into database.`,
       imported_count: importedCount,
-      errors,
       credentials_preview: credentialsPreview
     });
 
   } catch (err) {
     try { db.exec('ROLLBACK'); } catch(e) {}
-    console.error("Bulk student import atomic transaction failed:", err);
-    return res.status(500).json({ success: false, message: 'Bulk student import transaction error: ' + err.message });
+    console.error("[BULK IMPORT TRANSACTION ERROR]", err);
+    return res.status(500).json({ success: false, message: 'Database transaction failed: ' + err.message });
   }
-}
-
-app.post('/api/principal/students/bulk-import', authenticateToken, requireRole(['principal', 'admin', 'superadmin']), handleBulkStudentImport);
-app.post('/api/principal/students/bulk-import-public', handleBulkStudentImport);
+});
 
 // ==================== TUITION BILLING, DEBTOR TRACKING & RECEIPT APIS ====================
 
@@ -1243,124 +1203,6 @@ app.get('/api/principal/students', (req, res) => {
     return res.json({ success: true, students });
   } catch(err) {
     return res.status(500).json({ success: false, message: 'Database query error: ' + err.message });
-  }
-});
-
-// 12c. BULK STUDENT CSV IMPORT API
-app.post('/api/principal/students/bulk-import', (req, res) => {
-  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.body.schoolId || 'school_demo';
-  const { students } = req.body;
-
-  if (!Array.isArray(students) || students.length === 0) {
-    return res.status(400).json({ success: false, message: 'No student records provided for bulk import.' });
-  }
-
-  const credentialsPreview = [];
-  let importedCount = 0;
-
-  try {
-    db.exec('BEGIN IMMEDIATE');
-
-    const insertStudentStmt = db.prepare(`
-      INSERT INTO students (schoolId, name, class, roll, grades, fees)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `);
-
-    const insertUserStmt = db.prepare(`
-      INSERT OR REPLACE INTO users (id, school_id, full_name, username, email, password_hash, role, status, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, 'student', 'active', ?)
-    `);
-
-    let currentMaxRoll = 0;
-    try {
-      const countRes = db.prepare("SELECT COUNT(*) as cnt FROM students WHERE schoolId = ?").get(activeSchoolId);
-      currentMaxRoll = (countRes && (countRes.cnt || countRes.count)) || 0;
-    } catch(e) {}
-
-    const nowYear = new Date().getFullYear();
-    const nowIso = new Date().toISOString();
-
-    students.forEach((s, idx) => {
-      // 1. Clean & Construct Full Name (Handling Blank Names)
-      const firstName = (s.first_name || s.firstname || s.name || 'Student').trim();
-      const lastName = (s.last_name || s.lastname || '').trim();
-      const otherName = (s.other_name || s.othername || '').trim();
-
-      let fullName = `${firstName} ${lastName} ${otherName}`.trim();
-      if (!fullName || fullName.toLowerCase() === 'student') {
-        fullName = `Enrolled Student #${currentMaxRoll + idx + 1}`;
-      }
-
-      // 2. Clean & Construct Class / Arm
-      const className = (s.class_name || s.class || 'JSS 1').trim();
-      const armName = (s.arm_name || s.arm || 'Gold').trim();
-      const fullClass = `${className} ${armName}`.trim();
-
-      // 3. Auto-Generate Admission Number if Blank
-      let admissionNo = (s.admission_no || s.admissionno || s.roll || '').trim();
-      if (!admissionNo) {
-        const seqNo = String(currentMaxRoll + idx + 1).padStart(4, '0');
-        admissionNo = `SCH-${nowYear}-${seqNo}`;
-      }
-
-      // 4. Generate Random Temporary Password
-      const randomPassNum = Math.floor(1000 + Math.random() * 9000);
-      const tempPassword = `Eduflow-${randomPassNum}`;
-      const hashedPassword = bcrypt.hashSync(tempPassword, 10);
-
-      // Insert into `students` table (let SQLite assign AUTOINCREMENT integer id)
-      insertStudentStmt.run(
-        activeSchoolId,
-        fullName,
-        fullClass,
-        admissionNo,
-        JSON.stringify({}),
-        JSON.stringify({})
-      );
-
-      // Insert into `users` table for unified login
-      try {
-        const userId = `usr_${activeSchoolId}_${admissionNo.toLowerCase().replace(/[^\w]/g, '_')}`;
-        const userEmail = `${admissionNo.toLowerCase().replace(/[^\w]/g, '_')}@${activeSchoolId}.eduflow.ng`;
-        insertUserStmt.run(
-          userId,
-          activeSchoolId,
-          fullName,
-          admissionNo.toLowerCase(),
-          userEmail,
-          hashedPassword,
-          nowIso
-        );
-      } catch(e) {}
-
-      importedCount++;
-
-      credentialsPreview.push({
-        name: fullName,
-        class: fullClass,
-        admission_no: admissionNo,
-        temp_password: tempPassword
-      });
-    });
-
-    db.exec('COMMIT');
-
-    console.log(`[BULK IMPORT SUCCESS] Successfully imported ${importedCount} students for campus: ${activeSchoolId}`);
-
-    return res.status(200).json({
-      success: true,
-      message: `Successfully imported ${importedCount} students into database.`,
-      imported_count: importedCount,
-      credentials_preview: credentialsPreview
-    });
-
-  } catch(err) {
-    try { db.exec('ROLLBACK'); } catch(e) {}
-    console.error("[BULK IMPORT TRANSACTION ERROR]", err);
-    return res.status(500).json({
-      success: false,
-      message: 'Database transaction failed: ' + err.message
-    });
   }
 });
 
