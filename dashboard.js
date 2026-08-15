@@ -1256,17 +1256,17 @@ function renderReportCard(studentId) {
       const initials = subj.split(' ').map(w => w[0]).join('').substring(0,2) || 'T.I';
 
       const tr = document.createElement('tr');
-      tr.style.cssText = 'border-bottom: 1px solid #CBD5E1; text-align: center; font-size: 8.5px; padding: 1px 0;';
+      tr.style.cssText = 'border-bottom: 1px solid #CBD5E1; text-align: center; font-size: 9px;';
       tr.innerHTML = `
-        <td style="padding: 2px 4px; text-align: left; font-weight: 700; color: #0F172A; border-right: 1px solid #CBD5E1;">${subj}</td>
-        <td style="padding: 2px; border-right: 1px solid #CBD5E1;">${ca1}</td>
-        <td style="padding: 2px; border-right: 1px solid #CBD5E1;">${ca2}</td>
-        <td style="padding: 2px; border-right: 1px solid #CBD5E1;">${exam}</td>
-        <td style="padding: 2px; font-weight: 800; border-right: 1px solid #CBD5E1; color: #1E3A8A;">${total}</td>
-        <td style="padding: 2px; font-weight: 800; border-right: 1px solid #CBD5E1; color: ${info.color};">${info.grade}</td>
-        <td style="padding: 2px; border-right: 1px solid #CBD5E1; font-weight: 700;">${sPos}${sSuffix}</td>
-        <td style="padding: 2px 4px; font-weight: 700; color: #475569;">${info.remark.toUpperCase()}</td>
-        <td style="padding: 2px; font-weight: 600; color: #64748B;">${initials}</td>
+        <td style="padding: 4px 8px; text-align: left; font-weight: 700; color: #0F172A; border-right: 1px solid #CBD5E1; padding-left: 10px;">${subj}</td>
+        <td style="padding: 4px 2px; border-right: 1px solid #CBD5E1;">${ca1}</td>
+        <td style="padding: 4px 2px; border-right: 1px solid #CBD5E1;">${ca2}</td>
+        <td style="padding: 4px 2px; border-right: 1px solid #CBD5E1;">${exam}</td>
+        <td style="padding: 4px 2px; font-weight: 800; border-right: 1px solid #CBD5E1; color: #1E3A8A;">${total}</td>
+        <td style="padding: 4px 2px; font-weight: 800; border-right: 1px solid #CBD5E1; color: ${info.color};">${info.grade}</td>
+        <td style="padding: 4px 2px; border-right: 1px solid #CBD5E1; font-weight: 700;">${sPos}${sSuffix}</td>
+        <td style="padding: 4px 8px; font-weight: 700; color: #475569;">${info.remark.toUpperCase()}</td>
+        <td style="padding: 4px 2px; font-weight: 600; color: #64748B;">${initials}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -1292,12 +1292,12 @@ function renderReportCard(studentId) {
     ];
     affectiveBody.innerHTML = items.map(item => `
       <tr style="border-bottom: 1px solid #E2E8F0;">
-        <td style="padding: 1px 3px; font-weight: 600; color: #334155;">${item.name}</td>
-        <td style="text-align: center; border-left: 1px solid #CBD5E1;">${item.val === 5 ? '✓' : ''}</td>
-        <td style="text-align: center; border-left: 1px solid #CBD5E1;">${item.val === 4 ? '✓' : ''}</td>
-        <td style="text-align: center; border-left: 1px solid #CBD5E1;">${item.val === 3 ? '✓' : ''}</td>
-        <td style="text-align: center; border-left: 1px solid #CBD5E1;">${item.val === 2 ? '✓' : ''}</td>
-        <td style="text-align: center; border-left: 1px solid #CBD5E1;">${item.val === 1 ? '✓' : ''}</td>
+        <td style="padding: 3px 8px; font-weight: 600; color: #334155; padding-left: 8px;">${item.name}</td>
+        <td style="text-align: center; border-left: 1px solid #CBD5E1; padding: 3px 2px;">${item.val === 5 ? '✓' : ''}</td>
+        <td style="text-align: center; border-left: 1px solid #CBD5E1; padding: 3px 2px;">${item.val === 4 ? '✓' : ''}</td>
+        <td style="text-align: center; border-left: 1px solid #CBD5E1; padding: 3px 2px;">${item.val === 3 ? '✓' : ''}</td>
+        <td style="text-align: center; border-left: 1px solid #CBD5E1; padding: 3px 2px;">${item.val === 2 ? '✓' : ''}</td>
+        <td style="text-align: center; border-left: 1px solid #CBD5E1; padding: 3px 2px;">${item.val === 1 ? '✓' : ''}</td>
       </tr>
     `).join('');
   }
@@ -1315,12 +1315,12 @@ function renderReportCard(studentId) {
     ];
     psychomotorBody.innerHTML = items.map(item => `
       <tr style="border-bottom: 1px solid #E2E8F0;">
-        <td style="padding: 1px 3px; font-weight: 600; color: #334155;">${item.name}</td>
-        <td style="text-align: center; border-left: 1px solid #CBD5E1;">${item.val === 5 ? '✓' : ''}</td>
-        <td style="text-align: center; border-left: 1px solid #CBD5E1;">${item.val === 4 ? '✓' : ''}</td>
-        <td style="text-align: center; border-left: 1px solid #CBD5E1;">${item.val === 3 ? '✓' : ''}</td>
-        <td style="text-align: center; border-left: 1px solid #CBD5E1;">${item.val === 2 ? '✓' : ''}</td>
-        <td style="text-align: center; border-left: 1px solid #CBD5E1;">${item.val === 1 ? '✓' : ''}</td>
+        <td style="padding: 3px 8px; font-weight: 600; color: #334155; padding-left: 8px;">${item.name}</td>
+        <td style="text-align: center; border-left: 1px solid #CBD5E1; padding: 3px 2px;">${item.val === 5 ? '✓' : ''}</td>
+        <td style="text-align: center; border-left: 1px solid #CBD5E1; padding: 3px 2px;">${item.val === 4 ? '✓' : ''}</td>
+        <td style="text-align: center; border-left: 1px solid #CBD5E1; padding: 3px 2px;">${item.val === 3 ? '✓' : ''}</td>
+        <td style="text-align: center; border-left: 1px solid #CBD5E1; padding: 3px 2px;">${item.val === 2 ? '✓' : ''}</td>
+        <td style="text-align: center; border-left: 1px solid #CBD5E1; padding: 3px 2px;">${item.val === 1 ? '✓' : ''}</td>
       </tr>
     `).join('');
   }
