@@ -322,6 +322,9 @@ function handlePrincipalCreateUser(req, res) {
   // 3. Single-Pass Password Hashing
   const hashedPassword = bcrypt.hashSync(passInput, 10);
 
+  console.log("[SECURITY AUDIT] Saving user to database:", { username: userInput, role: normRole, school_id: activeSchoolId });
+  console.log("[SECURITY AUDIT] Generated bcrypt hash prefix:", hashedPassword.substring(0, 15) + "...");
+
   // 4. Duplicate Check
   try {
     const existingUser = db.prepare("SELECT * FROM users WHERE LOWER(username) = ? OR LOWER(email) = ? OR LOWER(id) = ?").get(cleanUsername, cleanUsername, cleanUsername);
