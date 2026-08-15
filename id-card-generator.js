@@ -353,12 +353,13 @@ function openSignaturePadModal(studentId) {
   if (!modal) return;
 
   modal.style.display = 'flex';
+  modal.classList.add('active');
   if (studentId) window.activeSignatureStudentId = studentId;
 
   // Allow DOM layout pass to compute display dimensions before initializing canvas
   setTimeout(() => {
     initSignatureCanvas();
-  }, 60);
+  }, 50);
 }
 
 function initSignatureCanvas() {
@@ -366,30 +367,42 @@ function initSignatureCanvas() {
   if (!canvas) return;
 
   const rect = canvas.getBoundingClientRect();
-  const displayW = rect.width > 0 ? rect.width : (canvas.offsetWidth || 470);
-  const displayH = rect.height > 0 ? rect.height : (canvas.offsetHeight || 180);
+  const displayW = rect.width > 0 ? Math.floor(rect.width) : (canvas.offsetWidth || 500);
+  const displayH = rect.height > 0 ? Math.floor(rect.height) : (canvas.offsetHeight || 180);
 
-  // Set internal resolution
-  canvas.width = displayW;
-  canvas.height = displayH;
+  // Set internal resolution safely
+  if (canvas.width !== displayW || canvas.height !== displayH) {
+    canvas.width = displayW;
+    canvas.height = displayH;
+  }
 
+  // Always re-apply 2D stroke styling properties after resolution updates
   const ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, displayW, displayH);
   ctx.strokeStyle = "#0F172A";
-  ctx.lineWidth = 2.5;
+  ctx.lineWidth = 3.0;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
-
-  sigHasStrokes = false;
 
   if (canvas.dataset.sigEngineBound === "true") return;
   canvas.dataset.sigEngineBound = "true";
 
   const getCanvasCoordinates = (e) => {
     const cRect = canvas.getBoundingClientRect();
-    const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
-    const clientY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
-    return [clientX - cRect.left, clientY - cRect.top];
+    let clientX = e.clientX;
+    let clientY = e.clientY;
+
+    if (e.touches && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else if (e.changedTouches && e.changedTouches.length > 0) {
+      clientX = e.changedTouches[0].clientX;
+      clientY = e.changedTouches[0].clientY;
+    }
+
+    const scaleX = cRect.width > 0 ? (canvas.width / cRect.width) : 1;
+    const scaleY = cRect.height > 0 ? (canvas.height / cRect.height) : 1;
+
+    return [(clientX - cRect.left) * scaleX, (clientY - cRect.top) * scaleY];
   };
 
   const startSignature = (e) => {
@@ -401,7 +414,7 @@ function initSignatureCanvas() {
 
   const drawSignature = (e) => {
     if (!isSigDrawing) return;
-    if (e.touches) e.preventDefault();
+    if (e.cancelable) e.preventDefault();
 
     const [x, y] = getCanvasCoordinates(e);
     const cCtx = canvas.getContext("2d");
@@ -409,7 +422,7 @@ function initSignatureCanvas() {
     cCtx.moveTo(sigLastX, sigLastY);
     cCtx.lineTo(x, y);
     cCtx.strokeStyle = "#0F172A";
-    cCtx.lineWidth = 2.5;
+    cCtx.lineWidth = 3.0;
     cCtx.lineCap = "round";
     cCtx.lineJoin = "round";
     cCtx.stroke();
@@ -423,16 +436,23 @@ function initSignatureCanvas() {
     isSigDrawing = false;
   };
 
-  // Mouse Listeners
-  canvas.addEventListener("mousedown", startSignature);
-  canvas.addEventListener("mousemove", drawSignature);
+  // Pointer Events (Unified stylus, touch, mouse support)
+  canvas.addEventListener("pointerdown", (e) => { startSignature(e); });
+  canvas.addEventListener("pointermove", (e) => { drawSignature(e); });
+  canvas.addEventListener("pointerup", stopSignature);
+  canvas.addEventListener("pointerleave", stopSignature);
+
+  // Mouse Fallbacks
+  canvas.addEventListener("mousedown", (e) => { startSignature(e); });
+  canvas.addEventListener("mousemove", (e) => { drawSignature(e); });
   canvas.addEventListener("mouseup", stopSignature);
   canvas.addEventListener("mouseleave", stopSignature);
 
-  // Touch Listeners
-  canvas.addEventListener("touchstart", (e) => { e.preventDefault(); startSignature(e); }, { passive: false });
-  canvas.addEventListener("touchmove", (e) => { e.preventDefault(); drawSignature(e); }, { passive: false });
+  // Touch Fallbacks (Non-passive to prevent scrolling)
+  canvas.addEventListener("touchstart", (e) => { if (e.cancelable) e.preventDefault(); startSignature(e); }, { passive: false });
+  canvas.addEventListener("touchmove", (e) => { if (e.cancelable) e.preventDefault(); drawSignature(e); }, { passive: false });
   canvas.addEventListener("touchend", stopSignature);
+  canvas.addEventListener("touchcancel", stopSignature);
 }
 
 function clearSignaturePad() {
