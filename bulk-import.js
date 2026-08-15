@@ -86,19 +86,28 @@ function validateParsedRows(rows) {
     const rowNum = idx + 1;
     const errors = [];
 
-    const firstName = (r.first_name || r.firstname || r.name || '').trim();
-    const lastName = (r.last_name || r.lastname || '').trim();
-    let className = overrideClass || (r.class_name || r.classname || r.class || '').trim();
-    let armName = overrideArm || (r.arm_name || r.armname || r.arm || '').trim();
+    let fullNameCombined = (r.full_name || r.fullname || r.student_name || r.studentname || r.name || '').trim();
+    let firstName = (r.first_name || r.firstname || '').trim();
+    let lastName = (r.last_name || r.lastname || '').trim();
+    let otherName = (r.other_name || r.othername || '').trim();
+
+    if (!firstName && fullNameCombined) {
+      const parts = fullNameCombined.split(/\s+/);
+      firstName = parts[0] || 'Student';
+      if (parts.length > 1 && !lastName) {
+        lastName = parts.slice(1).join(' ');
+      }
+    }
+
+    if (!firstName && !lastName && !fullNameCombined) {
+      errors.push("Missing Student Name");
+    }
+
+    let className = overrideClass || (r.class_name || r.classname || r.class || 'JSS 1').trim();
+    let armName = overrideArm || (r.arm_name || r.armname || r.arm || 'Gold').trim();
     let rawGender = (r.gender || '').trim();
     let phone = (r.parent_phone || r.parentphone || r.phone || '').trim().replace(/\s+/g, '');
     let admissionNo = (r.admission_no || r.admissionno || r.roll || '').trim();
-
-    // Field Checks
-    if (!firstName) errors.push("Missing first_name");
-    if (!lastName) errors.push("Missing last_name");
-    if (!className) errors.push("Missing class_name");
-    if (!armName) errors.push("Missing arm_name");
 
     // Gender check
     let normalizedGender = 'Male';
@@ -106,16 +115,12 @@ function validateParsedRows(rows) {
       normalizedGender = 'Female';
     } else if (/^m/i.test(rawGender) || rawGender.toLowerCase() === 'male') {
       normalizedGender = 'Male';
-    } else if (rawGender) {
-      errors.push("Invalid gender value");
     }
 
     // Phone normalization (E.164 standard)
     if (phone) {
       if (phone.startsWith('0') && phone.length === 11) {
         phone = '+234' + phone.substring(1);
-      } else if (!phone.startsWith('+234') && phone.length < 10) {
-        errors.push("Bad phone format");
       }
     }
 
@@ -134,13 +139,13 @@ function validateParsedRows(rows) {
 
     return {
       rowNum,
-      first_name: firstName,
+      first_name: firstName || 'Student',
       last_name: lastName,
-      other_name: (r.other_name || r.othername || '').trim(),
+      other_name: otherName,
       gender: normalizedGender,
       dob: (r.dob || '').trim(),
-      class_name: className || 'JSS 1',
-      arm_name: armName || 'Gold',
+      class_name: className,
+      arm_name: armName,
       admission_no: admissionNo,
       parent_name: (r.parent_name || r.parentname || '').trim(),
       parent_phone: phone,

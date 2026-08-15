@@ -1246,6 +1246,123 @@ app.get('/api/principal/students', (req, res) => {
   }
 });
 
+// 12c. BULK STUDENT CSV IMPORT API
+app.post('/api/principal/students/bulk-import', (req, res) => {
+  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.body.schoolId || 'school_demo';
+  const { students } = req.body;
+
+  if (!Array.isArray(students) || students.length === 0) {
+    return res.status(400).json({ success: false, message: 'No student records provided for bulk import.' });
+  }
+
+  const credentialsPreview = [];
+  let importedCount = 0;
+
+  try {
+    db.exec('BEGIN IMMEDIATE');
+
+    const insertStudentStmt = db.prepare(`
+      INSERT INTO students (id, schoolId, name, class, roll, grades, fees, password)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const insertUserStmt = db.prepare(`
+      INSERT OR REPLACE INTO users (username, password, role, name, schoolId)
+      VALUES (?, ?, 'student', ?, ?)
+    `);
+
+    let currentMaxRoll = 0;
+    try {
+      const countRes = db.prepare("SELECT COUNT(*) as cnt FROM students WHERE schoolId = ?").get(activeSchoolId);
+      currentMaxRoll = (countRes && countRes.cnt) || 0;
+    } catch(e) {}
+
+    const nowYear = new Date().getFullYear();
+
+    students.forEach((s, idx) => {
+      // 1. Clean & Construct Full Name (Handling Blank Names)
+      const firstName = (s.first_name || s.firstname || s.name || 'Student').trim();
+      const lastName = (s.last_name || s.lastname || '').trim();
+      const otherName = (s.other_name || s.othername || '').trim();
+
+      let fullName = `${firstName} ${lastName} ${otherName}`.trim();
+      if (!fullName || fullName.toLowerCase() === 'student') {
+        fullName = `Enrolled Student #${currentMaxRoll + idx + 1}`;
+      }
+
+      // 2. Clean & Construct Class / Arm
+      const className = (s.class_name || s.class || 'JSS 1').trim();
+      const armName = (s.arm_name || s.arm || 'Gold').trim();
+      const fullClass = `${className} ${armName}`.trim();
+
+      // 3. Auto-Generate Admission Number if Blank
+      let admissionNo = (s.admission_no || s.admissionno || s.roll || '').trim();
+      if (!admissionNo) {
+        const seqNo = String(currentMaxRoll + idx + 1).padStart(4, '0');
+        admissionNo = `SCH-${nowYear}-${seqNo}`;
+      }
+
+      // 4. Generate Random Temporary Password
+      const randomPassNum = Math.floor(1000 + Math.random() * 9000);
+      const tempPassword = `Eduflow-${randomPassNum}`;
+      const hashedPassword = bcrypt.hashSync(tempPassword, 10);
+
+      // Unique student record ID
+      const studentId = `stu_${Date.now()}_${Math.floor(Math.random() * 10000)}_${idx}`;
+
+      // Insert into `students` table
+      insertStudentStmt.run(
+        studentId,
+        activeSchoolId,
+        fullName,
+        fullClass,
+        admissionNo,
+        JSON.stringify({}),
+        JSON.stringify({}),
+        hashedPassword
+      );
+
+      // Insert into `users` table for unified login
+      try {
+        insertUserStmt.run(
+          admissionNo.toLowerCase(),
+          hashedPassword,
+          fullName,
+          activeSchoolId
+        );
+      } catch(e) {}
+
+      importedCount++;
+
+      credentialsPreview.push({
+        name: fullName,
+        class: fullClass,
+        admission_no: admissionNo,
+        temp_password: tempPassword
+      });
+    });
+
+    db.exec('COMMIT');
+
+    console.log(`[BULK IMPORT SUCCESS] Successfully imported ${importedCount} students for campus: ${activeSchoolId}`);
+
+    return res.status(200).json({
+      success: true,
+      message: `Successfully imported ${importedCount} students into database.`,
+      imported_count: importedCount,
+      credentials_preview: credentialsPreview
+    });
+
+  } catch(err) {
+    try { db.exec('ROLLBACK'); } catch(e) {}
+    console.error("[BULK IMPORT TRANSACTION ERROR]", err);
+    return res.status(500).json({
+      success: false,
+      message: 'Database transaction failed: ' + err.message
+    });
+  }
+});
+
 // ==================== 3-STEP SCHOOL ONBOARDING PERSISTENCE API ====================
 app.post('/api/onboarding/complete', (req, res) => {
   const { schoolDetails, academicStructure, adminCredentials } = req.body;
