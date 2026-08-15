@@ -364,9 +364,9 @@ function showSection(sectionId, event) {
     if (sectionId === 'analytics') renderAnalyticsCharts();
     
     // Super-Admin Integrated Hubs
-    if (sectionId === 'super-overview') renderSuperOverview();
+    if (sectionId === 'super-overview') { renderSuperOverview(); renderOfficialInquiriesTable(); }
     if (sectionId === 'super-directory') renderSuperSchoolsDirectory();
-    if (sectionId === 'super-security') renderSuperSecurityLogs();
+    if (sectionId === 'super-security') { renderSuperSecurityLogs(); renderOfficialInquiriesTable(); }
     if (sectionId === 'super-kyc') { renderSuperKycVault(); renderSuperKycReviewPanel(); }
     if (sectionId === 'super-setup') loadSuperTenantContext();
     if (sectionId === 'super-rosters') {
@@ -4562,6 +4562,7 @@ function renderSuperSecurityLogs() {
   `).join('');
 
   renderMasterAccountsTable();
+  renderOfficialInquiriesTable();
 }
 
 function openSuperOnboardModal() {
@@ -5894,4 +5895,14 @@ if (document.readyState === 'loading') {
 } else {
   initApp();
 }
+
+// Real-Time SuperAdmin Inquiry Poller (15s Interval)
+setInterval(() => {
+  if (state.role === 'superadmin') {
+    const tableBody = document.getElementById('super-inquiries-tbody');
+    if (tableBody) {
+      renderOfficialInquiriesTable();
+    }
+  }
+}, 15000);
 
