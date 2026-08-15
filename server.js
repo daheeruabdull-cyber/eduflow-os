@@ -612,6 +612,234 @@ function handleBulkStudentImport(req, res) {
 app.post('/api/principal/students/bulk-import', authenticateToken, requireRole(['principal', 'admin', 'superadmin']), handleBulkStudentImport);
 app.post('/api/principal/students/bulk-import-public', handleBulkStudentImport);
 
+// ==================== TUITION BILLING, DEBTOR TRACKING & RECEIPT APIS ====================
+
+// 1. Fee Structure Configurator Endpoint
+app.post('/api/finance/fee-structure', (req, res) => {
+  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.body.schoolId || 'school_demo';
+  const { class_id, academic_session, term, fee_category, amount, is_compulsory } = req.body;
+
+  if (!fee_category || !amount) {
+    return res.status(400).json({ success: false, message: 'Validation Failed: Category and amount are required.' });
+  }
+
+  const now = new Date().toISOString();
+  try {
+    const stmt = db.prepare(`
+      INSERT INTO fee_structures (school_id, class_id, academic_session, term, fee_category, amount, is_compulsory, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    stmt.run(activeSchoolId, class_id || 'All', academic_session || '2025/2026', term || 'First Term', fee_category, parseFloat(amount), is_compulsory ? 1 : 0, now);
+    return res.status(201).json({ success: true, message: 'Fee line-item configured successfully.' });
+  } catch(err) {
+    return res.status(500).json({ success: false, message: 'Database error saving fee structure: ' + err.message });
+  }
+});
+
+app.get('/api/finance/fee-structure', (req, res) => {
+  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.query.schoolId || 'school_demo';
+  try {
+    const rows = db.prepare("SELECT * FROM fee_structures WHERE school_id = ?").all(activeSchoolId);
+    return res.json({ success: true, fee_structures: rows });
+  } catch(err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// 2. Batch Bill Generation Endpoint
+app.post('/api/finance/generate-term-invoices', (req, res) => {
+  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.body.schoolId || 'school_demo';
+  const session = req.body.academic_session || '2025/2026';
+  const term = req.body.term || 'First Term';
+  const targetClass = req.body.class_id;
+
+  const now = new Date().toISOString();
+  const year = new Date().getFullYear();
+
+  try {
+    let students = [];
+    if (targetClass) {
+      students = db.prepare("SELECT * FROM students WHERE schoolId = ? AND class LIKE ?").all(activeSchoolId, `%${targetClass}%`);
+    } else {
+      students = db.prepare("SELECT * FROM students WHERE schoolId = ?").all(activeSchoolId);
+    }
+
+    if (students.length === 0) {
+      return res.status(400).json({ success: false, message: 'No active students found to generate invoices for.' });
+    }
+
+    db.exec('BEGIN TRANSACTION');
+    let generatedCount = 0;
+
+    students.forEach(st => {
+      const studentId = String(st.roll || st.id);
+      const existing = db.prepare("SELECT id FROM student_invoices WHERE school_id = ? AND student_id = ? AND academic_session = ? AND term = ?").get(activeSchoolId, studentId, session, term);
+
+      if (!existing) {
+        // Calculate fee total
+        let totalBilled = 150000.00;
+        try {
+          const fees = db.prepare("SELECT SUM(amount) as total FROM fee_structures WHERE school_id = ? AND (class_id = 'All' OR class_id = ?) AND (term = 'All' OR term = ?)").get(activeSchoolId, st.class, term);
+          if (fees && fees.total && fees.total > 0) totalBilled = fees.total;
+        } catch(e) {}
+
+        const invoiceNum = `INV-${year}-${Math.floor(10000 + Math.random() * 90000)}`;
+        const stmt = db.prepare(`
+          INSERT INTO student_invoices (school_id, student_id, class_id, academic_session, term, invoice_number, total_billed, amount_paid, balance_due, payment_status, due_date, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, 0.0, ?, 'unpaid', ?, ?, ?)
+        `);
+        stmt.run(activeSchoolId, studentId, st.class, session, term, invoiceNum, totalBilled, totalBilled, `${year}-09-30`, now, now);
+        generatedCount++;
+      }
+    });
+
+    db.exec('COMMIT');
+    return res.json({ success: true, message: `Successfully generated ${generatedCount} term invoices.`, generated_count: generatedCount });
+  } catch(err) {
+    try { db.exec('ROLLBACK'); } catch(e) {}
+    return res.status(500).json({ success: false, message: 'Invoice generation error: ' + err.message });
+  }
+});
+
+// 3. Record Payment Endpoint (Atomic SQL Transaction + Print Receipt Object)
+app.post('/api/finance/record-payment', (req, res) => {
+  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.body.schoolId || 'school_demo';
+  const cashierId = (req.user && req.user.username) || 'Bursar / Admin';
+  const { invoice_id, amount_paid, payment_method, payment_reference, notes, payment_date } = req.body;
+
+  const numericAmount = parseFloat(amount_paid);
+  if (!invoice_id || isNaN(numericAmount) || numericAmount <= 0) {
+    return res.status(400).json({ success: false, message: 'Validation Failed: Valid invoice ID and payment amount are required.' });
+  }
+
+  const now = payment_date || new Date().toISOString();
+  const year = new Date().getFullYear();
+
+  try {
+    db.exec('BEGIN TRANSACTION');
+
+    const invoice = db.prepare("SELECT * FROM student_invoices WHERE id = ? OR invoice_number = ?").get(invoice_id, invoice_id);
+    if (!invoice) {
+      db.exec('ROLLBACK');
+      return res.status(404).json({ success: false, message: 'Invoice record not found in database.' });
+    }
+
+    const receiptNum = `RCP-${year}-${Math.floor(100000 + Math.random() * 900000)}`;
+
+    // 1. Insert Payment Transaction Record
+    const stmtTx = db.prepare(`
+      INSERT INTO payment_transactions (school_id, invoice_id, student_id, receipt_number, amount_paid, payment_method, payment_reference, received_by, payment_date, notes)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    stmtTx.run(activeSchoolId, invoice.id, invoice.student_id, receiptNum, numericAmount, payment_method || 'bank_transfer', payment_reference || 'REF-POS-DIRECT', cashierId, now, notes || '');
+
+    // 2. Update Student Invoice Ledger
+    const updatedPaid = invoice.amount_paid + numericAmount;
+    const updatedBalance = invoice.total_billed - updatedPaid;
+    let newStatus = 'partial';
+    if (updatedBalance <= 0) newStatus = 'paid';
+    else if (updatedPaid <= 0) newStatus = 'unpaid';
+
+    db.prepare(`
+      UPDATE student_invoices
+      SET amount_paid = ?, balance_due = ?, payment_status = ?, updated_at = ?
+      WHERE id = ?
+    `).run(updatedPaid, Math.max(0, updatedBalance), newStatus, now, invoice.id);
+
+    // 3. Fetch Student & School Profile for Receipt
+    let studentName = `Student (${invoice.student_id})`;
+    let parentName = `Parent / Sponsor`;
+    try {
+      const stRow = db.prepare("SELECT * FROM students WHERE roll = ? OR id = ?").get(invoice.student_id, invoice.student_id);
+      if (stRow) studentName = stRow.name;
+    } catch(e) {}
+
+    let schoolName = 'Eduflow International Academy';
+    try {
+      const sch = db.prepare("SELECT name FROM schools WHERE id = ?").get(activeSchoolId);
+      if (sch && sch.name) schoolName = sch.name;
+    } catch(e) {}
+
+    db.exec('COMMIT');
+
+    const receiptObject = {
+      receipt_number: receiptNum,
+      invoice_number: invoice.invoice_number,
+      payment_date: now,
+      student_name: studentName,
+      admission_no: invoice.student_id,
+      class: invoice.class_id,
+      parent_name: parentName,
+      amount_paid: numericAmount,
+      previous_paid: invoice.amount_paid,
+      total_billed: invoice.total_billed,
+      balance_due: Math.max(0, updatedBalance),
+      payment_method: payment_method || 'Bank Transfer',
+      payment_reference: payment_reference || 'REF-POS-DIRECT',
+      cashier: cashierId,
+      school_name: schoolName
+    };
+
+    return res.status(201).json({
+      success: true,
+      message: 'Payment successfully recorded and committed to database.',
+      receipt: receiptObject
+    });
+
+  } catch(err) {
+    try { db.exec('ROLLBACK'); } catch(e) {}
+    console.error("Payment recording transaction error:", err);
+    return res.status(500).json({ success: false, message: 'Payment transaction failed: ' + err.message });
+  }
+});
+
+// 4. Debtors Tracking API
+app.get('/api/finance/debtors', (req, res) => {
+  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.query.schoolId || 'school_demo';
+  const filterClass = req.query.class;
+  const minDebt = parseFloat(req.query.minDebt || 0);
+
+  try {
+    let sql = `
+      SELECT i.*, s.name as student_name, s.class as student_class
+      FROM student_invoices i
+      LEFT JOIN students s ON (i.student_id = s.roll OR i.student_id = s.id)
+      WHERE i.school_id = ? AND i.balance_due > ?
+    `;
+    const params = [activeSchoolId, minDebt];
+
+    if (filterClass) {
+      sql += " AND (i.class_id LIKE ? OR s.class LIKE ?)";
+      params.push(`%${filterClass}%`, `%${filterClass}%`);
+    }
+
+    const debtors = db.prepare(sql).all(...params);
+    return res.json({ success: true, debtors_count: debtors.length, debtors });
+  } catch(err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// 5. Finance Overview Stats Endpoint
+app.get('/api/finance/overview-stats', (req, res) => {
+  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.query.schoolId || 'school_demo';
+  try {
+    const stats = db.prepare(`
+      SELECT 
+        COALESCE(SUM(total_billed), 0.0) as total_expected,
+        COALESCE(SUM(amount_paid), 0.0) as total_collected,
+        COALESCE(SUM(balance_due), 0.0) as total_outstanding,
+        COUNT(CASE WHEN balance_due > 0 THEN 1 END) as debtors_count
+      FROM student_invoices
+      WHERE school_id = ?
+    `).get(activeSchoolId);
+
+    return res.json({ success: true, stats });
+  } catch(err) {
+    return res.status(500).json({ success: false, stats: { total_expected: 0, total_collected: 0, total_outstanding: 0, debtors_count: 0 } });
+  }
+});
+
 // ==================== 3-STEP SCHOOL ONBOARDING PERSISTENCE API ====================
 app.post('/api/onboarding/complete', (req, res) => {
   const { schoolDetails, academicStructure, adminCredentials } = req.body;

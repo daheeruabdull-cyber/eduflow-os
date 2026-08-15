@@ -249,6 +249,55 @@ function initSchema() {
       created_at TEXT
     )
   `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS fee_structures (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      school_id TEXT,
+      class_id TEXT,
+      academic_session TEXT,
+      term TEXT,
+      fee_category TEXT,
+      amount REAL,
+      is_compulsory INTEGER DEFAULT 1,
+      created_at TEXT
+    )
+  `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS student_invoices (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      school_id TEXT,
+      student_id TEXT,
+      class_id TEXT,
+      academic_session TEXT,
+      term TEXT,
+      invoice_number TEXT UNIQUE,
+      total_billed REAL DEFAULT 0.0,
+      amount_paid REAL DEFAULT 0.0,
+      balance_due REAL DEFAULT 0.0,
+      payment_status TEXT DEFAULT 'unpaid',
+      due_date TEXT,
+      created_at TEXT,
+      updated_at TEXT
+    )
+  `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS payment_transactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      school_id TEXT,
+      invoice_id INTEGER,
+      student_id TEXT,
+      receipt_number TEXT UNIQUE,
+      amount_paid REAL,
+      payment_method TEXT,
+      payment_reference TEXT,
+      received_by TEXT,
+      payment_date TEXT,
+      notes TEXT
+    )
+  `);
 }
 
 // 2. Pure Clean Production Database Initializer (Zero Demo Data)
