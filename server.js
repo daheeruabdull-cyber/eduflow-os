@@ -1262,22 +1262,23 @@ app.post('/api/principal/students/bulk-import', (req, res) => {
     db.exec('BEGIN IMMEDIATE');
 
     const insertStudentStmt = db.prepare(`
-      INSERT INTO students (id, schoolId, name, class, roll, grades, fees, password)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO students (schoolId, name, class, roll, grades, fees)
+      VALUES (?, ?, ?, ?, ?, ?)
     `);
 
     const insertUserStmt = db.prepare(`
-      INSERT OR REPLACE INTO users (username, password, role, name, schoolId)
-      VALUES (?, ?, 'student', ?, ?)
+      INSERT OR REPLACE INTO users (id, school_id, full_name, username, email, password_hash, role, status, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, 'student', 'active', ?)
     `);
 
     let currentMaxRoll = 0;
     try {
       const countRes = db.prepare("SELECT COUNT(*) as cnt FROM students WHERE schoolId = ?").get(activeSchoolId);
-      currentMaxRoll = (countRes && countRes.cnt) || 0;
+      currentMaxRoll = (countRes && (countRes.cnt || countRes.count)) || 0;
     } catch(e) {}
 
     const nowYear = new Date().getFullYear();
+    const nowIso = new Date().toISOString();
 
     students.forEach((s, idx) => {
       // 1. Clean & Construct Full Name (Handling Blank Names)
@@ -1307,28 +1308,28 @@ app.post('/api/principal/students/bulk-import', (req, res) => {
       const tempPassword = `Eduflow-${randomPassNum}`;
       const hashedPassword = bcrypt.hashSync(tempPassword, 10);
 
-      // Unique student record ID
-      const studentId = `stu_${Date.now()}_${Math.floor(Math.random() * 10000)}_${idx}`;
-
-      // Insert into `students` table
+      // Insert into `students` table (let SQLite assign AUTOINCREMENT integer id)
       insertStudentStmt.run(
-        studentId,
         activeSchoolId,
         fullName,
         fullClass,
         admissionNo,
         JSON.stringify({}),
-        JSON.stringify({}),
-        hashedPassword
+        JSON.stringify({})
       );
 
       // Insert into `users` table for unified login
       try {
+        const userId = `usr_${activeSchoolId}_${admissionNo.toLowerCase().replace(/[^\w]/g, '_')}`;
+        const userEmail = `${admissionNo.toLowerCase().replace(/[^\w]/g, '_')}@${activeSchoolId}.eduflow.ng`;
         insertUserStmt.run(
-          admissionNo.toLowerCase(),
-          hashedPassword,
+          userId,
+          activeSchoolId,
           fullName,
-          activeSchoolId
+          admissionNo.toLowerCase(),
+          userEmail,
+          hashedPassword,
+          nowIso
         );
       } catch(e) {}
 
