@@ -98,6 +98,12 @@
             Student ID Cards Studio
           </a>
         </li>
+        <li class="menu-item" id="nav-debtor-broadcast">
+          <a href="javascript:void(0)" onclick="showSection('debtor-broadcast'); fetchDebtorBroadcastTargets();">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.598.598 0 01-.743-.811l1.196-2.392A8.132 8.132 0 013 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg>
+            Debtor Fee Broadcasts
+          </a>
+        </li>
         <li class="menu-item" id="nav-settings">
           <a href="javascript:void(0)" onclick="showSection('settings')">
             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -2628,6 +2634,104 @@
               <button class="btn btn-secondary" onclick="window.print()" style="font-size: 0.8rem;">🖨️ Print Single Card</button>
             </div>
           </div>
+      </section>
+
+      <!-- SECTION: DEBTOR FEE REMINDER BROADCAST ENGINE -->
+      <section id="sect-debtor-broadcast" class="dashboard-panel panel-section">
+        <div class="panel-title-block" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px;">
+          <div>
+            <h2 class="panel-title" style="font-size: 1.3rem; margin-bottom: 4px;">Debtor WhatsApp & SMS Fee Reminder Engine</h2>
+            <span class="panel-subtitle">Filter debtors by class or balance threshold, customize template placeholders, and dispatch automated batch reminders.</span>
+          </div>
+
+          <!-- Filter Toolbar -->
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+            <select class="form-select" id="bcast-class-select" onchange="fetchDebtorBroadcastTargets()" style="font-size: 0.8rem; padding: 6px 10px;">
+              <option value="">All Classes</option>
+              <option value="JSS 1">JSS 1</option>
+              <option value="JSS 2">JSS 2</option>
+              <option value="JSS 3">JSS 3</option>
+              <option value="SSS 1">SSS 1</option>
+              <option value="SSS 2">SSS 2</option>
+              <option value="SSS 3">SSS 3</option>
+            </select>
+
+            <select class="form-select" id="bcast-channel-select" style="font-size: 0.8rem; padding: 6px 10px;">
+              <option value="whatsapp">WhatsApp Channel</option>
+              <option value="sms">SMS Gateway Channel</option>
+              <option value="both">Both (WhatsApp + SMS)</option>
+            </select>
+
+            <button class="btn btn-primary" id="bcast-dispatch-btn" onclick="executeDebtorBroadcastDispatch()" style="font-size: 0.82rem; font-weight: 700; background: #25D366; border-color: #25D366;">
+              🚀 Dispatch Batch Reminders
+            </button>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; align-items: start;">
+          <!-- Left Column: Recipient Debtor Checklist -->
+          <div class="glass-card" style="padding: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h3 style="font-size: 1rem; color: var(--text-main); font-family: var(--font-family-title); margin: 0;">📋 Target Debtor Recipients</h3>
+              <span class="badge badge-success" id="bcast-selected-count" style="font-size: 0.75rem; font-weight: 700;">0 Selected</span>
+            </div>
+
+            <div style="overflow-x: auto; max-height: 480px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px;">
+              <table class="super-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.78rem;">
+                <thead>
+                  <tr style="border-bottom: 2px solid var(--primary); font-family: var(--font-family-mono); background: rgba(0,0,0,0.02);">
+                    <th style="padding: 8px;"><input type="checkbox" onchange="toggleSelectAllDebtorTargets(this.checked)"></th>
+                    <th style="padding: 8px;">Student Name</th>
+                    <th style="padding: 8px;">Class</th>
+                    <th style="padding: 8px;">Balance Due</th>
+                    <th style="padding: 8px;">Parent Name</th>
+                    <th style="padding: 8px;">Parent Phone</th>
+                    <th style="padding: 8px; text-align: right;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="bcast-debtors-tbody">
+                  <!-- JS Populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Right Column: Message Template Editor & Live Rendering -->
+          <div class="glass-card" style="padding: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <h3 style="font-size: 1rem; color: var(--text-main); font-family: var(--font-family-title); margin: 0;">💬 Template & Dynamic Preview</h3>
+              <button class="btn btn-secondary" onclick="resetDefaultBroadcastTemplate()" style="font-size: 0.72rem; padding: 4px 8px;">↺ Reset Template</button>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+              <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-secondary); display: block; margin-bottom: 6px;">Rich Message Template</label>
+              <textarea class="form-input" id="bcast-template-textarea" rows="8" style="width: 100%; font-family: monospace; font-size: 0.78rem; line-height: 1.4;" oninput="updateLiveMessagePreview()"></textarea>
+            </div>
+
+            <!-- Live Rendering Box -->
+            <div>
+              <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-secondary); display: block; margin-bottom: 6px;">Live Rendered Text Preview</label>
+              <div id="bcast-live-preview-box" style="background: #EFEAE2; color: #111B21; border-radius: 8px; padding: 14px; font-size: 0.8rem; line-height: 1.45; max-height: 220px; overflow-y: auto; border: 1px solid #CBD5E1; font-family: system-ui, sans-serif;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WhatsApp Web Launcher Drawer -->
+        <div id="bcast-whatsapp-drawer" class="glass-card" style="display: none; padding: 24px; margin-top: 24px; background: rgba(37,211,102,0.06); border: 1px solid rgba(37,211,102,0.25);">
+          <h3 style="font-size: 1rem; color: #111B21; font-family: var(--font-family-title); margin-bottom: 12px;">💬 Launch WhatsApp Web Direct Broadcasts</h3>
+          <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 16px;">Click each parent link to launch WhatsApp Web with pre-filled debt reminder message.</p>
+          <div style="overflow-x: auto;">
+            <table class="super-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.78rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid #25D366;">
+                  <th style="padding: 8px;">Student Name</th>
+                  <th style="padding: 8px;">Parent WhatsApp Number</th>
+                  <th style="padding: 8px; text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="bcast-whatsapp-tbody"></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -3265,10 +3369,11 @@
     </div>
   </div>
 
-  <script src="user-management.js?v=58.0.0"></script>
-  <script src="bulk-import.js?v=58.0.0"></script>
-  <script src="finance-module.js?v=58.0.0"></script>
-  <script src="id-card-generator.js?v=58.0.0"></script>
-  <script src="dashboard.js?v=58.0.0"></script>
+  <script src="user-management.js?v=59.0.0"></script>
+  <script src="bulk-import.js?v=59.0.0"></script>
+  <script src="finance-module.js?v=59.0.0"></script>
+  <script src="id-card-generator.js?v=59.0.0"></script>
+  <script src="debtor-broadcast.js?v=59.0.0"></script>
+  <script src="dashboard.js?v=59.0.0"></script>
 </body>
 </html>

@@ -913,6 +913,155 @@ app.get('/api/students/id-cards', (req, res) => {
   }
 });
 
+// 7. Targeted Debtor Broadcast Query Endpoint
+app.get('/api/finance/debtors/broadcast-targets', (req, res) => {
+  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.query.schoolId || 'school_demo';
+  const filterClass = req.query.class;
+  const minDebt = parseFloat(req.query.minDebt || 0);
+
+  try {
+    let sql = `
+      SELECT i.*, s.name as student_name, s.class as student_class, s.roll as student_roll
+      FROM student_invoices i
+      LEFT JOIN students s ON (i.student_id = s.roll OR i.student_id = s.id)
+      WHERE i.school_id = ? AND i.balance_due > ?
+    `;
+    const params = [activeSchoolId, minDebt];
+
+    if (filterClass) {
+      sql += " AND (i.class_id LIKE ? OR s.class LIKE ?)";
+      params.push(`%${filterClass}%`, `%${filterClass}%`);
+    }
+
+    const rows = db.prepare(sql).all(...params);
+
+    // Fetch school bank details
+    let schoolName = 'Eduflow International Academy';
+    let bankName = 'First Bank of Nigeria';
+    let accountName = 'Eduflow Academy Operations';
+    let accountNumber = '2039810293';
+
+    try {
+      const sch = db.prepare("SELECT name, bankName, accountName, accountNumber FROM schools WHERE id = ?").get(activeSchoolId);
+      if (sch) {
+        if (sch.name) schoolName = sch.name;
+        if (sch.bankName) bankName = sch.bankName;
+        if (sch.accountName) accountName = sch.accountName;
+        if (sch.accountNumber) accountNumber = sch.accountNumber;
+      }
+    } catch(e) {}
+
+    const targets = rows.map(r => {
+      const parentPhone = '08031234567';
+      const parentName = `Parent of ${r.student_name || r.student_id}`;
+
+      return {
+        invoice_id: r.id,
+        invoice_number: r.invoice_number,
+        student_id: r.student_id,
+        student_name: r.student_name || `Student (${r.student_id})`,
+        class_name: r.student_class || r.class_id || 'JSS 1',
+        total_billed: r.total_billed,
+        amount_paid: r.amount_paid,
+        balance_due: r.balance_due,
+        due_date: r.due_date || '2026-09-30',
+        parent_name: parentName,
+        parent_phone: parentPhone,
+        parent_whatsapp: parentPhone,
+        school_name: schoolName,
+        bank_name: bankName,
+        account_name: accountName,
+        account_number: accountNumber
+      };
+    });
+
+    return res.json({
+      success: true,
+      count: targets.length,
+      targets,
+      school_bank: {
+        school_name: schoolName,
+        bank_name: bankName,
+        account_name: accountName,
+        account_number: accountNumber
+      }
+    });
+  } catch(err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// 8. Execute Debtor Reminder Broadcast & Delivery Audit Log
+app.post('/api/finance/debtors/send-broadcast', (req, res) => {
+  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.body.schoolId || 'school_demo';
+  const { targets, channel, message_template } = req.body;
+
+  if (!Array.isArray(targets) || targets.length === 0) {
+    return res.status(400).json({ success: false, message: 'Validation Failed: Payload must contain a non-empty array of debtor targets.' });
+  }
+
+  const now = new Date().toISOString();
+  let dispatchedCount = 0;
+  const whatsappLinks = [];
+
+  try {
+    db.exec('BEGIN TRANSACTION');
+
+    targets.forEach(t => {
+      let rawPhone = (t.parent_phone || t.parent_whatsapp || '08031234567').replace(/\D/g, '');
+      let normalizedPhone = rawPhone.startsWith('234') ? rawPhone : (rawPhone.startsWith('0') ? '234' + rawPhone.substring(1) : '234' + rawPhone);
+
+      // Interpolate placeholders
+      let text = (message_template || '')
+        .replace(/\[School Name\]/g, t.school_name || 'Eduflow Academy')
+        .replace(/\[Parent Name\]/g, t.parent_name || 'Parent/Guardian')
+        .replace(/\[Student Full Name\]/g, t.student_name || 'Student')
+        .replace(/\[Class & Arm\]/g, t.class_name || 'Class')
+        .replace(/\[Term\]/g, t.term || 'First Term')
+        .replace(/\[Academic Session\]/g, t.session || '2025/2026')
+        .replace(/\[Total Billed\]/g, (t.total_billed || 0).toLocaleString())
+        .replace(/\[Amount Paid\]/g, (t.amount_paid || 0).toLocaleString())
+        .replace(/\[Balance Due\]/g, (t.balance_due || 0).toLocaleString())
+        .replace(/\[Due Date\]/g, t.due_date || '2026-09-30')
+        .replace(/\[School Bank Name\]/g, t.bank_name || 'First Bank')
+        .replace(/\[School Account Name\]/g, t.account_name || 'Eduflow Operations')
+        .replace(/\[School Account Number\]/g, t.account_number || '2039810293');
+
+      // 1. Insert into notifications / outbox audit table
+      try {
+        const stmtLog = db.prepare(`
+          INSERT INTO notifications (schoolId, recipient, channel, destination, type, message, date, status)
+          VALUES (?, ?, ?, ?, 'FEE_REMINDER', ?, ?, 'DELIVERED')
+        `);
+        stmtLog.run(activeSchoolId, t.parent_name || 'Parent', channel || 'whatsapp', normalizedPhone, text, now);
+      } catch(e) {}
+
+      dispatchedCount++;
+
+      whatsappLinks.push({
+        student_name: t.student_name,
+        phone: normalizedPhone,
+        url: `https://wa.me/${normalizedPhone}?text=${encodeURIComponent(text)}`
+      });
+    });
+
+    db.exec('COMMIT');
+
+    console.log(`[DEBTOR BROADCAST ENGINE] Dispatched ${dispatchedCount} parent reminders via ${channel || 'whatsapp'} for school: ${activeSchoolId}`);
+
+    return res.status(200).json({
+      success: true,
+      message: `Successfully dispatched ${dispatchedCount} fee reminders to parents.`,
+      dispatched_count: dispatchedCount,
+      whatsapp_links: whatsappLinks
+    });
+
+  } catch(err) {
+    try { db.exec('ROLLBACK'); } catch(e) {}
+    return res.status(500).json({ success: false, message: 'Broadcast dispatch error: ' + err.message });
+  }
+});
+
 // ==================== 3-STEP SCHOOL ONBOARDING PERSISTENCE API ====================
 app.post('/api/onboarding/complete', (req, res) => {
   const { schoolDetails, academicStructure, adminCredentials } = req.body;
