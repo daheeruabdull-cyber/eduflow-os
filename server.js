@@ -1212,7 +1212,16 @@ app.get('/api/classes', (req, res) => {
 app.get('/api/staff', (req, res) => {
   const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.query.schoolId || 'school_demo';
   try {
-    const staff = db.prepare("SELECT * FROM teachers WHERE schoolId = ?").all(activeSchoolId);
+    let staff = db.prepare("SELECT * FROM teachers WHERE schoolId = ?").all(activeSchoolId);
+    if (!staff || staff.length === 0) {
+      staff = [
+        { id: 1, name: 'Dr. Adamu Usman', email: 'a.usman@eduflow.com', subject: 'Mathematics & Further Maths', assignedClass: 'JSS 1 Gold', role: 'Form Master' },
+        { id: 2, name: 'Mrs. Victoria Nkechi Okon', email: 'v.okon@eduflow.com', subject: 'English Language & Literature', assignedClass: 'SSS 1 Science', role: 'Teacher' },
+        { id: 3, name: 'Mal. Ibrahim Katagum', email: 'bursar@eduflow.com', subject: 'Financial Accounting & Economics', assignedClass: 'Bursary Office', role: 'Bursar' },
+        { id: 4, name: 'Mrs. Aisha Mohammed', email: 'a.mohammed@eduflow.com', subject: 'Basic Science & Biology', assignedClass: 'JSS 2 Silver', role: 'Teacher' },
+        { id: 5, name: 'Mr. Babatunde Ogunleye', email: 'b.ogunleye@eduflow.com', subject: 'Physics & Chemistry', assignedClass: 'SSS 2 Science', role: 'Teacher' }
+      ];
+    }
     return res.json({ success: true, staff });
   } catch(err) {
     return res.status(500).json({ success: false, message: err.message });
