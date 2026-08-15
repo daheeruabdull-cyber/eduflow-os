@@ -747,28 +747,19 @@
             </div>
 
             <!-- PREMIUM MOCK REPORT CARD -->
-            <div class="report-card-container">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
-                <h4 style="font-size: 0.95rem; margin: 0;">Active Term Report Card</h4>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                  <!-- Hidden File Inputs -->
-                  <input type="file" id="upload-school-logo-input" accept="image/*" style="display: none;" onchange="handleSchoolLogoUpload(event)">
-                  <input type="file" id="upload-student-passport-input" accept="image/*" style="display: none;" onchange="handleStudentPassportUpload(event)">
+            <!-- DIRECT PDF GENERATOR ACTION CARD (NO ON-SCREEN PREVIEW) -->
+            <div class="card glass-card" style="padding: 20px; text-align: center; border: 2px dashed #1E3A8A; background: #F8FAFC; border-radius: 8px; margin-bottom: 20px;">
+              <h4 style="font-size: 1.1rem; color: #1E3A8A; margin: 0 0 6px 0; font-weight: 800;">📄 Official Single-Page A4 Report Card Generator</h4>
+              <p style="font-size: 0.82rem; color: #475569; margin: 0 0 14px 0;">Select a student from the left roster to silently generate and download their official 1-page A4 PDF terminal report sheet directly to your device.</p>
+              <button class="btn btn-primary" onclick="downloadReportCardPDF()" style="font-size: 0.85rem; font-weight: 800; background: #1E3A8A; padding: 10px 24px; border-radius: 6px; box-shadow: 0 4px 12px rgba(30,58,138,0.25);">
+                📄 Generate & Download Official A4 PDF (No Preview)
+              </button>
+            </div>
 
-                  <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.75rem;" onclick="toggleReportCardViewMode()" id="view-mode-toggle-btn">
-                    📱 Fit Screen Mode
-                  </button>
-                  <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.75rem;" onclick="window.print()">
-                    🖨️ Print (1-Page)
-                  </button>
-                  <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.75rem; background: var(--primary);" onclick="downloadReportCardPDF()">
-                    📄 Download PDF
-                  </button>
-                </div>
-              </div>
-
+            <!-- HIDDEN ON-SCREEN REPORT CARD CONTAINER (POPULATED SILENTLY FOR PDF OUTPUT ONLY) -->
+            <div class="report-card-container" style="display: none !important;">
               <!-- RESPONSIVE AUTO-FITTING WRAPPER -->
-              <div class="report-card-responsive-wrapper" id="report-card-wrapper-box">
+              <div class="report-card-responsive-wrapper" id="report-card-wrapper-box" style="display: none !important;">
                 <!-- DEDICATED SINGLE-PAGE A4 TERMINAL REPORT CARD GENERATOR TEMPLATE -->
                 <div class="report-page-container printable-report-sheet" id="official-printable-sheet" style="background: #FFFFFF; color: #0F172A; font-family: Arial, Helvetica, sans-serif; padding: 6mm; border: 1.5px solid #0F172A; width: 100%; max-width: 210mm; max-height: 280mm; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.08); box-sizing: border-box; text-align: left;">
                   

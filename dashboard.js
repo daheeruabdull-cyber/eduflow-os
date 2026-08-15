@@ -1461,15 +1461,29 @@ function toggleRapidScoreEntryModal() {
   }
 }
 
-function downloadReportCardPDF() {
-  const element = document.getElementById('official-printable-sheet') || document.querySelector('.printable-report-sheet') || document.querySelector('.report-page-container');
-  const nameEl = document.getElementById('card-student-fullname') || document.getElementById('card-student-name');
-  const studentName = (nameEl && nameEl.textContent) ? nameEl.textContent.trim() : 'Student';
-  
+function downloadReportCardPDF(studentId) {
+  const targetId = studentId || state.currentStudentId || (state.db.students[0] && state.db.students[0].id) || 1;
+  const student = state.db.students.find(s => 
+    String(s.id) === String(targetId) || 
+    String(s.roll) === String(targetId) || 
+    String(s.admission_no) === String(targetId)
+  ) || state.db.students[0];
+
+  if (!student) {
+    alert("Please select a student from the roster first.");
+    return;
+  }
+
+  // Populate hidden single-page A4 template silently in memory
+  renderReportCard(student.id);
+
+  const element = document.getElementById('official-printable-sheet') || document.querySelector('.printable-report-sheet');
+  const studentName = (student.name || 'Student').trim().replace(/\s+/g, '_');
+
   if (window.html2pdf && element) {
     const opt = {
-      margin:       [8, 8, 8, 8],
-      filename:     `${studentName.replace(/\s+/g, '_')}_Official_Terminal_Report.pdf`,
+      margin:       [6, 6, 6, 6],
+      filename:     `${studentName}_Official_Terminal_Report.pdf`,
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { scale: 2, useCORS: true, logging: false },
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -5388,30 +5402,8 @@ function openOfficialReportCardModal(studentId = 1) {
     alert("🛡️ ACCESS RESTRICTED: Official Report Card generation is disabled until SuperAdmin approves your KYC and Identity Documents.");
     return;
   }
-  const targetId = studentId || state.currentStudentId;
-  const student = state.db.students.find(s => 
-    String(s.id) === String(targetId) || 
-    String(s.roll) === String(targetId) || 
-    String(s.admission_no) === String(targetId)
-  ) || state.db.students[0];
-
-  const modal = document.getElementById('official-report-card-modal');
-  const wrapper = document.getElementById('modal-report-card-wrapper');
-  if (!student || !modal) return;
-
-  renderReportCard(student.id);
-
-  const masterSheet = document.getElementById('official-printable-sheet');
-  if (masterSheet && wrapper) {
-    wrapper.innerHTML = '';
-    const clonedSheet = masterSheet.cloneNode(true);
-    clonedSheet.id = 'official-printable-sheet-modal';
-    wrapper.appendChild(clonedSheet);
-  }
-
-  modal.style.display = 'flex';
-  modal.classList.add('active');
-  modal.classList.remove('hidden');
+  // Direct PDF generation and download without on-screen preview
+  downloadReportCardPDF(studentId);
 }
 
 function closeOfficialReportCardModal() {
