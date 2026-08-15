@@ -226,6 +226,11 @@ function renderIdCardStudentTable(students) {
   const tbody = document.getElementById('idcard-students-tbody');
   if (!tbody) return;
 
+  if (!students || students.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 0.82rem;">🎓 No registered students found for this class filter. Select "All Classes" or add students.</td></tr>`;
+    return;
+  }
+
   tbody.innerHTML = students.map((s, idx) => `
     <tr style="border-bottom: 1px solid var(--border-color); cursor: pointer;" onclick="previewStudentIdCard('${s.id}')">
       <td style="padding: 10px;" onclick="event.stopPropagation()">
@@ -323,3 +328,7 @@ window.previewStudentIdCard = previewStudentIdCard;
 window.setIdCardOrientation = setIdCardOrientation;
 window.printBatchIdCardsA4 = printBatchIdCardsA4;
 window.closeBatchIdCardModal = closeBatchIdCardModal;
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadIdCardStudentRoster();
+});
