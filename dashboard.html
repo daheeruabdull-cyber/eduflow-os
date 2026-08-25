@@ -567,8 +567,8 @@
           </div>
 
           <!-- Right Column / Primary Grade Sheet Display -->
-          <div>
-            <div id="results-admin-form" class="glass-card" style="margin-bottom: 32px;">
+          <div class="results-main-column" style="display: flex; flex-direction: column; gap: 24px; width: 100%;">
+            <div id="results-admin-form" class="glass-card" style="margin-bottom: 0;">
               <h3 style="margin-bottom: 6px;" id="grading-student-title">Grade: Tobi Adebayo</h3>
               <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Update continuous assessment (30%) and term exam (70%) scores below.</p>
               
@@ -673,7 +673,7 @@
             </div>
 
             <!-- NIGERIAN PSYCHOMOTOR & AFFECTIVE DOMAIN CARD -->
-            <div id="psychomotor-rating-card" class="glass-card" style="margin-bottom: 32px;">
+            <div id="psychomotor-rating-card" class="glass-card" style="margin-bottom: 0;">
               <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
                 <h4 style="font-size: 0.9rem; font-family: var(--font-family-title); color: var(--text-main); margin: 0;">🧠 Behavioral & Psychomotor Ratings (1-5 Scale)</h4>
                 <button class="btn btn-secondary" onclick="savePsychomotorRatings()" style="font-size: 0.75rem; padding: 4px 10px;">💾 Save Ratings</button>
@@ -686,15 +686,15 @@
                   <div style="display: flex; flex-direction: column; gap: 8px;">
                     <div class="domain-rating-row">
                       <span>Punctuality:</span>
-                      <input type="number" min="1" max="5" value="5" class="form-input" id="psy-punctuality" style="width: 50px; padding: 4px 6px; text-align: center;">
+                      <input type="number" min="1" max="5" value="5" class="form-input" id="psy-punctuality">
                     </div>
                     <div class="domain-rating-row">
                       <span>Neatness & Hygiene:</span>
-                      <input type="number" min="1" max="5" value="4" class="form-input" id="psy-neatness" style="width: 50px; padding: 4px 6px; text-align: center;">
+                      <input type="number" min="1" max="5" value="4" class="form-input" id="psy-neatness">
                     </div>
                     <div class="domain-rating-row">
                       <span>Politeness & Conduct:</span>
-                      <input type="number" min="1" max="5" value="5" class="form-input" id="psy-politeness" style="width: 50px; padding: 4px 6px; text-align: center;">
+                      <input type="number" min="1" max="5" value="5" class="form-input" id="psy-politeness">
                     </div>
                   </div>
                 </div>
@@ -704,15 +704,15 @@
                   <div style="display: flex; flex-direction: column; gap: 8px;">
                     <div class="domain-rating-row">
                       <span>Handwriting Skills:</span>
-                      <input type="number" min="1" max="5" value="4" class="form-input" id="psy-handwriting" style="width: 50px; padding: 4px 6px; text-align: center;">
+                      <input type="number" min="1" max="5" value="4" class="form-input" id="psy-handwriting">
                     </div>
                     <div class="domain-rating-row">
                       <span>Sports & Games:</span>
-                      <input type="number" min="1" max="5" value="5" class="form-input" id="psy-sports" style="width: 50px; padding: 4px 6px; text-align: center;">
+                      <input type="number" min="1" max="5" value="5" class="form-input" id="psy-sports">
                     </div>
                     <div class="domain-rating-row">
                       <span>Crafts & Artistry:</span>
-                      <input type="number" min="1" max="5" value="4" class="form-input" id="psy-crafts" style="width: 50px; padding: 4px 6px; text-align: center;">
+                      <input type="number" min="1" max="5" value="4" class="form-input" id="psy-crafts">
                     </div>
                   </div>
                 </div>
@@ -720,7 +720,7 @@
             </div>
 
             <!-- REZTA CLASS BROADSHEET CONTAINER -->
-            <div id="broadsheet-view-container" class="glass-card" style="display: none; padding: 24px; margin-bottom: 32px;">
+            <div id="broadsheet-view-container" class="glass-card" style="display: none; padding: 24px; margin-bottom: 0;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <h4 style="font-size: 1rem; font-family: var(--font-family-title); color: var(--text-main); margin: 0;" id="broadsheet-title">Class Broadsheet Overview</h4>
                 <button class="btn btn-secondary" onclick="document.getElementById('broadsheet-view-container').style.display='none'" style="font-size: 0.75rem;">Close Broadsheet</button>
@@ -746,15 +746,23 @@
               </div>
             </div>
 
-            <!-- PREMIUM MOCK REPORT CARD -->
-            <!-- DIRECT PDF GENERATOR ACTION CARD (NO ON-SCREEN PREVIEW) -->
-            <div class="card glass-card" style="padding: 20px; text-align: center; border: 2px dashed #1E3A8A; background: #F8FAFC; border-radius: 8px; margin-bottom: 20px;">
-              <h4 style="font-size: 1.1rem; color: #1E3A8A; margin: 0 0 6px 0; font-weight: 800;">📄 Official Single-Page A4 Report Card Generator</h4>
-              <p style="font-size: 0.82rem; color: #475569; margin: 0 0 14px 0;">Select a student from the left roster to silently generate and download their official 1-page A4 PDF terminal report sheet directly to your device.</p>
-              <button class="btn btn-primary" onclick="downloadReportCardPDF()" style="font-size: 0.85rem; font-weight: 800; background: #1E3A8A; padding: 10px 24px; border-radius: 6px; box-shadow: 0 4px 12px rgba(30,58,138,0.25);">
-                📄 Generate & Download Official A4 PDF (No Preview)
+            <!-- COMPACT REPORT CARD ACTION CARD -->
+            <div class="card glass-card" style="padding: 16px 20px; margin-bottom: 0; border: 1px solid rgba(30,58,138,0.25); background: rgba(30,58,138,0.05); border-radius: 12px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(30,58,138,0.12); color: #1E3A8A; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+                <div>
+                  <h4 style="font-size: 0.9rem; font-weight: 800; color: var(--text-main); margin: 0 0 2px 0;">Single-Page A4 Terminal Report</h4>
+                  <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0;">Generate clean 1-page PDF without passport photo for the selected student.</p>
+                </div>
+              </div>
+              <button id="downloadReportPdfBtn" class="btn btn-primary" onclick="downloadReportCardPDF()" style="font-size: 0.8rem; font-weight: 700; background: #1E3A8A; padding: 10px 18px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(30,58,138,0.25); border: none; cursor: pointer;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                <span>Download Official A4 PDF</span>
               </button>
             </div>
+          </div>
 
             <!-- OFF-SCREEN REPORT CARD CONTAINER (SILENTLY RENDERED FOR DIRECT PDF OUTPUT ONLY) -->
             <div class="report-card-container" style="position: absolute !important; left: -9999px !important; top: -9999px !important; width: 210mm !important; visibility: visible !important; opacity: 1 !important; pointer-events: none !important; z-index: -9999 !important;">

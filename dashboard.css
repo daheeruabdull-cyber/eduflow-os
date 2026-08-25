@@ -1308,10 +1308,14 @@ button, input, select, textarea {
 }
 
 /* FLOATING PHONE SIMULATOR STYLES */
+.dashboard-panel {
+  padding-bottom: 70px !important;
+}
+
 .phone-toggle-btn {
   position: fixed;
-  bottom: 16px;
-  right: 16px;
+  bottom: 20px;
+  right: 24px;
   background: var(--bg-sidebar);
   border: 1px solid rgba(255,255,255,0.12);
   color: white;
@@ -1327,6 +1331,17 @@ button, input, select, textarea {
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
   z-index: 90;
   transition: var(--transition-smooth);
+}
+@media (max-width: 768px) {
+  .phone-toggle-btn span:not(.phone-badge) {
+    display: none !important;
+  }
+  .phone-toggle-btn {
+    padding: 10px !important;
+    border-radius: 50% !important;
+    bottom: 16px !important;
+    right: 16px !important;
+  }
 }
 .phone-toggle-btn:hover {
   transform: translateY(-2px);
@@ -2449,6 +2464,19 @@ select optgroup,
   box-sizing: border-box !important;
 }
 
+#results-admin-sidebar {
+  height: fit-content !important;
+  box-sizing: border-box !important;
+}
+
+.results-main-column {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 24px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
 #results-admin-sidebar,
 #results-admin-form,
 #psychomotor-rating-card,
@@ -2499,25 +2527,32 @@ select optgroup,
   justify-content: space-between !important;
   align-items: center !important;
   width: 100% !important;
-  gap: 8px !important;
+  padding: 8px 12px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid var(--bg-dark-border, rgba(255,255,255,0.08)) !important;
+  border-radius: 8px !important;
+  gap: 12px !important;
   box-sizing: border-box !important;
 }
 
 .domain-rating-row span {
-  font-size: 0.78rem !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  color: var(--text-main) !important;
   flex: 1 1 auto !important;
   word-break: break-word !important;
-  color: var(--text-main) !important;
 }
 
 .domain-rating-row input {
   width: 52px !important;
   min-width: 52px !important;
-  height: 36px !important;
-  min-height: 36px !important;
-  padding: 2px 4px !important;
-  font-size: 0.8rem !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  padding: 2px 6px !important;
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
   text-align: center !important;
+  border-radius: 6px !important;
   box-sizing: border-box !important;
   flex-shrink: 0 !important;
 }
