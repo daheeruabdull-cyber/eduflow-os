@@ -1474,7 +1474,7 @@ function downloadReportCardPDF(studentId) {
     return;
   }
 
-  // Populate hidden single-page A4 template silently in memory
+  // Populate hidden single-page A4 landscape template silently in memory
   renderReportCard(student.id);
 
   const sourceElement = document.getElementById('reportCardPrintArea') || document.getElementById('official-printable-sheet') || document.querySelector('.printable-report-sheet');
@@ -1486,19 +1486,19 @@ function downloadReportCardPDF(studentId) {
   const studentName = (student.name || 'Student').trim().replace(/\s+/g, '_');
 
   if (window.html2pdf) {
-    // Create a temporary top:0 left:0 container to guarantee ZERO Y-offset in html2canvas
+    // Create a temporary top:0 left:0 container attached for A4 Landscape (297mm x 210mm)
     const tempContainer = document.createElement('div');
-    tempContainer.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; width: 210mm !important; height: 297mm !important; background: #ffffff !important; z-index: 999999 !important; overflow: hidden !important; pointer-events: none !important; opacity: 0.01 !important; margin: 0 !important; padding: 0 !important;';
+    tempContainer.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; width: 297mm !important; height: 210mm !important; background: #ffffff !important; z-index: 999999 !important; overflow: hidden !important; pointer-events: none !important; opacity: 0.01 !important; margin: 0 !important; padding: 0 !important;';
 
     const clone = sourceElement.cloneNode(true);
-    clone.style.cssText = 'width: 210mm !important; max-width: 210mm !important; max-height: 285mm !important; margin: 0 !important; padding: 6mm 8mm !important; box-sizing: border-box !important; background: #ffffff !important; font-family: "Segoe UI", Arial, sans-serif !important; border: 2px solid #0F172A !important; border-radius: 4px !important; color: #0F172A !important;';
+    clone.style.cssText = 'width: 297mm !important; max-width: 297mm !important; height: 210mm !important; max-height: 210mm !important; margin: 0 !important; padding: 4mm 8mm !important; box-sizing: border-box !important; background: #ffffff !important; font-family: "Segoe UI", Arial, sans-serif !important; border: 2px solid #0F172A !important; border-radius: 4px !important; color: #0F172A !important; overflow: hidden !important;';
 
     tempContainer.appendChild(clone);
     document.body.appendChild(tempContainer);
 
     const opt = {
       margin: 0,
-      filename: `${studentName}_Official_Terminal_Report.pdf`,
+      filename: `${studentName}_Official_Terminal_Report_Landscape.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { 
         scale: 2, 
@@ -1506,9 +1506,9 @@ function downloadReportCardPDF(studentId) {
         logging: false, 
         scrollX: 0, 
         scrollY: 0,
-        windowWidth: 1024
+        windowWidth: 1280
       },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
     };
 
     html2pdf().set(opt).from(clone).save().then(() => {
