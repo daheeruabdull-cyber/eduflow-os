@@ -1477,18 +1477,51 @@ function downloadReportCardPDF(studentId) {
   // Populate hidden single-page A4 template silently in memory
   renderReportCard(student.id);
 
-  const element = document.getElementById('reportCardPrintArea') || document.getElementById('official-printable-sheet') || document.querySelector('.printable-report-sheet');
+  const sourceElement = document.getElementById('reportCardPrintArea') || document.getElementById('official-printable-sheet') || document.querySelector('.printable-report-sheet');
+  if (!sourceElement) {
+    alert("Report card template not found.");
+    return;
+  }
+
   const studentName = (student.name || 'Student').trim().replace(/\s+/g, '_');
 
-  if (window.html2pdf && element) {
+  if (window.html2pdf) {
+    // Create a temporary top:0 left:0 container to guarantee ZERO Y-offset in html2canvas
+    const tempContainer = document.createElement('div');
+    tempContainer.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; width: 210mm !important; height: 297mm !important; background: #ffffff !important; z-index: 999999 !important; overflow: hidden !important; pointer-events: none !important; opacity: 0.01 !important; margin: 0 !important; padding: 0 !important;';
+
+    const clone = sourceElement.cloneNode(true);
+    clone.style.cssText = 'width: 210mm !important; max-width: 210mm !important; max-height: 285mm !important; margin: 0 !important; padding: 6mm 8mm !important; box-sizing: border-box !important; background: #ffffff !important; font-family: "Segoe UI", Arial, sans-serif !important; border: 2px solid #0F172A !important; border-radius: 4px !important; color: #0F172A !important;';
+
+    tempContainer.appendChild(clone);
+    document.body.appendChild(tempContainer);
+
     const opt = {
-      margin:       [6, 6, 6, 6],
-      filename:     `${studentName}_Official_Terminal_Report.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true, logging: false },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      margin: 0,
+      filename: `${studentName}_Official_Terminal_Report.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { 
+        scale: 2, 
+        useCORS: true, 
+        logging: false, 
+        scrollX: 0, 
+        scrollY: 0,
+        windowWidth: 1024
+      },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
-    html2pdf().set(opt).from(element).save();
+
+    html2pdf().set(opt).from(clone).save().then(() => {
+      if (document.body.contains(tempContainer)) {
+        document.body.removeChild(tempContainer);
+      }
+    }).catch(err => {
+      console.error("PDF generation error:", err);
+      if (document.body.contains(tempContainer)) {
+        document.body.removeChild(tempContainer);
+      }
+      window.print();
+    });
   } else {
     window.print();
   }
