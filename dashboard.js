@@ -1477,7 +1477,7 @@ function downloadReportCardPDF(studentId) {
   // Populate hidden single-page A4 template silently in memory
   renderReportCard(student.id);
 
-  const element = document.getElementById('official-printable-sheet') || document.querySelector('.printable-report-sheet');
+  const element = document.getElementById('reportCardPrintArea') || document.getElementById('official-printable-sheet') || document.querySelector('.printable-report-sheet');
   const studentName = (student.name || 'Student').trim().replace(/\s+/g, '_');
 
   if (window.html2pdf && element) {
