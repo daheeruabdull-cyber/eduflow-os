@@ -4584,13 +4584,12 @@ function resetSchoolPrincipalPasswordDirect(schoolId, newPassword, newEmail, new
 
   // Sync active session if this is currently logged-in school
   if (state.schoolId === schoolId) {
-    if (newPassword) localStorage.setItem('eduflow_school_password', newPassword);
     if (newEmail) localStorage.setItem('eduflow_school_email', newEmail);
   }
 
   syncSuperDB();
   renderSuperSchoolsDirectory();
-  alert(`✅ SUPERADMIN PRIVILEGE EXECUTED:\n\nUpdated Principal & Login Credentials for "${school.name}".\n\n• Administrator: ${school.registrar || 'Principal'}\n• Login Email: ${school.email}\n• New Password: ${school.password}`);
+  alert(`✅ SUPERADMIN PRIVILEGE EXECUTED:\n\nUpdated Principal & Login Credentials for "${school.name}".\n\n• Administrator: ${school.registrar || 'Principal'}\n• Login Email: ${school.email}\n• Password Status: ${newPassword ? 'Updated & Encrypted (bcrypt)' : 'Unchanged'}`);
 }
 
 async function changeTenantPlanTier(schoolId, newPlan) {

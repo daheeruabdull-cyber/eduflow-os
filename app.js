@@ -641,7 +641,6 @@ async function registerSchoolOnboarding() {
     localStorage.setItem('eduflow_school_type', schoolType);
     localStorage.setItem('eduflow_school_term', 'First Term 2026');
     localStorage.setItem('eduflow_school_logo', logoData);
-    localStorage.setItem('eduflow_school_password', schoolPass);
     localStorage.setItem('eduflow_role', 'admin');
 
     // Save into registered schools registry for portal login verification

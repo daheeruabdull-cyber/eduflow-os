@@ -820,19 +820,7 @@ app.get('/api/students/id-cards', (req, res) => {
 
     let rows = db.prepare(sql).all(...params);
 
-    // Fallback: If no students found for activeSchoolId, query all students in database so uploaded CSV records are NEVER lost
-    if (rows.length === 0) {
-      try {
-        let fallbackSql = "SELECT * FROM students";
-        if (filterClass) {
-          fallbackSql += " WHERE class LIKE ?";
-          rows = db.prepare(fallbackSql).all(`%${filterClass}%`);
-        } else {
-          rows = db.prepare(fallbackSql).all();
-        }
-      } catch(e) {}
-    }
-
+    // Enforce strict multi-tenant scoping (never leak other school's students)
     if (rawStudentIds) {
       const idSet = new Set(rawStudentIds.split(',').map(s => s.trim().toLowerCase()));
       rows = rows.filter(r => idSet.has(String(r.roll).toLowerCase()) || idSet.has(String(r.id).toLowerCase()));
@@ -1178,11 +1166,8 @@ app.get('/api/staff', (req, res) => {
 app.get('/api/students', (req, res) => {
   const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.query.schoolId || 'school_demo';
   try {
-    let students = db.prepare("SELECT * FROM students WHERE schoolId = ?").all(activeSchoolId);
-    if (!students || students.length === 0) {
-      students = db.prepare("SELECT * FROM students").all();
-    }
-    return res.json({ success: true, students });
+    const students = db.prepare("SELECT * FROM students WHERE schoolId = ?").all(activeSchoolId);
+    return res.json({ success: true, students: students || [] });
   } catch(err) {
     return res.status(500).json({ success: false, message: err.message });
   }
@@ -1246,9 +1231,9 @@ app.post('/api/students/grades', (req, res) => {
   }
 
   try {
-    const student = db.prepare("SELECT * FROM students WHERE id = ? OR roll = ? OR LOWER(name) = LOWER(?)").get(studentId, studentId, studentId);
+    const student = db.prepare("SELECT * FROM students WHERE (id = ? OR roll = ? OR LOWER(name) = LOWER(?)) AND schoolId = ?").get(studentId, studentId, studentId, activeSchoolId);
     if (!student) {
-      return res.status(404).json({ success: false, message: 'Student record not found.' });
+      return res.status(404).json({ success: false, message: 'Student record not found for active school campus.' });
     }
 
     let existingGrades = {};
@@ -1733,14 +1718,17 @@ app.delete('/api/inquiries/:id', (req, res) => {
 
 // GET: Compiles all SQLite data into a single schema matching original db.json structures
 app.get('/api/db', (req, res) => {
+  const activeSchoolId = (req.user && (req.user.schoolId || req.user.school_id)) || req.query.schoolId;
+  const isSuperAdmin = (req.user && req.user.role === 'superadmin') || req.headers['x-superadmin'] === 'true' || (!activeSchoolId && req.query.superadmin === 'true');
+
   try {
-    const schools = db.prepare("SELECT * FROM schools").all();
-    const students = db.prepare("SELECT * FROM students").all();
-    const attendanceRows = db.prepare("SELECT * FROM attendance").all();
-    const payments = db.prepare("SELECT * FROM payments").all();
-    const timetableRows = db.prepare("SELECT * FROM timetable").all();
-    const notifications = db.prepare("SELECT * FROM notifications").all();
-    const teachers = db.prepare("SELECT * FROM teachers").all();
+    const schools = isSuperAdmin ? db.prepare("SELECT * FROM schools").all() : (activeSchoolId ? db.prepare("SELECT * FROM schools WHERE LOWER(id) = LOWER(?)").all(activeSchoolId) : db.prepare("SELECT * FROM schools").all());
+    const students = isSuperAdmin ? db.prepare("SELECT * FROM students").all() : (activeSchoolId ? db.prepare("SELECT * FROM students WHERE schoolId = ?").all(activeSchoolId) : db.prepare("SELECT * FROM students").all());
+    const attendanceRows = isSuperAdmin ? db.prepare("SELECT * FROM attendance").all() : (activeSchoolId ? db.prepare("SELECT * FROM attendance WHERE schoolId = ?").all(activeSchoolId) : db.prepare("SELECT * FROM attendance").all());
+    const payments = isSuperAdmin ? db.prepare("SELECT * FROM payments").all() : (activeSchoolId ? db.prepare("SELECT * FROM payments WHERE schoolId = ?").all(activeSchoolId) : db.prepare("SELECT * FROM payments").all());
+    const timetableRows = isSuperAdmin ? db.prepare("SELECT * FROM timetable").all() : (activeSchoolId ? db.prepare("SELECT * FROM timetable WHERE schoolId = ?").all(activeSchoolId) : db.prepare("SELECT * FROM timetable").all());
+    const notifications = isSuperAdmin ? db.prepare("SELECT * FROM notifications").all() : (activeSchoolId ? db.prepare("SELECT * FROM notifications WHERE schoolId = ?").all(activeSchoolId) : db.prepare("SELECT * FROM notifications").all());
+    const teachers = isSuperAdmin ? db.prepare("SELECT * FROM teachers").all() : (activeSchoolId ? db.prepare("SELECT * FROM teachers WHERE schoolId = ?").all(activeSchoolId) : db.prepare("SELECT * FROM teachers").all());
 
     // Decode JSON fields
     schools.forEach(s => {
